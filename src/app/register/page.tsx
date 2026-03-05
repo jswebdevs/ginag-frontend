@@ -16,9 +16,12 @@ export default function RegisterPage() {
 
   const { user, isAuthenticated } = useUserStore(); 
   
+  // FIX: Safely extract the role regardless of whether the interface uses 'role', 'roles' string, or 'roles' array
   useEffect(() => {
-    if (isAuthenticated && user?.role) {
-      const rolePath = user.role.toLowerCase().replace('_', '-');
+    const userRole = (user as any)?.role || (user as any)?.roles?.[0] || (user as any)?.roles;
+    
+    if (isAuthenticated && userRole) {
+      const rolePath = String(userRole).toLowerCase().replace('_', '-');
       const targetDashboard = rolePath === 'customer' ? '/dashboard' : `/dashboard/${rolePath}`;
       router.replace(targetDashboard);
     }
