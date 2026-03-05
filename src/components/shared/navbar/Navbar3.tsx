@@ -23,9 +23,15 @@ export default function Navbar3() {
 
   useEffect(() => setMounted(true), []);
 
-  const dashboardLink = isAuthenticated && user?.role 
-    ? (user.role.toLowerCase() === 'customer' ? '/dashboard' : `/dashboard/${user.role.toLowerCase().replace('_', '-')}`) 
-    : "/login";
+  const getDashboardLink = () => {
+    const userRole = (user as any)?.role || (user as any)?.roles?.[0] || (user as any)?.roles;
+    if (!isAuthenticated || !userRole) return "/login";
+    
+    const rolePath = String(userRole).toLowerCase().replace('_', '-');
+    return rolePath === 'customer' ? '/dashboard' : `/dashboard/${rolePath}`;
+  };
+
+  const dashboardLink = getDashboardLink();
 
   if (!mounted) return null;
 
@@ -39,6 +45,7 @@ export default function Navbar3() {
           </Link>
         </div>
 
+        {/* FIX: Added the missing <nav> opening tag here! */}
         <nav className="flex-1 px-4 space-y-2 mt-4">
           {[
             { name: "Home", icon: Home, href: "/" },

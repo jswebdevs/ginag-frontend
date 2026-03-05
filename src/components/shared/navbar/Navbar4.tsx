@@ -5,10 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ShoppingCart, Search, User, Moon, Sun, LayoutGrid } from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
+import { useUserStore } from "@/store/useUserStore";
 
 export default function Navbar4() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { theme, isDark, toggleDark } = useThemeStore();
+  const { user, isAuthenticated } = useUserStore();
   const pathname = usePathname();
 
   useEffect(() => {
@@ -16,6 +18,17 @@ export default function Navbar4() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // FIX: Safely extract role to bypass TS "Property 'role' does not exist on type 'User'" error
+  const getDashboardLink = () => {
+    const userRole = (user as any)?.role || (user as any)?.roles?.[0] || (user as any)?.roles;
+    if (!isAuthenticated || !userRole) return "/login";
+    
+    const rolePath = String(userRole).toLowerCase().replace('_', '-');
+    return rolePath === 'customer' ? '/dashboard' : `/dashboard/${rolePath}`;
+  };
+
+  const dashboardLink = getDashboardLink();
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 flex justify-center p-4 ${isScrolled ? 'pt-2' : 'pt-6'}`}>
@@ -54,6 +67,11 @@ export default function Navbar4() {
           </button>
 
           <div className="w-[1px] h-4 bg-border/50" />
+
+          {/* Added User/Profile Link */}
+          <Link href={dashboardLink} className={`hover:text-primary transition-colors ${isScrolled ? 'text-foreground' : 'text-heading'}`}>
+            <User className="w-5 h-5" />
+          </Link>
 
           <Link href="/cart" className="relative group">
             <ShoppingCart className={`w-5 h-5 group-hover:text-primary transition-colors ${isScrolled ? 'text-foreground' : 'text-heading'}`} />

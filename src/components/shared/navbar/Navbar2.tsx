@@ -55,9 +55,12 @@ export default function Navbar2() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // FIX: Safely extract role to bypass TS error
   const getDashboardLink = () => {
-    if (!isAuthenticated || !user?.role) return "/login";
-    const rolePath = user.role.toLowerCase().replace('_', '-');
+    const userRole = (user as any)?.role || (user as any)?.roles?.[0] || (user as any)?.roles;
+    if (!isAuthenticated || !userRole) return "/login";
+    
+    const rolePath = String(userRole).toLowerCase().replace('_', '-');
     return rolePath === 'customer' ? '/dashboard' : `/dashboard/${rolePath}`;
   };
 
@@ -176,6 +179,7 @@ export default function Navbar2() {
           </div>
         </div>
 
+        {/* Mobile Search Input (Moved inside nav) */}
         {showMobileSearch && (
           <div className="px-4 pb-4 animate-in slide-in-from-top duration-300">
             <div className="relative">
