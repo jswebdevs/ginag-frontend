@@ -106,7 +106,7 @@ export default function SuperadminDashboardPage() {
               <Tooltip 
                 contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontWeight: 'bold' }} 
                 itemStyle={{ color: 'var(--primary)' }}
-                formatter={(value: number) => [`BDT ${value.toFixed(2)}`, 'Revenue']}
+                formatter={(value: any) => [`BDT ${value.toFixed(2)}`, 'Revenue']}
               />
               <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
             </AreaChart>
