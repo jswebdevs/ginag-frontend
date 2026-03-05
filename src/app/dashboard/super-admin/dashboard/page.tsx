@@ -142,7 +142,8 @@ export default function SuperadminDashboardPage() {
                   fontWeight: 'bold'
                 }} 
                 itemStyle={{ color: 'var(--primary)' }}
-                formatter={(value: number) => [`BDT ${value.toFixed(2)}`, 'Revenue']}
+                // FIX: Changed value type to `any` and wrapped in Number()
+                formatter={(value: any) => [`BDT ${Number(value).toFixed(2)}`, 'Revenue']}
               />
               <Area 
                 type="monotone" 
