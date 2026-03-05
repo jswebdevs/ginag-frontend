@@ -1,0 +1,49 @@
+src/
+-app/
+--layout.tsx, page.tsx, globals.css
+--login/page.tsx
+--register/page.tsx
+--shop/page.tsx
+--products/[slug]/page.tsx
+--search/page.tsx
+--forgot-password/page.tsx
+--reset-password/page.tsx
+--about/page.tsx
+--contact/page.tsx
+--blogs/page.tsx
+--blogs/[slug]/page.tsx
+--privacy-policy/page.tsx
+--refund-policy/page.tsx
+--not-found/page.tsx
+--dashboard/
+---super-admin/layout.tsx, page.tsx
+---admin/layout.tsx, page.tsx
+---product-manager/layout.tsx, page.tsx
+---order-manager/layout.tsx, page.tsx
+---support-agent/layout.tsx, page.tsx
+---marketing-specialist/layout.tsx, page.tsx
+---delivery-manager/layout.tsx, page.tsx
+---(customer)/layout.tsx, page.tsx
+-components/
+---ui/Buttons, Inputs, Alerts (swal)
+---shared/ Header, Footer, Modal
+---shop/ProductCard, CardDrawer,CheckoutForm
+---3D/
+-hooks
+--useSocket.ts
+--useDebounce.ts
+--useUser
+-lib
+--axios.ts
+--tanstack
+--socketio init
+--tailwind utils
+-schemas
+--zod schemas
+-services
+--
+-store
+--cartStore.ts
+--authStore.ts
+--themeStore.ts
+-types
