@@ -14,6 +14,7 @@ interface OrderSectionProps {
   couponLoading: boolean;
   discountAmount: number;
   placingOrder: boolean;
+  isPhoneVerified: boolean;
 }
 
 export default function OrderSection({
