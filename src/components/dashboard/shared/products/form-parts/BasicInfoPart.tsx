@@ -207,7 +207,7 @@ export default function BasicInfoPart({ product, update }: any) {
           />
         ) : (
           <div className="space-y-2 animate-in fade-in duration-300">
-            {listItems.map((item, idx) => (
+            {listItems.map((item: string, idx: number) => (
               <div key={idx} className="flex items-center gap-3 group">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
                 <input 
