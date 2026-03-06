@@ -1,4 +1,4 @@
-import SuperAdminSidebar from "@/components/dashboard/superadmin/SuperAdminSidebar"; // Adjust path if needed
+import SuperAdminSidebar from "@/components/dashboard/sidebars/SuperAdminSidebar"; // Adjust path if needed
 
 export default function SuperadminLayout({
   children,
