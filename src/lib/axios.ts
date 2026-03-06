@@ -24,7 +24,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
-      const token = Cookies.get('token') || localStorage.getItem('token');
+      const token = Cookies.get('auth_token') || localStorage.getItem('token');
       
       if (token) {
         // Logged-in user: Send JWT

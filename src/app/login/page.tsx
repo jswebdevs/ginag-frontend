@@ -41,7 +41,7 @@ function LoginForm() {
   useEffect(() => {
     if (isAuthenticated) {
       // 1. Check if the physical token actually exists
-      const token = Cookies.get("token") || localStorage.getItem("token");
+      const token = Cookies.get("auth_token");
 
       if (token && user?.roles && user.roles.length > 0) {
         // Valid user + Valid token = Safe to redirect
@@ -73,7 +73,7 @@ function LoginForm() {
 
         const isProduction = process.env.NODE_ENV === 'production';
 
-        Cookies.set("token", token, {
+        Cookies.set("auth_token", token, {
           expires: 7,
           secure: isProduction,
           sameSite: 'lax',
