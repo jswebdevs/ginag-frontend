@@ -132,7 +132,7 @@ export default function AdminSidebar() {
                                 <span className="text-sm font-bold text-foreground">
                                     {user?.firstName || "Admin"}
                                 </span>
-                                <span className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter">Manager Access</span>
+                                <span className="text-[10px] text-muted-foreground uppercase font-black tracking-tighter">Admin Access</span>
                             </div>
                         )}
                     </div>
