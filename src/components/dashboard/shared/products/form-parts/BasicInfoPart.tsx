@@ -59,7 +59,7 @@ export default function BasicInfoPart({ product, update }: any) {
   };
 
   const removeListItem = (index: number) => {
-    const newList = listItems.filter((_, i) => i !== index);
+    const newList = listItems.filter((_item: string, i:number) => i !== index);
     update({ shortDesc: newList.join("\n") });
   };
 
