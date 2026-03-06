@@ -6,9 +6,9 @@ import Link from "next/link";
 import { User, Lock, LogIn, Loader2, Eye, EyeOff } from "lucide-react";
 import api from "@/lib/axios";
 import Cookies from "js-cookie";
-import { useUserStore } from "@/store/useUserStore"; 
+import { useUserStore } from "@/store/useUserStore";
 import Swal from "sweetalert2";
-import { getDashboardRedirectPath } from "@/utils/roleRedirect"; 
+import { getDashboardRedirectPath } from "@/utils/roleRedirect";
 
 function LoginForm() {
   const router = useRouter();
@@ -16,8 +16,8 @@ function LoginForm() {
   const returnUrl = searchParams.get("returnUrl");
 
   const [loading, setLoading] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false); // Prevents Next.js hydration mismatch
-  
+  const [isHydrated, setIsHydrated] = useState(false);
+
   const { user, isAuthenticated, setUser, logout } = useUserStore();
   const [showPassword, setShowPassword] = useState(false);
 
@@ -26,7 +26,6 @@ function LoginForm() {
     password: "",
   });
 
-  // Mark as hydrated on mount
   useEffect(() => {
     setIsHydrated(true);
   }, []);
@@ -38,14 +37,18 @@ function LoginForm() {
     return getDashboardRedirectPath(userRoles);
   };
 
-  // --- ZOMBIE STATE GUARD & REDIRECT ---
+  // --- BULLETPROOF ZOMBIE STATE GUARD ---
   useEffect(() => {
     if (isAuthenticated) {
-      if (user?.roles && user.roles.length > 0) {
-        // Valid user, redirect them
+      // 1. Check if the physical token actually exists
+      const token = Cookies.get("token") || localStorage.getItem("token");
+
+      if (token && user?.roles && user.roles.length > 0) {
+        // Valid user + Valid token = Safe to redirect
         router.replace(getSmartRedirect(user.roles));
       } else {
-        // ZOMBIE STATE DETECTED! They are "authenticated" but have no user data. Force a logout.
+        // ZOMBIE STATE: They have Zustand data but no token, or missing roles.
+        // Force a clean slate so they stay on the login screen.
         logout();
       }
     }
@@ -61,7 +64,7 @@ function LoginForm() {
 
     try {
       const response = await api.post("/auth/login", formData);
-      
+
       if (response.status === 200) {
         const responseData = response.data.data ? response.data.data : response.data;
         const { token, user: loggedInUser } = responseData;
@@ -70,17 +73,17 @@ function LoginForm() {
 
         const isProduction = process.env.NODE_ENV === 'production';
 
-        Cookies.set("token", token, { 
-          expires: 7, 
-          secure: isProduction, 
-          sameSite: 'lax',
-          path: '/' 
-        });
-        
-        Cookies.set("user_role", loggedInUser.roles?.[0] || "CUSTOMER", { 
-          expires: 7, 
+        Cookies.set("token", token, {
+          expires: 7,
           secure: isProduction,
-          path: '/' 
+          sameSite: 'lax',
+          path: '/'
+        });
+
+        Cookies.set("user_role", loggedInUser.roles?.[0] || "CUSTOMER", {
+          expires: 7,
+          secure: isProduction,
+          path: '/'
         });
 
         localStorage.setItem("token", token);
@@ -98,7 +101,7 @@ function LoginForm() {
 
         setTimeout(() => {
           router.push(getSmartRedirect(loggedInUser.roles || []));
-        }, 500); 
+        }, 500);
       }
     } catch (err: any) {
       console.error("Login Error:", err);
@@ -113,11 +116,11 @@ function LoginForm() {
     }
   };
 
-  // Wait for client to hydrate to prevent UI flashing
-  if (!isHydrated) return null; 
+  if (!isHydrated) return null;
 
-  // Show a loading state if they are authenticated and we are just waiting for the redirect to happen
-  if (isAuthenticated && user) {
+  // Check BOTH isAuthenticated AND if the token exists before showing the loading screen
+  const hasToken = Cookies.get("token") || (typeof window !== 'undefined' ? localStorage.getItem("token") : null);
+  if (isAuthenticated && user && hasToken) {
     return (
       <div className="flex flex-col items-center justify-center space-y-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -141,10 +144,10 @@ function LoginForm() {
         <div className="space-y-1">
           <label className="text-sm font-medium text-foreground">Email, Phone, or Username</label>
           <div className="relative">
-            <input 
+            <input
               type="text" name="identifier" required value={formData.identifier} onChange={handleChange}
-              className="w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all text-foreground" 
-              placeholder="Enter your login details" 
+              className="w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all text-foreground"
+              placeholder="Enter your login details"
             />
             <User className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
           </div>
@@ -158,10 +161,10 @@ function LoginForm() {
             </Link>
           </div>
           <div className="relative">
-            <input 
+            <input
               type={showPassword ? "text" : "password"} name="password" required value={formData.password} onChange={handleChange}
-              className="w-full pl-10 pr-12 py-2.5 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all text-foreground" 
-              placeholder="••••••••" 
+              className="w-full pl-10 pr-12 py-2.5 bg-input border border-border rounded-lg focus:ring-2 focus:ring-primary/50 outline-none transition-all text-foreground"
+              placeholder="••••••••"
             />
             <Lock className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
             <button
@@ -173,7 +176,7 @@ function LoginForm() {
           </div>
         </div>
 
-        <button 
+        <button
           type="submit" disabled={loading}
           className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-70 mt-4"
         >

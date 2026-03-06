@@ -10,6 +10,7 @@ import { Save, Loader2 } from "lucide-react";
 import BasicInfoPart from "./form-parts/BasicInfoPart";
 import StatusTagsPart from "./form-parts/StatusTagsPart";
 import DescriptionPart from "./form-parts/DescriptionPart";
+import AdditionalInfoPart from "./form-parts/AdditionalInfoPart"; // Moved left
 import MediaPart from "./form-parts/MediaPart";
 import CategorySidebar from "./form-parts/CategorySidebar";
 import VariationManager from "./form-parts/VariationManager";
@@ -34,20 +35,43 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     categoryIds: [] as string[],
     featuredImageId: "",
     galleryImageIds: [] as string[],
-    attributes: [] as any[], // Matrix inputs
-    variations: [] as any[], // Generated results
+    attributes: [] as any[],
+    variations: [] as any[],
+    // --- EXTENDED FIELDS ---
+    material: "",
+    usage: "",
+    usefulness: "",
+    awareness: "",
+    specifications: "", // Now a string to support Paragraph/List toggle
+    suggestedProducts: [] as string[]
   });
 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (initialData) {
+      // Safely convert old JSON specifications to the new String format if needed
+      let parsedSpecs = "";
+      if (typeof initialData.specifications === 'string') {
+        parsedSpecs = initialData.specifications;
+      } else if (Array.isArray(initialData.specifications)) {
+        parsedSpecs = initialData.specifications.map((s: any) => `${s.key}: ${s.value}`).join('\n');
+      }
+
       setProduct({
         ...initialData,
         basePrice: Number(initialData.basePrice) || 0,
         salePrice: Number(initialData.salePrice) || 0,
         categoryIds: initialData.categories?.map((c: any) => c.id) || [],
         galleryImageIds: initialData.images?.map((img: any) => img.id) || [],
+
+        // Hydrate extended fields
+        material: initialData.material || "",
+        usage: initialData.usage || "",
+        usefulness: initialData.usefulness || "",
+        awareness: initialData.awareness || "",
+        specifications: parsedSpecs,
+        suggestedProducts: initialData.suggestedProducts?.map((p: any) => p.id) || [],
       });
     }
   }, [initialData]);
@@ -67,9 +91,9 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
       } else {
         const res = await api.post("/products", product);
         if (product.variations.length > 0) {
-          await api.post("/variations/bulk", { 
-            productId: res.data.product.id, 
-            variations: product.variations 
+          await api.post("/variations/bulk", {
+            productId: res.data.product.id,
+            variations: product.variations
           });
         }
       }
@@ -84,22 +108,29 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 items-start">
-      
-      {/* LEFT SIDE: Parts 1, 2, 3, 4 */}
+
+      {/* LEFT SIDE: Core Data */}
       <div className="flex-1 w-full space-y-8">
         <BasicInfoPart product={product} update={updateProduct} />
         <StatusTagsPart product={product} update={updateProduct} />
         <DescriptionPart product={product} update={updateProduct} />
+
+        {/* MOVED: Extended Details is now here on the left, before Media */}
+        <AdditionalInfoPart product={product} update={updateProduct} />
+
         <MediaPart product={product} update={updateProduct} />
       </div>
 
-      {/* RIGHT SIDE: Save, Part 5 (Category), Part 6 (Variations) */}
+      {/* RIGHT SIDE: Configurations & Final Action */}
       <div className="w-full xl:w-[450px] space-y-8 xl:sticky xl:top-24">
-        
-        {/* Save Action */}
-        <div className="bg-card border border-border rounded-3xl p-6 shadow-theme-sm">
-          <button 
-            onClick={handleSave} 
+
+        <CategorySidebar product={product} update={updateProduct} />
+        <VariationManager product={product} update={updateProduct} />
+
+        {/* Save Action locked to bottom right */}
+        <div className="bg-card border border-border rounded-3xl p-6 shadow-theme-sm mt-8">
+          <button
+            onClick={handleSave}
             disabled={loading}
             title="Commit all product data to database"
             className="w-full py-4 bg-primary text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:shadow-theme-md hover:scale-[1.02] transition-all disabled:opacity-50"
@@ -109,9 +140,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
           </button>
         </div>
 
-        <CategorySidebar product={product} update={updateProduct} />
-        
-        <VariationManager product={product} update={updateProduct} />
       </div>
 
     </div>
