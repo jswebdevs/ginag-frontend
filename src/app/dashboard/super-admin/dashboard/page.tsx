@@ -157,10 +157,6 @@ export default function SuperadminDashboardPage() {
           </ResponsiveContainer>
         </div>
       </div>
-
-      {/* Row 4: Actionables (Pending Vendors & Recent Orders passed from backend) */}
-      <ActionableTables actionables={data?.actionables} />
-
     </div>
   );
 }

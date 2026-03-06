@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as LucideIcons from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
 import { useUserStore } from "@/store/useUserStore"; 
 import { useEffect, useState, useRef } from "react";
-import MobileCategoryDrawer from "./MobileCategoryDrawer"; // Adjust path if needed
+import MobileCategoryDrawer from "./MobileCategoryDrawer"; 
+import api from "@/lib/axios"; 
 
 const previewColors: Record<string, string> = {
   sapphire: '#2563eb',
@@ -22,10 +23,11 @@ const previewColors: Record<string, string> = {
 const palettes = ['sapphire', 'emerald', 'ruby', 'amber', 'amethyst', 'rose', 'ocean', 'slate'] as const;
 
 export default function Navbar() {
+  const router = useRouter();
+  const pathname = usePathname();
   const { theme, setTheme, isDark, toggleDark } = useThemeStore();
   const { user, isAuthenticated } = useUserStore(); 
-  
-  const pathname = usePathname();
+
   const [mounted, setMounted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false); 
@@ -34,7 +36,14 @@ export default function Navbar() {
   const [cartCount, setCartCount] = useState(0); 
   const [wishlistCount, setWishlistCount] = useState(0);
 
+  // States for Real-Time Search
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   const isDashboard = pathname.includes('/dashboard');
@@ -48,12 +57,50 @@ export default function Navbar() {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsDropdownOpen(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // FIX: Safely extract role to bypass TS error
+  // REAL-TIME SEARCH LOGIC (Debounced to dedicated backend endpoint)
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (searchQuery.length > 2) {
+        setIsSearching(true);
+        try {
+          // Hits your new dedicated global search API
+          const res = await api.get(`/search?q=${searchQuery}&limit=6`);
+          const data = res.data.data || res.data.results || res.data || [];
+          
+          setSearchResults(Array.isArray(data) ? data : []);
+          setShowResults(true);
+        } catch (err) {
+          console.error("Search failed", err);
+          setSearchResults([]);
+        } finally {
+          setIsSearching(false);
+        }
+      } else {
+        setSearchResults([]);
+        setShowResults(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setShowResults(false);
+      setShowMobileSearch(false);
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
   const getDashboardLink = () => {
     const userRole = (user as any)?.role || (user as any)?.roles?.[0] || (user as any)?.roles;
     if (!isAuthenticated || !userRole) return "/login";
@@ -111,6 +158,7 @@ export default function Navbar() {
     <>
       <nav className="sticky top-0 z-40 w-full bg-gradient-theme border-b border-border shadow-theme-sm">
         <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-4">
+          
           <div className="flex items-center gap-3">
             <button onClick={() => setIsDrawerOpen(true)} className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors">
               <LucideIcons.Menu className="w-6 h-6" />
@@ -120,12 +168,76 @@ export default function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden md:flex flex-1 max-w-xl mx-8 relative">
-            <input 
-              type="text" placeholder="Search products..." 
-              className="w-full border border-border rounded-full py-2.5 px-5 outline-none focus:ring-2 focus:ring-primary bg-background/50 backdrop-blur-sm transition-all text-foreground"
-            />
-            <LucideIcons.Search className="absolute right-4 top-3 text-muted-foreground w-5 h-5" />
+          {/* DESKTOP SEARCH BAR */}
+          <div className="hidden md:flex flex-1 max-w-xl mx-8 relative" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} className="w-full relative">
+              <input 
+                type="text" 
+                placeholder="Search products, brands, categories..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => searchQuery.length > 2 && setShowResults(true)}
+                className="w-full border border-border rounded-full py-2.5 px-5 outline-none focus:ring-2 focus:ring-primary bg-background/50 backdrop-blur-sm transition-all text-foreground"
+              />
+              <button type="submit" className="absolute right-4 top-3 text-muted-foreground hover:text-primary transition-colors">
+                {isSearching ? <LucideIcons.Loader2 className="w-5 h-5 animate-spin" /> : <LucideIcons.Search className="w-5 h-5" />}
+              </button>
+            </form>
+
+            {/* GENERIC RESULTS OVERLAY */}
+            {showResults && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-theme-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                {searchResults.length > 0 ? (
+                  <div className="py-2">
+                    {searchResults.map((item, index) => {
+                      // Dynamically render missing fields
+                      const itemName = item.name || item.title || "Unknown Result";
+                      const itemSlug = item.slug || item.id || "";
+                      
+                      let itemLink = `/products/${itemSlug}`;
+                      if (item.type === 'category' || item.parentId === null) itemLink = `/category/${itemSlug}`;
+                      if (item.type === 'brand') itemLink = `/brand/${itemSlug}`;
+
+                      let secondaryText = "Result";
+                      if (item.basePrice) secondaryText = `৳${item.basePrice}`;
+                      else if (item.type) secondaryText = String(item.type).toUpperCase();
+                      else if (item.description) secondaryText = item.description.substring(0, 30) + '...';
+
+                      const imageSrc = item.featuredImage?.thumbUrl || item.image || item.iconUrl;
+
+                      return (
+                        <Link 
+                          key={item.id || index} 
+                          href={itemLink}
+                          onClick={() => setShowResults(false)}
+                          className="flex items-center gap-3 px-4 py-2 hover:bg-muted transition-colors"
+                        >
+                          <div className="w-10 h-10 rounded bg-muted overflow-hidden flex-shrink-0 flex items-center justify-center border border-border/50">
+                            {imageSrc ? (
+                              <img src={imageSrc} alt={itemName} className="w-full h-full object-cover" />
+                            ) : (
+                              <LucideIcons.Search className="w-4 h-4 text-muted-foreground/50" />
+                            )}
+                          </div>
+                          <div className="flex-1 overflow-hidden">
+                            <p className="text-sm font-semibold truncate text-foreground">{itemName}</p>
+                            <p className="text-xs text-primary font-bold tracking-wide">{secondaryText}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                    <button 
+                      onClick={handleSearchSubmit}
+                      className="w-full py-3 bg-primary/5 text-primary text-xs font-bold hover:bg-primary/10 transition-colors border-t border-border mt-1"
+                    >
+                      See all results for "{searchQuery}"
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-sm text-muted-foreground">No matches found.</div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-3 md:gap-5">
@@ -153,21 +265,26 @@ export default function Navbar() {
           </div>
         </div>
 
+        {/* MOBILE SEARCH BAR */}
         {showMobileSearch && (
           <div className="md:hidden px-4 pb-3 animate-in slide-in-from-top duration-300">
-            <div className="relative">
+            <form onSubmit={handleSearchSubmit} className="relative">
               <input 
                 ref={searchInputRef}
-                type="text" placeholder="Search products..." 
+                type="text" 
+                placeholder="Search anything..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full border border-border rounded-xl py-2 px-4 outline-none focus:ring-2 focus:ring-primary bg-background transition-all text-foreground"
               />
-              <LucideIcons.Search className="absolute right-3 top-2.5 text-muted-foreground w-5 h-5" />
-            </div>
+              <button type="submit" className="absolute right-3 top-2.5 text-muted-foreground">
+                <LucideIcons.Search className="w-5 h-5" />
+              </button>
+            </form>
           </div>
         )}
       </nav>
 
-      {/* Extracted Mobile Drawer Component */}
       <MobileCategoryDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
       <style dangerouslySetInnerHTML={{ __html: `

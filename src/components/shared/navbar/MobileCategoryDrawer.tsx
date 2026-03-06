@@ -103,7 +103,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                   <div key={cat.id} className="border-b border-border/50 last:border-0">
                     {/* Parent Row */}
                     <Link 
-                      href={`/category/${cat.slug}`}
+                      href={`/categories/${cat.slug}`}
                       onClick={(e) => {
                         // If it has children and we click the chevron area, just expand. 
                         // If we click the name/icon, navigate and close.
@@ -140,7 +140,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                           {cat.children.map((child: any) => (
                             <Link 
                               key={child.id}
-                              href={`/category/${child.slug}`}
+                              href={`/categories/${child.slug}`}
                               onClick={onClose}
                               // Removed the before: CSS classes that created the bullet
                               className="py-2 text-sm text-muted-foreground hover:text-primary font-medium transition-colors flex items-center gap-2.5 group"
@@ -156,7 +156,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                           
                           {/* "View All" link for the parent category */}
                           <Link
-                            href={`/category/${cat.slug}`}
+                            href={`/categories/${cat.slug}`}
                             onClick={onClose}
                             className="py-2 text-xs text-primary font-bold hover:underline mt-1"
                           >
