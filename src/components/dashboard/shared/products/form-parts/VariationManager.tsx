@@ -54,6 +54,9 @@ export default function VariationManager({ product, update }: any) {
   // ==========================================
   // 2. MATRIX GENERATOR (Cartesian Product)
   // ==========================================
+  // ==========================================
+  // 2. MATRIX GENERATOR (Cartesian Product)
+  // ==========================================
   const generateMatrix = async () => {
     const validAttrs = (product.attributes || []).filter((a: any) => a.name && a.values.length > 0);
 
@@ -71,16 +74,22 @@ export default function VariationManager({ product, update }: any) {
     });
 
     if (result.isConfirmed) {
-      // Cartesian Product Helper
-      const cartesian = (arrays: any[][]) => arrays.reduce((acc, curr) => acc.flatMap(d => curr.map(e => [d, e].flat())), [[]] as any[][]);
+      // Cartesian Product Helper with explicit types
+      const cartesian = (arrays: string[][]): string[][] =>
+        arrays.reduce((acc: string[][], curr: string[]) =>
+          acc.flatMap(d => curr.map(e => [d, e].flat())), [[]] as string[][]);
 
-      const names = validAttrs.map((a: any) => a.name);
-      const values = validAttrs.map((a: any) => a.values);
+      const names: string[] = validAttrs.map((a: any) => a.name);
+      const values: string[][] = validAttrs.map((a: any) => a.values);
       const combinations = cartesian(values);
 
-      const newVars = combinations.map((combo, idx) => {
+      const newVars = combinations.map((combo: string[], idx: number) => {
         const options: Record<string, string> = {};
-        names.forEach((name, i) => { options[name] = combo[i]; });
+
+        // FIXED: Added types to 'name' and 'i' to satisfy TypeScript
+        names.forEach((name: string, i: number) => {
+          options[name] = combo[i];
+        });
 
         return {
           name: combo.join(" / "),
