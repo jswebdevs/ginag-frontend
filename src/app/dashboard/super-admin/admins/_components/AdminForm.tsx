@@ -66,10 +66,17 @@ export default function AdminForm({ initialData }: { initialData?: any }) {
         setLoading(true);
         try {
             if (isEdit) {
-                // Strip password if left blank during edit
-                const payload = { ...adminData };
-                if (!payload.password) delete payload.password;
-                await api.patch(`users/admins/${initialData.id}`, payload);
+                // Destructure to separate password from the rest of the data
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                const { password, ...payload } = adminData;
+
+                // Only add password back to payload if the user actually typed something
+                const finalPayload = adminData.password
+                    ? { ...payload, password: adminData.password }
+                    : payload;
+
+                // Added missing leading slash for consistency
+                await api.patch(`/users/admins/${initialData.id}`, finalPayload);
             } else {
                 await api.post("/users/admins", adminData);
             }

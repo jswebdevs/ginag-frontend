@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "upload": "git add . && git commit -m \"Uploading to Vercel\" && git push"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
