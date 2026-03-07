@@ -1,128 +1,210 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Image as ImageIcon, Plus, LayoutGrid, Trash2 } from "lucide-react";
-import MediaManager from "../../media/MediaManager";
+import { useRouter } from "next/navigation";
+import { Star, Save, X, Loader2, UserCircle, Plus } from "lucide-react";
+// Adjust this path if your MediaManager is located elsewhere
+import MediaManager from "@/components/shared/media/MediaManager";
 
-export default function MediaPart({ product, update }: any) {
-  const [pickerMode, setPickerMode] = useState<"featured" | "gallery" | null>(null);
+interface ReviewFormData {
+  name: string;
+  rating: number;
+  comment: string;
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  avatarID?: string | null;
+  avatarUrl?: string | null;
+}
 
-  const [featuredImgObj, setFeaturedImgObj] = useState<any>(product.featuredImage || null);
-  const [galleryImgObjs, setGalleryImgObjs] = useState<any[]>(product.images || []);
+interface ReviewFormProps {
+  initialData?: ReviewFormData;
+  onSubmit: (data: ReviewFormData) => Promise<void>;
+  isLoading: boolean;
+}
+
+export default function ReviewForm({ initialData, onSubmit, isLoading }: ReviewFormProps) {
+  const router = useRouter();
+
+  const [formData, setFormData] = useState<ReviewFormData>({
+    name: "",
+    rating: 5,
+    comment: "",
+    status: "APPROVED",
+    avatarID: null,
+    avatarUrl: null
+  });
+
+  const [isMediaManagerOpen, setIsMediaManagerOpen] = useState(false);
 
   useEffect(() => {
-    if (product.featuredImage) setFeaturedImgObj(product.featuredImage);
-    if (product.images) setGalleryImgObjs(product.images);
-  }, [product.featuredImage, product.images]);
+    if (initialData) setFormData(initialData);
+  }, [initialData]);
 
-  // Handle single selection
-  const handleSelectFeatured = (media: any) => {
-    setFeaturedImgObj(media);
-    update({ featuredImageId: media.id, featuredImage: media });
-    setPickerMode(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSubmit(formData);
   };
 
-  // Handle multiple selection (array of media objects)
-  const handleSelectGallery = (mediaArray: any[]) => {
-    const existingIds = product.galleryImageIds || [];
-    const newMedia = mediaArray.filter(m => !existingIds.includes(m.id));
-    
-    if (newMedia.length > 0) {
-      const combinedIds = [...existingIds, ...newMedia.map(m => m.id)];
-      const combinedObjs = [...galleryImgObjs, ...newMedia];
-      setGalleryImgObjs(combinedObjs);
-      update({ galleryImageIds: combinedIds, images: combinedObjs });
-    }
-    setPickerMode(null); // Now closes automatically because MediaManager handles bulk insertion!
+  const handleMediaSelect = (media: any) => {
+    setFormData({
+      ...formData,
+      avatarID: media.id,
+      avatarUrl: media.thumbUrl || media.originalUrl
+    });
+    setIsMediaManagerOpen(false);
   };
 
-  const removeFeatured = () => {
-    setFeaturedImgObj(null);
-    update({ featuredImageId: "", featuredImage: null });
+  const removeAvatar = () => {
+    setFormData({ ...formData, avatarID: null, avatarUrl: null });
   };
-
-  const removeGalleryImage = (idToRemove: string) => {
-    const newIds = (product.galleryImageIds || []).filter((id: string) => id !== idToRemove);
-    const newObjs = galleryImgObjs.filter((img: any) => img.id !== idToRemove);
-    setGalleryImgObjs(newObjs);
-    update({ galleryImageIds: newIds, images: newObjs });
-  };
-
-  const featuredUrl = featuredImgObj?.thumbUrl || featuredImgObj?.originalUrl;
 
   return (
-    <div className="bg-card border border-border rounded-3xl p-8 shadow-theme-sm space-y-8">
-      <h2 className="text-xl font-black text-foreground border-b border-border pb-4 tracking-tight">Part 4: Product Media</h2>
+    <>
+      <form onSubmit={handleSubmit} className="bg-card border border-border rounded-3xl shadow-theme-sm overflow-hidden max-w-2xl mx-auto">
+        <div className="p-6 md:p-8 space-y-8">
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
-        {/* --- r1: FEATURED IMAGE (SINGLE) --- */}
-        <div className="space-y-3">
-          <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Main Image</label>
-          <div className="relative aspect-square bg-muted rounded-3xl border-2 border-dashed border-border overflow-hidden group shadow-sm">
-            {featuredUrl ? (
-              <div className="relative h-full w-full">
-                <img src={featuredUrl} alt="Featured" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
-                    <button type="button" onClick={() => setPickerMode("featured")} className="bg-white text-black px-4 py-2 rounded-xl text-xs font-black shadow-xl hover:scale-105">Change</button>
-                    <button type="button" onClick={removeFeatured} className="text-white/80 hover:text-red-400 text-xs font-bold flex items-center gap-1"><X size={14}/> Remove</button>
+          {/* --- AVATAR SELECTION --- */}
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="relative w-28 h-28 bg-muted rounded-full border-2 border-dashed border-border overflow-hidden group shadow-sm">
+              {formData.avatarUrl ? (
+                <div className="relative h-full w-full">
+                  <img src={formData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 backdrop-blur-sm">
+                    <button type="button" onClick={() => setIsMediaManagerOpen(true)} className="bg-white text-black px-3 py-1.5 rounded-xl text-[10px] font-black shadow-xl hover:scale-105">Change</button>
+                    <button type="button" onClick={removeAvatar} className="text-white/80 hover:text-red-400 text-[10px] font-bold flex items-center gap-1"><X size={12} /> Remove</button>
+                  </div>
+                </div>
+              ) : (
+                <button type="button" onClick={() => setIsMediaManagerOpen(true)} className="h-full w-full flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-primary transition-colors hover:bg-muted/50">
+                  <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center shadow-sm"><Plus size={16} /></div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider">Photo</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Reviewer Name */}
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
+                Reviewer Name <span className="text-destructive">*</span>
+              </label>
+              <input
+                required
+                type="text"
+                value={formData.name}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
+                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all"
+                placeholder="e.g. Jane Doe"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Rating */}
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
+                  Star Rating <span className="text-destructive">*</span>
+                </label>
+                <div className="flex items-center gap-2 bg-background border border-border rounded-xl px-4 py-3">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, rating: star })}
+                      className="focus:outline-none hover:scale-110 transition-transform"
+                    >
+                      <Star
+                        size={24}
+                        className={star <= formData.rating ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"}
+                      />
+                    </button>
+                  ))}
+                  <span className="ml-auto text-sm font-bold text-muted-foreground">
+                    {formData.rating} / 5
+                  </span>
                 </div>
               </div>
-            ) : (
-              <button type="button" onClick={() => setPickerMode("featured")} className="h-full w-full flex flex-col items-center justify-center gap-3 text-muted-foreground hover:text-primary transition-colors hover:bg-muted/50">
-                <div className="w-14 h-14 rounded-full bg-background flex items-center justify-center shadow-sm"><Plus size={24} /></div>
-                <span className="text-sm font-bold">Add Main Image</span>
-              </button>
-            )}
+
+              {/* Status */}
+              <div>
+                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
+                  Display Status <span className="text-destructive">*</span>
+                </label>
+                <select
+                  value={formData.status}
+                  onChange={e => setFormData({ ...formData, status: e.target.value as any })}
+                  className="w-full bg-background border border-border rounded-xl px-4 py-3.5 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary text-foreground transition-all cursor-pointer"
+                >
+                  <option value="APPROVED">🟢 Approved (Visible)</option>
+                  <option value="PENDING">🟡 Pending (Hidden)</option>
+                  <option value="REJECTED">🔴 Rejected (Hidden)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Comment */}
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">
+                Testimonial Content <span className="text-destructive">*</span>
+              </label>
+              <textarea
+                required
+                rows={5}
+                value={formData.comment}
+                onChange={e => setFormData({ ...formData, comment: e.target.value })}
+                className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary text-foreground resize-none transition-all custom-scrollbar"
+                placeholder="What did they say about your store?"
+              />
+            </div>
           </div>
         </div>
 
-        {/* --- r2: GALLERY IMAGES (MULTIPLE) --- */}
-        <div className="md:col-span-2 space-y-3">
-          <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center justify-between">
-            <span>Gallery Images</span>
-            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-md text-[10px] font-black">{galleryImgObjs.length} Items</span>
-          </label>
-          
-          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3 min-h-[150px] p-5 bg-muted/10 border-2 border-dashed border-border rounded-3xl items-start content-start">
-            {galleryImgObjs.map((img: any) => (
-              <div key={img.id} className="relative aspect-square bg-card border border-border rounded-2xl overflow-hidden group shadow-sm">
-                <img src={img.thumbUrl || img.originalUrl} className="w-full h-full object-cover" alt="Gallery item" />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <button type="button" onClick={() => removeGalleryImage(img.id)} className="p-2 bg-destructive text-white rounded-xl shadow-xl hover:scale-110"><Trash2 size={16} /></button>
-                </div>
-              </div>
-            ))}
-
-            <button type="button" onClick={() => setPickerMode("gallery")} className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-border/60 rounded-2xl text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group bg-background/50">
-              <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center shadow-sm group-hover:scale-110 mb-2"><Plus size={20} /></div>
-              <span className="text-[10px] font-bold">Add More</span>
-            </button>
-          </div>
+        {/* Action Footer */}
+        <div className="p-6 border-t border-border bg-muted/10 flex flex-col-reverse sm:flex-row gap-3 justify-end">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-6 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted transition-colors flex items-center justify-center gap-2"
+          >
+            <X size={18} /> Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="px-8 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-theme-sm disabled:opacity-50"
+          >
+            {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
+            {initialData ? "Update Testimonial" : "Publish Testimonial"}
+          </button>
         </div>
-      </div>
+      </form>
 
-      {/* --- MODAL --- */}
-      {pickerMode && (
+      {/* --- MEDIA MANAGER MODAL (Exact match from MediaPart) --- */}
+      {isMediaManagerOpen && (
         <div className="fixed inset-0 z-[100] bg-background/90 backdrop-blur-sm flex items-center justify-center p-4 md:p-8">
           <div className="bg-card border border-border rounded-3xl w-full max-w-6xl h-full max-h-[85vh] flex flex-col overflow-hidden shadow-theme-2xl animate-in zoom-in-95">
             <div className="p-4 border-b border-border flex justify-between items-center bg-muted/10">
               <h3 className="font-black text-foreground uppercase tracking-wider text-sm">
-                {pickerMode === 'featured' ? 'Select Main Image' : 'Select Gallery Images'}
+                Select Profile Photo
               </h3>
-              <button onClick={() => setPickerMode(null)} className="p-2 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl"><X size={18} /></button>
+              <button
+                type="button"
+                onClick={() => setIsMediaManagerOpen(false)}
+                className="p-2 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl transition-colors"
+              >
+                <X size={18} />
+              </button>
             </div>
-            
+
             <div className="flex-1 overflow-hidden bg-background">
-              <MediaManager 
-                isPicker 
-                multiple={pickerMode === 'gallery'} 
-                onSelect={pickerMode === 'featured' ? handleSelectFeatured : handleSelectGallery} 
+              <MediaManager
+                isPicker
+                multiple={false}
+                onSelect={handleMediaSelect}
               />
             </div>
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
