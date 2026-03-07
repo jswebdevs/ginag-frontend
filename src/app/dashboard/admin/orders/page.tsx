@@ -59,7 +59,7 @@ export default function OrdersPage() {
                     {/* Table Toolbar / Actions */}
                     <div className="flex justify-end items-center">
                         <Link
-                            href="/dashboard/super-admin/orders/create"
+                            href="/dashboard/admin/orders/create"
                             className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all text-sm cursor-pointer"
                             title="Create a Manual Order"
                         >
