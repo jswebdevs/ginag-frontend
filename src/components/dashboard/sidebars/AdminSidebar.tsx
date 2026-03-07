@@ -34,8 +34,13 @@ export default function AdminSidebar() {
             confirmButtonColor: "#ef4444",
             cancelButtonColor: "#64748b",
             confirmButtonText: "Yes, logout",
-            background: "var(--background)",
-            color: "var(--foreground)",
+            // THE FIX: Tailwind classes take over the styling
+            customClass: {
+                popup: 'bg-card border border-border rounded-2xl shadow-theme-lg',
+                title: 'text-foreground font-bold tracking-tight',
+                htmlContainer: 'text-muted-foreground text-sm'
+            },
+            background: 'transparent', // Removes default Swal white background
         });
 
         if (result.isConfirmed) {

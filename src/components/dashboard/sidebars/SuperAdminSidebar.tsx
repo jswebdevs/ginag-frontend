@@ -27,15 +27,21 @@ export default function SuperAdminSidebar() {
 
   const handleLogout = async () => {
     const result = await Swal.fire({
-      title: "Power Off?",
-      text: "Are you sure you want to log out of the God Mode?",
+      title: "Log Out?",
+      text: "Are you sure you want to log out?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#ef4444", 
+      confirmButtonColor: "#ef4444",
       cancelButtonColor: "#64748b",
       confirmButtonText: "Yes, log me out",
-      background: "var(--background)",
-      color: "var(--foreground)",
+      // THE FIX: Use Tailwind classes instead of raw CSS variables
+      customClass: {
+        popup: 'bg-card border border-border rounded-2xl shadow-theme-lg',
+        title: 'text-foreground',
+        htmlContainer: 'text-muted-foreground'
+      },
+      // Clear Swal's default inline background so Tailwind can take over
+      background: 'transparent',
     });
 
     if (result.isConfirmed) {
