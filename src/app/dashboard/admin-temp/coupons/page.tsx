@@ -71,7 +71,7 @@ export default function CouponsPage() {
                         <Search className="absolute left-3.5 top-3 text-muted-foreground" size={16} />
                     </div>
                     <Link
-                        href="/dashboard/super-admin/coupons/create"
+                        href="/dashboard/admin/coupons/create"
                         className="w-full md:w-auto flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all text-sm whitespace-nowrap"
                     >
                         <Plus size={18} /> Create Coupon

@@ -47,7 +47,7 @@ export default function ProductsManagementPage() {
         
         {/* Navigates to the dedicated create page */}
         <Link 
-          href="/dashboard/super-admin/products/create"
+          href="/dashboard/admin/products/create"
           className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all"
         >
           <Plus className="w-5 h-5" />

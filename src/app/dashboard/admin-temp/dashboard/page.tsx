@@ -19,7 +19,7 @@ const WelcomeCard3D = dynamic(() => import('../_components/WelcomeCard3D'), {
   )
 });
 
-export default function SuperadminDashboardPage() {
+export default function AdminDashboardPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

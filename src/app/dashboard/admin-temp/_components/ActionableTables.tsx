@@ -18,7 +18,7 @@ export default function ActionableTables({ actionables }: { actionables: Actiona
       <div className="bg-card p-6 rounded-2xl border border-border shadow-sm transition-colors duration-300 flex flex-col">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-bold text-foreground">Recent Orders</h3>
-          <Link href="/dashboard/superadmin/orders" className="text-sm font-semibold text-primary hover:underline">
+          <Link href="/dashboard/admin/orders" className="text-sm font-semibold text-primary hover:underline">
             View All
           </Link>
         </div>
