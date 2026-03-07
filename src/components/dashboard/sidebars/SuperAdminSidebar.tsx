@@ -34,14 +34,16 @@ export default function SuperAdminSidebar() {
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "#64748b",
       confirmButtonText: "Yes, log me out",
-      // THE FIX: Use Tailwind classes instead of raw CSS variables
+
+      // THE FIX: Wrap your Tailwind CSS variables in hsl() so SweetAlert understands them
+      background: "hsl(var(--card))",
+      color: "hsl(var(--foreground))",
+
+      // We keep the custom border and shadow classes, but let Swal handle the colors above
       customClass: {
-        popup: 'bg-card border border-border rounded-2xl shadow-theme-lg',
-        title: 'text-foreground',
+        popup: 'border border-border rounded-2xl shadow-theme-lg',
         htmlContainer: 'text-muted-foreground'
-      },
-      // Clear Swal's default inline background so Tailwind can take over
-      background: 'transparent',
+      }
     });
 
     if (result.isConfirmed) {
@@ -189,7 +191,7 @@ export default function SuperAdminSidebar() {
                     isActive ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:bg-muted hover:text-primary"
                   } ${isCollapsed ? "md:justify-center md:px-0 md:py-3" : "px-3 py-2.5 gap-3"}`}
                 >
-                  <Icon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${isActive ? "text-primary-foreground" : "text-primary opacity-70 group-hover:opacity-100"}`} />
+                  <Icon className={`w-5 h-5 shrink-0 transition-all duration-300 ${isActive ? "text-primary-foreground" : "text-primary opacity-70 group-hover:opacity-100"}`} />
                   <span className={`whitespace-nowrap transition-all duration-300 ${isCollapsed ? "md:w-0 md:opacity-0" : "w-auto opacity-100"}`}>{item.name}</span>
                 </Link>
               );
@@ -207,7 +209,7 @@ export default function SuperAdminSidebar() {
                   } ${isCollapsed ? "md:justify-center md:px-0 md:py-3" : "px-3 py-2.5 gap-3 justify-between"}`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon className={`w-5 h-5 flex-shrink-0 transition-all duration-300 ${isAnyChildActive ? "text-primary" : "text-muted-foreground group-hover:text-primary"}`} />
+                    <Icon className={`w-5 h-5 shrink-0 transition-all duration-300 ${isAnyChildActive ? "text-primary" : "text-muted-foreground group-hover:text-primary"}`} />
                     <span className={`whitespace-nowrap transition-all duration-300 ${isCollapsed ? "md:w-0 md:opacity-0" : "w-auto opacity-100"}`}>{item.name}</span>
                   </div>
                   {!isCollapsed && (
@@ -243,7 +245,7 @@ export default function SuperAdminSidebar() {
         <div className="p-4 border-t border-border">
           <button 
             onClick={handleLogout} title={isCollapsed ? "Power Off" : undefined}
-            className={`group flex items-center justify-center rounded-xl font-bold text-red-500 hover:bg-red-500/10 hover:text-red-600 transition-all border border-transparent hover:border-red-500/20 ${isCollapsed ? "md:w-full md:px-0 md:py-3" : "gap-3 px-3 py-3 w-full"}`}
+            className={`group flex items-center justify-center rounded-xl font-bold text-red-500 hover:bg-red-500/10 hover:text-red-600 transition-all border border-transparent hover:border-red-500/20 cursor-pointer ${isCollapsed ? "md:w-full md:px-0 md:py-3" : "gap-3 px-3 py-3 w-full"}`}
           >
             <Power className="w-5 h-5 flex-shrink-0 group-hover:animate-pulse" />
             <span className={`whitespace-nowrap overflow-hidden transition-all duration-300 ${isCollapsed ? "md:w-0 md:opacity-0" : "w-auto opacity-100"}`}>
