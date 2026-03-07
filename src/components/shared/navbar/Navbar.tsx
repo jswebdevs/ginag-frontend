@@ -4,12 +4,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import * as LucideIcons from "lucide-react";
 import { useThemeStore } from "@/store/themeStore";
-import { useUserStore } from "@/store/useUserStore"; 
+import { useUserStore } from "@/store/useUserStore";
 import { useEffect, useState, useRef } from "react";
-import MobileCategoryDrawer from "./MobileCategoryDrawer"; 
+import MobileCategoryDrawer from "./MobileCategoryDrawer";
 import api from "@/lib/axios";
-import Image from "next/image"; 
-import logo from "./logo.png"
+import Image from "next/image";
+import logo from "./logo.png";
 
 const previewColors: Record<string, string> = {
   sapphire: '#2563eb',
@@ -28,14 +28,14 @@ export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, setTheme, isDark, toggleDark } = useThemeStore();
-  const { user, isAuthenticated } = useUserStore(); 
+  const { user, isAuthenticated } = useUserStore();
 
   const [mounted, setMounted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); 
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-  
-  const [cartCount, setCartCount] = useState(0); 
+
+  const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
 
   // States for Real-Time Search
@@ -67,16 +67,15 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // REAL-TIME SEARCH LOGIC (Debounced to dedicated backend endpoint)
+  // REAL-TIME SEARCH LOGIC
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (searchQuery.length > 2) {
         setIsSearching(true);
         try {
-          // Hits your new dedicated global search API
           const res = await api.get(`/search?q=${searchQuery}&limit=6`);
           const data = res.data.data || res.data.results || res.data || [];
-          
+
           setSearchResults(Array.isArray(data) ? data : []);
           setShowResults(true);
         } catch (err) {
@@ -103,14 +102,42 @@ export default function Navbar() {
     }
   };
 
+  // --- SMART DASHBOARD LINK GENERATOR ---
   const getDashboardLink = () => {
-    const userRole = (user as any)?.role || (user as any)?.roles?.[0] || (user as any)?.roles;
-    if (!isAuthenticated || !userRole) return "/login";
-    
-    const rolePath = String(userRole).toLowerCase().replace('_', '-');
-    return rolePath === 'customer' ? '/dashboard' : `/dashboard/${rolePath}`;
+    if (!isAuthenticated || !user) return "/login";
+
+    // 1. Safely extract roles (handles undefined, strings, or arrays)
+    const rawRoles = (user as any)?.roles || (user as any)?.role;
+    const rolesArray = Array.isArray(rawRoles) ? rawRoles : [rawRoles].filter(Boolean);
+
+    if (rolesArray.length === 0) return "/dashboard";
+
+    // 2. Define the power ranking
+    const ROLE_HIERARCHY = [
+      'SUPER_ADMIN',
+      'ADMIN',
+      'PRODUCT_MANAGER',
+      'ORDER_MANAGER',
+      'DELIVERY_MANAGER',
+      'MARKETING_SPECIALIST',
+      'SUPPORT_AGENT',
+      'CUSTOMER'
+    ];
+
+    // 3. Find highest matching role
+    let primaryRole = 'CUSTOMER';
+    for (const rank of ROLE_HIERARCHY) {
+      if (rolesArray.includes(rank)) {
+        primaryRole = rank;
+        break;
+      }
+    }
+
+    // 4. Return formatted path
+    if (primaryRole === 'CUSTOMER') return '/dashboard';
+    return `/dashboard/${primaryRole.toLowerCase().replace('_', '-')}`;
   };
-  
+
   const dashboardLink = getDashboardLink();
 
   const handleMobileSearchToggle = () => {
@@ -123,7 +150,7 @@ export default function Navbar() {
 
   const ThemeSwitcherUI = () => {
     if (!mounted) return <div className="w-20 h-8 bg-muted animate-pulse rounded-full" />;
-    
+
     return (
       <div className="flex items-center gap-1 md:gap-2 p-1 border border-border rounded-full bg-background/50 backdrop-blur-sm transition-colors">
         <button onClick={toggleDark} className="p-1 md:p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors">
@@ -135,14 +162,14 @@ export default function Navbar() {
             <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border border-border" style={{ backgroundColor: previewColors[theme] || previewColors.sapphire }} />
             <LucideIcons.ChevronDown className="w-3 h-3 opacity-50" />
           </button>
-          
+
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 py-2 bg-popover border border-border rounded-xl shadow-theme-lg z-50">
               <div className="grid grid-cols-4 gap-2 px-3">
                 {palettes.map((p) => (
-                  <button 
-                    key={p} 
-                    onClick={() => { setTheme(p); setIsDropdownOpen(false); }} 
+                  <button
+                    key={p}
+                    onClick={() => { setTheme(p); setIsDropdownOpen(false); }}
                     className={`flex justify-center w-8 h-8 rounded-full border transition-all ${theme === p ? 'border-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-background' : 'border-transparent hover:scale-110'}`}
                   >
                     <div className="w-5 h-5 rounded-full border border-black/10 dark:border-white/10 m-auto" style={{ backgroundColor: previewColors[p] }} />
@@ -160,7 +187,7 @@ export default function Navbar() {
     <>
       <nav className="sticky top-0 z-40 w-full bg-gradient-theme border-b border-border shadow-theme-sm">
         <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-4">
-          
+
           <div className="flex items-center gap-3">
             <button onClick={() => setIsDrawerOpen(true)} className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors" aria-label="Open menu" title="Menu">
               <LucideIcons.Menu className="w-6 h-6" />
@@ -171,7 +198,7 @@ export default function Navbar() {
                 alt="DreamShop Logo"
                 width={160}
                 height={40}
-                priority // Ensures the logo loads immediately (good for LCP)
+                priority
                 className="object-contain"
               />
             </Link>
@@ -180,9 +207,9 @@ export default function Navbar() {
           {/* DESKTOP SEARCH BAR */}
           <div className="hidden md:flex flex-1 max-w-xl mx-8 relative" ref={searchRef}>
             <form onSubmit={handleSearchSubmit} className="w-full relative">
-              <input 
-                type="text" 
-                placeholder="Search products, brands, categories..." 
+              <input
+                type="text"
+                placeholder="Search products, brands, categories..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchQuery.length > 2 && setShowResults(true)}
@@ -199,10 +226,9 @@ export default function Navbar() {
                 {searchResults.length > 0 ? (
                   <div className="py-2">
                     {searchResults.map((item, index) => {
-                      // Dynamically render missing fields
                       const itemName = item.name || item.title || "Unknown Result";
                       const itemSlug = item.slug || item.id || "";
-                      
+
                       let itemLink = `/products/${itemSlug}`;
                       if (item.type === 'category' || item.parentId === null) itemLink = `/category/${itemSlug}`;
                       if (item.type === 'brand') itemLink = `/brand/${itemSlug}`;
@@ -215,8 +241,8 @@ export default function Navbar() {
                       const imageSrc = item.featuredImage?.thumbUrl || item.image || item.iconUrl;
 
                       return (
-                        <Link 
-                          key={item.id || index} 
+                        <Link
+                          key={item.id || index}
                           href={itemLink}
                           onClick={() => setShowResults(false)}
                           className="flex items-center gap-3 px-4 py-2 hover:bg-muted transition-colors"
@@ -235,7 +261,7 @@ export default function Navbar() {
                         </Link>
                       );
                     })}
-                    <button 
+                    <button
                       onClick={handleSearchSubmit}
                       className="w-full py-3 bg-primary/5 text-primary text-xs font-bold hover:bg-primary/10 transition-colors border-t border-border mt-1"
                     >
@@ -251,7 +277,7 @@ export default function Navbar() {
 
           <div className="flex items-center gap-3 md:gap-5">
             <ThemeSwitcherUI />
-            
+
             <Link href="/wishlist" className="hidden md:flex relative p-2 text-muted-foreground hover:text-primary transition-colors">
               <LucideIcons.Heart className="w-6 h-6" />
               <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
@@ -278,10 +304,10 @@ export default function Navbar() {
         {showMobileSearch && (
           <div className="md:hidden px-4 pb-3 animate-in slide-in-from-top duration-300">
             <form onSubmit={handleSearchSubmit} className="relative">
-              <input 
+              <input
                 ref={searchInputRef}
-                type="text" 
-                placeholder="Search anything..." 
+                type="text"
+                placeholder="Search anything..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full border border-border rounded-xl py-2 px-4 outline-none focus:ring-2 focus:ring-primary bg-background transition-all text-foreground"
@@ -296,7 +322,8 @@ export default function Navbar() {
 
       <MobileCategoryDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @media (max-width: 767px) {
           body { padding-bottom: 5rem; }
         }
