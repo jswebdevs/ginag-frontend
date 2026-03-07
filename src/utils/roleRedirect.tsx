@@ -1,32 +1,51 @@
 // src/utils/roleRedirect.ts
 
-export const getDashboardRedirectPath = (roles: string[]): string => {
-  if (!roles || roles.length === 0) return "/dashboard";
+export type Role =
+  | 'SUPER_ADMIN'
+  | 'ADMIN'
+  | 'PRODUCT_MANAGER'
+  | 'ORDER_MANAGER'
+  | 'SUPPORT_AGENT'
+  | 'MARKETING_SPECIALIST'
+  | 'DELIVERY_MANAGER'
+  | 'CUSTOMER';
 
-  // The order of this array determines priority (top = highest)
-  const priorityOrder = [
-    "SUPER_ADMIN",
-    "ADMIN",
-    "PRODUCT_MANAGER",
-    "ORDER_MANAGER",
-    "MARKETING_SPECIALIST",
-    "SUPPORT_AGENT",
-    "DELIVERY_MANAGER",
-    "CUSTOMER",
-  ];
+// 1. Define the power ranking (Highest to Lowest)
+const ROLE_HIERARCHY: Role[] = [
+  'SUPER_ADMIN',
+  'ADMIN',
+  'PRODUCT_MANAGER',
+  'ORDER_MANAGER',
+  'DELIVERY_MANAGER',
+  'MARKETING_SPECIALIST',
+  'SUPPORT_AGENT',
+  'CUSTOMER'
+];
 
-  // Find the first role in the priority list that the user actually has
-  const highestRole = priorityOrder.find((role) => roles.includes(role));
+// 2. Find the user's highest role
+export const getHighestRole = (userRoles: string[] | string | undefined | null): Role => {
+  if (!userRoles || userRoles.length === 0) return 'CUSTOMER';
 
-  switch (highestRole) {
-    case "SUPER_ADMIN": return "/dashboard/super-admin";
-    case "ADMIN": return "/dashboard/admin";
-    case "PRODUCT_MANAGER": return "/dashboard/product-manager";
-    case "ORDER_MANAGER": return "/dashboard/order-manager";
-    case "MARKETING_SPECIALIST": return "/dashboard/marketing-specialist";
-    case "SUPPORT_AGENT": return "/dashboard/support-agent";
-    case "DELIVERY_MANAGER": return "/dashboard/delivery-manager";
-    case "CUSTOMER": return "/dashboard";
-    default: return "/dashboard";
+  // If it's accidentally a string, convert to array
+  const rolesArray = Array.isArray(userRoles) ? userRoles : [userRoles];
+
+  // Find the first role in our hierarchy that the user possesses
+  for (const rank of ROLE_HIERARCHY) {
+    if (rolesArray.includes(rank)) {
+      return rank;
+    }
   }
+
+  return 'CUSTOMER';
+};
+
+// 3. Generate the safe redirect path
+export const getDashboardRedirectPath = (userRoles: string[] | string | undefined | null): string => {
+  const primaryRole = getHighestRole(userRoles);
+
+  if (primaryRole === 'CUSTOMER') return '/dashboard';
+
+  // Converts "SUPER_ADMIN" to "/dashboard/super-admin"
+  const formattedPath = primaryRole.toLowerCase().replace('_', '-');
+  return `/dashboard/${formattedPath}`;
 };

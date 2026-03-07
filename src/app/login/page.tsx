@@ -8,7 +8,7 @@ import api from "@/lib/axios";
 import Cookies from "js-cookie";
 import { useUserStore } from "@/store/useUserStore";
 import Swal from "sweetalert2";
-import { getDashboardRedirectPath } from "@/utils/roleRedirect";
+import { getDashboardRedirectPath, getHighestRole } from "@/utils/roleRedirect";
 
 function LoginForm() {
   const router = useRouter();
@@ -72,6 +72,7 @@ function LoginForm() {
         if (!token) throw new Error("No token received from server");
 
         const isProduction = process.env.NODE_ENV === 'production';
+        const primaryRole = getHighestRole(loggedInUser.roles || []);
 
         Cookies.set("auth_token", token, {
           expires: 7,
@@ -80,7 +81,7 @@ function LoginForm() {
           path: '/'
         });
 
-        Cookies.set("user_role", loggedInUser.roles?.[0] || "CUSTOMER", {
+        Cookies.set("user_role", primaryRole, {
           expires: 7,
           secure: isProduction,
           path: '/'
@@ -100,7 +101,7 @@ function LoginForm() {
         });
 
         setTimeout(() => {
-          router.push(getSmartRedirect(loggedInUser.roles || []));
+          router.push(getSmartRedirect(loggedInUser.roles));
         }, 500);
       }
     } catch (err: any) {

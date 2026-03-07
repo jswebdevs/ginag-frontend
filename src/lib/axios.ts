@@ -45,20 +45,22 @@ api.interceptors.request.use(
 );
 
 // RESPONSE INTERCEPTOR
+// RESPONSE INTERCEPTOR
 api.interceptors.response.use(
   (response) => response, 
   (error) => {
-    // Only kick to login if they hit a 401 on a STRICTLY protected route 
-    // (Cart routes won't trigger this anymore thanks to your optionalAuth backend middleware)
     if (error.response && error.response.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user-storage'); 
-        Cookies.remove('token');
+        
+        // FIXED: Remove the correct cookie keys
+        Cookies.remove('auth_token');
+        Cookies.remove('token'); 
+        Cookies.remove('user_role');
         
         useUserStore.getState().logout();
         
-        // Don't redirect if they are already on login or browsing the shop/cart as a guest
         const publicPaths = ['/login', '/shop', '/cart', '/'];
         const isProductPage = window.location.pathname.startsWith('/products/');
         

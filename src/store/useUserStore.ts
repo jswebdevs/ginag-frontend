@@ -47,7 +47,9 @@ export const useUserStore = create<UserState>()(
       
       logout: () => {
         set({ user: null, isAuthenticated: false });
-        Cookies.remove('token');
+        // FIXED: Remove auth_token
+        Cookies.remove('auth_token');
+        Cookies.remove('token'); // Fallback cleanup
         Cookies.remove('user_role');
         localStorage.removeItem('token');
       },

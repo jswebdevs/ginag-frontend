@@ -4,14 +4,14 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import api from '@/lib/axios';
 import Cookies from 'js-cookie';
 
-export type Role = 
-  | 'SUPER_ADMIN' 
-  | 'ADMIN' 
-  | 'PRODUCT_MANAGER' 
-  | 'ORDER_MANAGER' 
-  | 'SUPPORT_AGENT' 
-  | 'MARKETING_SPECIALIST' 
-  | 'DELIVERY_MANAGER' 
+export type Role =
+  | 'SUPER_ADMIN'
+  | 'ADMIN'
+  | 'PRODUCT_MANAGER'
+  | 'ORDER_MANAGER'
+  | 'SUPPORT_AGENT'
+  | 'MARKETING_SPECIALIST'
+  | 'DELIVERY_MANAGER'
   | 'CUSTOMER';
 
 export interface User {
@@ -21,8 +21,9 @@ export interface User {
   fullName?: string;
   email: string;
   phone?: string;
-  role: Role;
+  roles: Role[]; // FIXED: Must be an array to match backend and Zustand
   avatar?: string;
+  status?: string;
 }
 
 interface AuthContextType {
@@ -41,20 +42,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const token = Cookies.get('token') || localStorage.getItem('token');
+        // FIXED: Look for auth_token to match login form and axios
+        const token = Cookies.get('auth_token') || localStorage.getItem('token');
         const savedUser = localStorage.getItem('user');
 
         if (token) {
           if (savedUser) setUser(JSON.parse(savedUser));
 
-          const res = await api.get('/users/me'); 
-          
+          const res = await api.get('/users/me');
+
           const userData = res.data.data || res.data;
           setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
         }
       } catch (error) {
-        logout();
+        logout(); // Token invalid, wipe it
       } finally {
         setLoading(false);
       }
@@ -66,7 +68,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    Cookies.remove('token');
+    Cookies.remove('auth_token'); // FIXED
+    Cookies.remove('token'); // Just in case old ones exist
     Cookies.remove('user_role');
     setUser(null);
     window.location.href = '/login';
