@@ -7,7 +7,9 @@ import { useThemeStore } from "@/store/themeStore";
 import { useUserStore } from "@/store/useUserStore"; 
 import { useEffect, useState, useRef } from "react";
 import MobileCategoryDrawer from "./MobileCategoryDrawer"; 
-import api from "@/lib/axios"; 
+import api from "@/lib/axios";
+import Image from "next/image"; 
+import logo from "./logo.png"
 
 const previewColors: Record<string, string> = {
   sapphire: '#2563eb',
@@ -160,11 +162,18 @@ export default function Navbar() {
         <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-4">
           
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsDrawerOpen(true)} className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors">
+            <button onClick={() => setIsDrawerOpen(true)} className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors" aria-label="Open menu" title="Menu">
               <LucideIcons.Menu className="w-6 h-6" />
             </button>
-            <Link href="/" className="text-xl md:text-2xl font-black tracking-tighter text-primary">
-              DREAM<span className="text-foreground">SHOP</span>
+            <Link href="/" className="relative h-8 md:h-10 w-32 md:w-40 block">
+              <Image
+                src={logo}
+                alt="DreamShop Logo"
+                width={160}
+                height={40}
+                priority // Ensures the logo loads immediately (good for LCP)
+                className="object-contain"
+              />
             </Link>
           </div>
 
