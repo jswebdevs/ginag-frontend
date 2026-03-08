@@ -107,6 +107,7 @@ export default function SuperAdminSidebar() {
         { name: "Navigation", href: "/dashboard/super-admin/storefront/navigation" },
         { name: "Legal", href: "/dashboard/super-admin/storefront/legal" },
         { name: "Reviews", href: "/dashboard/super-admin/storefront/reviews" },
+        { name: "Social", href: "/dashboard/super-admin/storefront/social"}
       ]
     },
     {

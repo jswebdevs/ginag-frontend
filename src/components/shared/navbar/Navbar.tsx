@@ -8,8 +8,10 @@ import { useUserStore } from "@/store/useUserStore";
 import { useEffect, useState, useRef } from "react";
 import MobileCategoryDrawer from "./MobileCategoryDrawer";
 import api from "@/lib/axios";
+
+// You can keep the local logo as a strict fallback if the API fails
 import Image from "next/image";
-import logo from "./logo.png";
+import fallbackLogo from "./logo.png";
 
 const previewColors: Record<string, string> = {
   sapphire: '#2563eb',
@@ -38,6 +40,10 @@ export default function Navbar() {
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
 
+  // --- DYNAMIC SETTINGS STATE ---
+  const [storeName, setStoreName] = useState("DreamShop");
+  const [storeLogo, setStoreLogo] = useState<string | null>(null);
+
   // States for Real-Time Search
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -52,6 +58,25 @@ export default function Navbar() {
 
   useEffect(() => {
     setMounted(true);
+
+    // FETCH DYNAMIC LOGO & STORE NAME
+    const fetchSettings = async () => {
+      try {
+        const res = await api.get('/settings');
+        if (res.data?.data) {
+          setStoreName(res.data.data.storeName || "DreamShop");
+          setStoreLogo(
+            res.data.data.logo?.thumbUrl ||
+            res.data.data.logo?.originalUrl ||
+            null
+          );
+        }
+      } catch (error) {
+        console.error("Failed to load navbar settings", error);
+      }
+    };
+
+    fetchSettings();
   }, []);
 
   useEffect(() => {
@@ -106,25 +131,16 @@ export default function Navbar() {
   const getDashboardLink = () => {
     if (!isAuthenticated || !user) return "/login";
 
-    // 1. Safely extract roles (handles undefined, strings, or arrays)
     const rawRoles = (user as any)?.roles || (user as any)?.role;
     const rolesArray = Array.isArray(rawRoles) ? rawRoles : [rawRoles].filter(Boolean);
 
     if (rolesArray.length === 0) return "/dashboard";
 
-    // 2. Define the power ranking
     const ROLE_HIERARCHY = [
-      'SUPER_ADMIN',
-      'ADMIN',
-      'PRODUCT_MANAGER',
-      'ORDER_MANAGER',
-      'DELIVERY_MANAGER',
-      'MARKETING_SPECIALIST',
-      'SUPPORT_AGENT',
-      'CUSTOMER'
+      'SUPER_ADMIN', 'ADMIN', 'PRODUCT_MANAGER', 'ORDER_MANAGER',
+      'DELIVERY_MANAGER', 'MARKETING_SPECIALIST', 'SUPPORT_AGENT', 'CUSTOMER'
     ];
 
-    // 3. Find highest matching role
     let primaryRole = 'CUSTOMER';
     for (const rank of ROLE_HIERARCHY) {
       if (rolesArray.includes(rank)) {
@@ -133,7 +149,6 @@ export default function Navbar() {
       }
     }
 
-    // 4. Return formatted path
     if (primaryRole === 'CUSTOMER') return '/dashboard';
     return `/dashboard/${primaryRole.toLowerCase().replace('_', '-')}`;
   };
@@ -192,15 +207,30 @@ export default function Navbar() {
             <button onClick={() => setIsDrawerOpen(true)} className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors" aria-label="Open menu" title="Menu">
               <LucideIcons.Menu className="w-6 h-6" />
             </button>
-            <Link href="/" className="relative h-8 md:h-10 w-32 md:w-40 block">
-              <Image
-                src={logo}
-                alt="DreamShop Logo"
-                width={160}
-                height={40}
-                priority
-                className="object-contain"
-              />
+
+            {/* DYNAMIC LOGO / STORE NAME RENDERING */}
+            <Link href="/" className="relative flex items-center gap-2">
+              {storeLogo ? (
+                <img
+                  src={storeLogo}
+                  alt={`${storeName} Logo`}
+                  className="h-8 md:h-10 w-auto max-w-[160px] object-contain"
+                />
+              ) : fallbackLogo ? (
+                <Image
+                  src={fallbackLogo}
+                  alt={`${storeName} Logo`}
+                  width={160}
+                  height={40}
+                  priority
+                  className="object-contain"
+                />
+              ) : (
+                <div className="flex items-center gap-2 text-primary">
+                  <LucideIcons.Store size={28} />
+                  <span className="font-black text-xl tracking-tight hidden sm:block">{storeName}</span>
+                </div>
+              )}
             </Link>
           </div>
 

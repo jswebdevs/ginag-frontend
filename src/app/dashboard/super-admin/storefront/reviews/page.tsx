@@ -119,7 +119,7 @@ export default function ReviewsManagerPage() {
                     {/* ADD BUTTON (Only visible on SITE tab) */}
                     {activeTab === "SITE" && (
                         <Link
-                            href="/dashboard/super-admin/reviews/create"
+                            href="/dashboard/super-admin/storefront/reviews/create"
                             className="bg-primary text-primary-foreground h-10 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-theme-sm whitespace-nowrap"
                         >
                             <Plus size={16} /> <span className="hidden sm:inline">Add Testimonial</span>

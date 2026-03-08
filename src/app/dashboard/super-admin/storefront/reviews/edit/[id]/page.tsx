@@ -33,7 +33,7 @@ export default function EditReviewPage() {
             } catch (error) {
                 console.error("Failed to fetch review", error);
                 Swal.fire({ title: "Error", text: "Testimonial not found", icon: "error", background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
-                router.push("/dashboard/super-admin/reviews");
+                router.push("/dashboard/super-admin/storefront/reviews");
             } finally {
                 setIsLoading(false);
             }
@@ -52,7 +52,7 @@ export default function EditReviewPage() {
                 background: "hsl(var(--card))", color: "hsl(var(--foreground))"
             });
 
-            router.push("/dashboard/super-admin/reviews");
+            router.push("/dashboard/super-admin/storefront/reviews");
         } catch (error) {
             console.error(error);
             Swal.fire({ title: "Error", text: "Failed to update testimonial", icon: "error", background: "hsl(var(--card))", color: "hsl(var(--foreground))" });
@@ -73,7 +73,7 @@ export default function EditReviewPage() {
     return (
         <div className="space-y-6 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="flex items-center gap-4">
-                <Link href="/dashboard/super-admin/reviews" className="p-2 border border-border rounded-xl hover:bg-muted transition-colors text-muted-foreground">
+                <Link href="/dashboard/super-admin/storefront/reviews" className="p-2 border border-border rounded-xl hover:bg-muted transition-colors text-muted-foreground">
                     <ChevronLeft size={20} />
                 </Link>
                 <div>

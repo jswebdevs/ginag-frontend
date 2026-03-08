@@ -40,7 +40,7 @@ export default function ReviewTable({ type, reviews, onToggleStatus, onDelete }:
 
     return (
         <div className="w-full overflow-x-auto rounded-2xl border border-border bg-card shadow-theme-sm">
-            <table className="w-full text-left border-collapse min-w-[800px]">
+            <table className="w-full text-left border-collapse min-w-200">
                 <thead>
                     <tr className="border-b border-border bg-muted/20 text-xs uppercase tracking-wider text-muted-foreground font-black">
                         <th className="p-4 w-24">Rating</th>
@@ -66,7 +66,7 @@ export default function ReviewTable({ type, reviews, onToggleStatus, onDelete }:
 
                                 <td className="p-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 min-w-[40px] min-h-[40px] rounded-full bg-muted border border-border flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative">
+                                        <div className="w-10 h-10 min-w-10 min-h-10 rounded-full bg-muted border border-border flex items-center justify-center overflow-hidden shrink-0 shadow-sm relative">
                                             {hasValidImage ? (
                                                 <img
                                                     src={avatarUrl}
@@ -84,7 +84,7 @@ export default function ReviewTable({ type, reviews, onToggleStatus, onDelete }:
                                                     <p className="font-bold text-foreground whitespace-nowrap">
                                                         {review.user?.firstName} {review.user?.lastName}
                                                     </p>
-                                                    <Link href={`/products/${review.product?.slug}`} target="_blank" className="text-xs text-primary hover:underline truncate max-w-[200px] block">
+                                                    <Link href={`/products/${review.product?.slug}`} target="_blank" className="text-xs text-primary hover:underline truncate max-w-50 block">
                                                         {review.product?.name}
                                                     </Link>
                                                 </>
@@ -123,7 +123,7 @@ export default function ReviewTable({ type, reviews, onToggleStatus, onDelete }:
                                         </button>
 
                                         {type === "SITE" && (
-                                            <Link href={`/dashboard/super-admin/reviews/edit/${review.id}`} className="p-2 bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors shrink-0">
+                                            <Link href={`/dashboard/super-admin/storefront/reviews/edit/${review.id}`} className="p-2 bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors shrink-0">
                                                 <Edit size={16} />
                                             </Link>
                                         )}
