@@ -23,11 +23,14 @@ export default function CategorySidebar({ product, update }: any) {
 
   // Aggressive Sanitization: Ensure we only ever map valid String IDs
   const rawCategories = product?.categoryIds || product?.categories || [];
-  const selectedIds = Array.from(new Set(
-    rawCategories
-      .map((c: any) => typeof c === 'string' ? c : c?.id)
-      .filter((id: any) => typeof id === 'string' && id.trim() !== '')
-  ));
+  const selectedIds = Array.from(
+    new Set<string>(
+      rawCategories
+        .map((c: any) => typeof c === "string" ? c : c?.id)
+        .filter((id: any): id is string => typeof id === "string" && id.trim() !== "")
+    )
+  );
+
 
   const filtered = categories.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase())
