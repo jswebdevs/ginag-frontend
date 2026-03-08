@@ -33,8 +33,8 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     productStatus: "DRAFT",
     blogUrl: "",
     categoryIds: [] as string[],
-    featuredImageId: "",
-    galleryImageIds: [] as string[],
+    featuredImage: undefined as { id: string; thumbUrl?: string; originalUrl: string } | undefined,
+    galleryImages: [] as { id: string; thumbUrl?: string; originalUrl: string }[],
     attributes: [] as any[],
     variations: [] as any[],
     // --- EXTENDED FIELDS ---
@@ -65,8 +65,21 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
         // THE FIX: Aggressively map Prisma objects to string IDs on load
         categoryIds: initialData.categories?.map((c: any) => c.id) || initialData.categoryIds || [],
-        galleryImageIds: initialData.images?.map((img: any) => img.id) || initialData.galleryImageIds || [],
         suggestedProducts: initialData.suggestedProducts?.map((p: any) => p.id) || initialData.suggestedProducts || [],
+
+        // Media with full objects for display
+        featuredImage: initialData.featuredImage
+          ? {
+            id: initialData.featuredImage.id,
+            thumbUrl: initialData.featuredImage.thumbUrl,
+            originalUrl: initialData.featuredImage.originalUrl,
+          }
+          : undefined,
+        galleryImages: initialData.images?.map((img: any) => ({
+          id: img.id,
+          thumbUrl: img.thumbUrl,
+          originalUrl: img.originalUrl,
+        })) || [],
 
         // Hydrate extended fields
         material: initialData.material || "",
@@ -88,10 +101,21 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     }
     setLoading(true);
     try {
+      // Prepare payload with IDs only
+      const payload = {
+        ...product,
+        featuredImageId: product.featuredImage?.id || "",
+        galleryImageIds: product.galleryImages.map((img) => img.id),
+      };
+      // Remove full objects from payload
+      delete payload.featuredImage;
+      delete payload.galleryImages;
+
+      let res;
       if (isEdit) {
-        await api.patch(`/products/${initialData.id}`, product);
+        res = await api.patch(`/products/${initialData.id}`, payload);
       } else {
-        const res = await api.post("/products", product);
+        res = await api.post("/products", payload);
         if (product.variations.length > 0) {
           await api.post("/variations/bulk", {
             productId: res.data.product.id,
