@@ -101,15 +101,13 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     }
     setLoading(true);
     try {
-      // Prepare payload with IDs only
+      // Prepare payload with IDs only, excluding full media objects
+      const { featuredImage, galleryImages, ...rest } = product;
       const payload = {
-        ...product,
-        featuredImageId: product.featuredImage?.id || "",
-        galleryImageIds: product.galleryImages.map((img) => img.id),
+        ...rest,
+        featuredImageId: featuredImage?.id || "",
+        galleryImageIds: galleryImages.map((img) => img.id),
       };
-      // Remove full objects from payload
-      delete payload.featuredImage;
-      delete payload.galleryImages;
 
       let res;
       if (isEdit) {
