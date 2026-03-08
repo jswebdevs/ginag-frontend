@@ -10,7 +10,7 @@ import { Save, Loader2 } from "lucide-react";
 import BasicInfoPart from "./form-parts/BasicInfoPart";
 import StatusTagsPart from "./form-parts/StatusTagsPart";
 import DescriptionPart from "./form-parts/DescriptionPart";
-import AdditionalInfoPart from "./form-parts/AdditionalInfoPart"; // Moved left
+import AdditionalInfoPart from "./form-parts/AdditionalInfoPart";
 import MediaPart from "./form-parts/MediaPart";
 import CategorySidebar from "./form-parts/CategorySidebar";
 import VariationManager from "./form-parts/VariationManager";
@@ -42,7 +42,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     usage: "",
     usefulness: "",
     awareness: "",
-    specifications: "", // Now a string to support Paragraph/List toggle
+    specifications: "",
     suggestedProducts: [] as string[]
   });
 
@@ -62,8 +62,11 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         ...initialData,
         basePrice: Number(initialData.basePrice) || 0,
         salePrice: Number(initialData.salePrice) || 0,
-        categoryIds: initialData.categories?.map((c: any) => c.id) || [],
-        galleryImageIds: initialData.images?.map((img: any) => img.id) || [],
+
+        // THE FIX: Aggressively map Prisma objects to string IDs on load
+        categoryIds: initialData.categories?.map((c: any) => c.id) || initialData.categoryIds || [],
+        galleryImageIds: initialData.images?.map((img: any) => img.id) || initialData.galleryImageIds || [],
+        suggestedProducts: initialData.suggestedProducts?.map((p: any) => p.id) || initialData.suggestedProducts || [],
 
         // Hydrate extended fields
         material: initialData.material || "",
@@ -71,7 +74,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         usefulness: initialData.usefulness || "",
         awareness: initialData.awareness || "",
         specifications: parsedSpecs,
-        suggestedProducts: initialData.suggestedProducts?.map((p: any) => p.id) || [],
       });
     }
   }, [initialData]);
@@ -114,10 +116,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         <BasicInfoPart product={product} update={updateProduct} />
         <StatusTagsPart product={product} update={updateProduct} />
         <DescriptionPart product={product} update={updateProduct} />
-
-        {/* MOVED: Extended Details is now here on the left, before Media */}
         <AdditionalInfoPart product={product} update={updateProduct} />
-
         <MediaPart product={product} update={updateProduct} />
       </div>
 

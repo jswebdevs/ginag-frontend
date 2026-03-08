@@ -6,21 +6,17 @@ import { AuthProvider } from "@/context/AuthContext";
 import TanstackProvider from "@/lib/tanstack";
 import Footer from "@/components/shared/footer/Footer";
 
-// 1. Import your new settings fetcher
+// 1. Settings and Guard Imports
 import { getGlobalSettings } from "@/lib/getSettings";
+import MaintenanceGuard from "@/components/shared/MaintenanceGuard";
 
-// 2. Replace static metadata with dynamic generateMetadata
+// 2. Dynamic Metadata Generation
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getGlobalSettings();
 
-  // 3. Set up dynamic variables with your existing fallbacks
   const storeName = settings?.storeName || "Dream Shop";
   const tagline = settings?.tagline || "The best place to find everything you need with fast delivery.";
-
-  // Use uploaded favicon, fallback to your local SVG
   const faviconUrl = settings?.favicon?.thumbUrl || settings?.favicon?.originalUrl || "/dreamecommerce.svg";
-
-  // Use uploaded OG Image, fallback to your local site URL
   const ogImageUrl = settings?.ogImage?.originalUrl || "https://yourdreamshop.com/default-og.jpg";
 
   return {
@@ -43,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
     },
     openGraph: {
       type: "website",
-      locale: "en_IE", // Or "bn_BD" depending on your target audience!
+      locale: "en_IE",
       url: "https://yourdreamshop.com",
       siteName: storeName,
       title: storeName,
@@ -66,11 +62,18 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({
+// 3. Updated Async Root Layout
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Fetch settings at the root level to determine maintenance status
+  const settings = await getGlobalSettings();
+
+  const isMaintenanceMode = settings?.maintenanceMode ?? false;
+  const maintenanceMessage = settings?.maintenanceMessage || "Our store is currently undergoing maintenance. We'll be back shortly!";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
@@ -78,14 +81,22 @@ export default function RootLayout({
           <AuthProvider>
             <ThemeProvider>
 
-              {/* Navbars */}
-              <Navbar />
+              {/* The MaintenanceGuard wraps everything. 
+                  If maintenance is ON, it will swap the storefront UI with a "Back Soon" message,
+                  but it will still allow you to access /dashboard routes.
+              */}
+              <MaintenanceGuard
+                isMaintenanceMode={isMaintenanceMode}
+                message={maintenanceMessage}
+              >
+                <Navbar />
 
-              <main className="flex-1">
-                {children}
-              </main>
+                <main className="flex-1">
+                  {children}
+                </main>
 
-              <Footer />
+                <Footer />
+              </MaintenanceGuard>
 
             </ThemeProvider>
           </AuthProvider>

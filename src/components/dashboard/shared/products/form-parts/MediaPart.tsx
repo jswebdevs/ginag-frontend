@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Star, Save, X, Loader2, UserCircle, Plus } from "lucide-react";
 // Adjust this path if your MediaManager is located elsewhere
-import MediaManager from "@/components/shared/media/MediaManager";
+import MediaManager from "@/components/dashboard/shared/media/MediaManager";
 
 interface ReviewFormData {
   name: string;

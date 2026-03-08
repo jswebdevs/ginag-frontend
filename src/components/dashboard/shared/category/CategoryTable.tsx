@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Eye, Edit, Trash2, Folder, Image as ImageIcon, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import Swal from "sweetalert2";
 
 interface CategoryTableProps {
   categories: any[];
@@ -24,7 +25,7 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
 
   // Helper for UI rendering
   const getParentName = (parentId: string | null) => {
-    if (!parentId) return <span className="text-muted-foreground italic">None</span>;
+    if (!parentId) return <span className="text-muted-foreground italic text-xs">None (Top Level)</span>;
     const parent = categories.find(c => c.id === parentId);
     return parent ? parent.name : "Unknown";
   };
@@ -34,6 +35,40 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
     if (!parentId) return "none";
     const parent = categories.find(c => c.id === parentId);
     return parent ? parent.name.toLowerCase() : "unknown";
+  };
+
+  // --- NEW: THEMED CONFIRMATION DIALOG ---
+  const confirmDelete = (cat: any) => {
+    const productCount = cat._count?.products || 0;
+
+    if (productCount > 0) {
+      return Swal.fire({
+        title: "Action Blocked",
+        text: `The category "${cat.name}" contains ${productCount} products. You must reassign or delete the products before removing this category.`,
+        icon: "error",
+        confirmButtonColor: "#3b82f6",
+        background: 'var(--card)',
+        color: 'var(--foreground)',
+      });
+    }
+
+    Swal.fire({
+      title: "Are you sure?",
+      text: `Deleting "${cat.name}" will remove it from the system. This cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+      background: 'var(--card)',
+      color: 'var(--foreground)',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        onDelete(cat.id);
+      }
+    });
   };
 
   const handleSort = (key: SortKey) => {
@@ -46,7 +81,7 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
 
   const sortedCategories = [...categories].sort((a, b) => {
     if (!sortConfig) return 0;
-    
+
     const { key, direction } = sortConfig;
     let aValue: any, bValue: any;
 
@@ -72,18 +107,24 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
   };
 
   if (categories.length === 0) {
-    return <div className="p-10 text-center text-muted-foreground">No categories found. Create one!</div>;
+    return (
+      <div className="p-20 text-center bg-card border border-dashed border-border rounded-3xl">
+        <Folder className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+        <p className="text-muted-foreground font-bold text-lg">No categories found.</p>
+        <p className="text-sm text-muted-foreground/60">Start by creating your first product category.</p>
+      </div>
+    );
   }
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-left border-collapse">
+    <div className="overflow-x-auto custom-scrollbar">
+      <table className="w-full text-left border-collapse whitespace-nowrap">
         <thead>
           <tr className="border-b border-border bg-muted/30">
-            <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">SL</th>
+            <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider w-16">SL</th>
             <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider">Icon & Image</th>
-            
-            <th 
+
+            <th
               className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none"
               onClick={() => handleSort("name")}
             >
@@ -91,8 +132,8 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
                 Name <SortIcon columnKey="name" />
               </div>
             </th>
-            
-            <th 
+
+            <th
               className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-muted/50 transition-colors select-none"
               onClick={() => handleSort("parent")}
             >
@@ -100,8 +141,8 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
                 Parent Category <SortIcon columnKey="parent" />
               </div>
             </th>
-            
-            <th 
+
+            <th
               className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-center cursor-pointer hover:bg-muted/50 transition-colors select-none"
               onClick={() => handleSort("products")}
             >
@@ -109,54 +150,58 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
                 Products <SortIcon columnKey="products" />
               </div>
             </th>
-            
+
             <th className="p-4 text-xs font-bold text-muted-foreground uppercase tracking-wider text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
           {sortedCategories.map((cat, index) => (
             <tr key={cat.id} className="hover:bg-muted/10 transition-colors group">
-              <td className="p-4 text-sm font-medium text-muted-foreground">{index + 1}</td>
-              
+              <td className="p-4 text-xs font-mono font-medium text-muted-foreground">{String(index + 1).padStart(2, '0')}</td>
+
               <td className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center border border-border/50 shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center border border-border/50 shadow-sm shrink-0">
                     <DynamicIcon iconName={cat.icon} />
                   </div>
-                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center border border-border/50 overflow-hidden shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center border border-border/50 overflow-hidden shadow-sm shrink-0 p-0.5">
                     {cat.featuredImage?.thumbUrl ? (
-                      <img src={cat.featuredImage.thumbUrl} alt="Featured" className="w-full h-full object-cover" />
+                      <img src={cat.featuredImage.thumbUrl} alt="Featured" className="w-full h-full object-cover rounded-lg" />
                     ) : (
-                      <ImageIcon className="w-4 h-4 text-muted-foreground/30" />
+                      <ImageIcon className="w-4 h-4 text-muted-foreground/20" />
                     )}
                   </div>
                 </div>
               </td>
 
-              <td className="p-4 font-bold text-foreground">
-                {cat.name}
-                <div className="text-xs text-muted-foreground font-normal">{cat.slug}</div>
+              <td className="p-4">
+                <p className="font-bold text-foreground text-sm tracking-tight">{cat.name}</p>
+                <div className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest mt-0.5 opacity-60">{cat.slug}</div>
               </td>
-              
-              <td className="p-4 text-sm text-foreground">
+
+              <td className="p-4 text-sm font-medium text-foreground/80">
                 {getParentName(cat.parentId)}
               </td>
-              
+
               <td className="p-4 text-center">
-                <span className="bg-primary/10 text-primary font-bold px-2.5 py-1 rounded-md text-xs">
-                  {cat._count?.products || 0}
+                <span className="bg-primary/10 text-primary font-black px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-tighter">
+                  {cat._count?.products || 0} ITEMS
                 </span>
               </td>
-              
+
               <td className="p-4">
-                <div className="flex items-center justify-end gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => onView(cat)} className="p-2 text-muted-foreground hover:text-primary bg-background rounded-lg border border-transparent hover:border-border hover:shadow-sm transition-all" title="View">
+                <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                  <button onClick={() => onView(cat)} className="p-2 text-muted-foreground hover:text-primary bg-background rounded-xl border border-transparent hover:border-border hover:shadow-sm transition-all" title="View Quick Details">
                     <Eye className="w-4 h-4" />
                   </button>
-                  <button onClick={() => onEdit(cat)} className="p-2 text-muted-foreground hover:text-blue-500 bg-background rounded-lg border border-transparent hover:border-border hover:shadow-sm transition-all" title="Edit">
+                  <button onClick={() => onEdit(cat)} className="p-2 text-muted-foreground hover:text-blue-500 bg-background rounded-xl border border-transparent hover:border-border hover:shadow-sm transition-all" title="Edit Category">
                     <Edit className="w-4 h-4" />
                   </button>
-                  <button onClick={() => onDelete(cat.id)} className="p-2 text-muted-foreground hover:text-red-500 bg-background rounded-lg border border-transparent hover:border-border hover:shadow-sm transition-all" title="Delete">
+                  <button
+                    onClick={() => confirmDelete(cat)}
+                    className="p-2 text-muted-foreground hover:text-red-500 bg-background rounded-xl border border-transparent hover:border-border hover:shadow-sm transition-all"
+                    title="Delete Category"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
