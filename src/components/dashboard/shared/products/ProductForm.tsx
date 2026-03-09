@@ -37,7 +37,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     galleryImages: [] as { id: string; thumbUrl?: string; originalUrl: string }[],
     attributes: [] as any[],
     variations: [] as any[],
-    // --- EXTENDED FIELDS ---
     material: "",
     usage: "",
     usefulness: "",
@@ -50,7 +49,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
   useEffect(() => {
     if (initialData) {
-      // Safely convert old JSON specifications to the new String format if needed
       let parsedSpecs = "";
       if (typeof initialData.specifications === 'string') {
         parsedSpecs = initialData.specifications;
@@ -62,12 +60,12 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         ...initialData,
         basePrice: Number(initialData.basePrice) || 0,
         salePrice: Number(initialData.salePrice) || 0,
+        // FIX: Explicitly handle null origin so the text input doesn't break
+        origin: initialData.origin || "",
 
-        // THE FIX: Aggressively map Prisma objects to string IDs on load
         categoryIds: initialData.categories?.map((c: any) => c.id) || initialData.categoryIds || [],
         suggestedProducts: initialData.suggestedProducts?.map((p: any) => p.id) || initialData.suggestedProducts || [],
 
-        // Media with full objects for display
         featuredImage: initialData.featuredImage
           ? {
             id: initialData.featuredImage.id,
@@ -81,7 +79,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
           originalUrl: img.originalUrl,
         })) || [],
 
-        // Hydrate extended fields
         material: initialData.material || "",
         usage: initialData.usage || "",
         usefulness: initialData.usefulness || "",
@@ -97,30 +94,58 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
   const handleSave = async () => {
     if (!product.name || !product.productCode) {
-      return Swal.fire("Error", "Name and Code are required", "error");
+      return Swal.fire("Error", "Product Title and Code are required", "error");
     }
+
     setLoading(true);
     try {
-      // Prepare payload with IDs only, excluding full media objects
-      const { featuredImage, galleryImages, ...rest } = product;
+      const { featuredImage, galleryImages, variations, ...rest } = product;
       const payload = {
         ...rest,
         featuredImageId: featuredImage?.id || "",
         galleryImageIds: galleryImages.map((img) => img.id),
       };
 
-      let res;
       if (isEdit) {
-        res = await api.patch(`/products/${initialData.id}`, payload);
+        // 1. Update Core Product
+        await api.patch(`/products/${initialData.id}`, payload);
+
+        // 2. --- THE FIX: SYNC VARIATIONS DURING EDIT ---
+        const existingVars = variations.filter(v => v.id);
+        const newVars = variations.filter(v => !v.id);
+
+        // A. Update Existing Variations (Stock, Price, SKU changes)
+        if (existingVars.length > 0) {
+          await Promise.all(existingVars.map(v =>
+            api.patch(`/variations/${v.id}`, {
+              basePrice: v.basePrice,
+              salePrice: v.salePrice,
+              stock: v.stock,
+              sku: v.sku,
+              isDefault: v.isDefault
+            })
+          ));
+        }
+
+        // B. Create New Variations (If user clicked "Generate Matrix" again)
+        if (newVars.length > 0) {
+          await api.post("/variations/bulk", {
+            productId: initialData.id,
+            variations: newVars
+          });
+        }
+
       } else {
-        res = await api.post("/products", payload);
-        if (product.variations.length > 0) {
+        // CREATE NEW PRODUCT
+        const res = await api.post("/products", payload);
+        if (variations.length > 0) {
           await api.post("/variations/bulk", {
             productId: res.data.product.id,
-            variations: product.variations
+            variations: variations
           });
         }
       }
+
       Swal.fire("Success", "Product saved successfully", "success");
       router.push("/dashboard/super-admin/products");
     } catch (err: any) {
@@ -132,7 +157,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 items-start">
-
       {/* LEFT SIDE: Core Data */}
       <div className="flex-1 w-full space-y-8">
         <BasicInfoPart product={product} update={updateProduct} />
@@ -144,11 +168,10 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
       {/* RIGHT SIDE: Configurations & Final Action */}
       <div className="w-full xl:w-[450px] space-y-8 xl:sticky xl:top-24">
-
         <CategorySidebar product={product} update={updateProduct} />
         <VariationManager product={product} update={updateProduct} />
 
-        {/* Save Action locked to bottom right */}
+        {/* Save Action */}
         <div className="bg-card border border-border rounded-3xl p-6 shadow-theme-sm mt-8">
           <button
             onClick={handleSave}
@@ -160,9 +183,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
             {isEdit ? "Update Changes" : "Publish Product"}
           </button>
         </div>
-
       </div>
-
     </div>
   );
 }

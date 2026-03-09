@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { Plus, Loader2 } from "lucide-react";
+import Swal from "sweetalert2";
 import CategoryTable from "@/components/dashboard/shared/category/CategoryTable";
 import ViewCategoryModal from "@/components/dashboard/shared/category/ViewCategoryModal";
 import CategoryForm from "@/components/dashboard/shared/category/CategoryForm";
@@ -14,7 +15,7 @@ export default function CategoriesManagementPage() {
   // Modal States
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
-  
+
   const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
 
   const fetchCategories = async () => {
@@ -51,13 +52,19 @@ export default function CategoriesManagementPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this category?")) return;
     try {
       await api.delete(`/categories/${id}`);
       fetchCategories(); // Refresh list
     } catch (error) {
       console.error("Failed to delete:", error);
-      alert("Failed to delete category.");
+      Swal.fire({
+        title: "Error",
+        text: "Failed to delete category.",
+        icon: "error",
+        background: 'hsl(var(--card))',
+        color: 'hsl(var(--foreground))',
+        confirmButtonColor: '#3b82f6',
+      });
     }
   };
 
@@ -68,8 +75,8 @@ export default function CategoriesManagementPage() {
           <h1 className="text-2xl font-black text-foreground tracking-tight">Categories</h1>
           <p className="text-sm text-muted-foreground">Manage your store's product categories</p>
         </div>
-        
-        <button 
+
+        <button
           onClick={handleCreateNew}
           className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all"
         >
@@ -85,34 +92,34 @@ export default function CategoriesManagementPage() {
             <p className="text-muted-foreground font-medium">Loading categories...</p>
           </div>
         ) : (
-          <CategoryTable 
-            categories={categories} 
-            onView={handleView} 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
+          <CategoryTable
+            categories={categories}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         )}
       </div>
 
       {/* Modals */}
       {isViewOpen && selectedCategory && (
-        <ViewCategoryModal 
-          category={selectedCategory} 
+        <ViewCategoryModal
+          category={selectedCategory}
           categories={categories} // Passed to find parent name
-          onClose={() => setIsViewOpen(false)} 
-          onEdit={() => handleEdit(selectedCategory)} 
+          onClose={() => setIsViewOpen(false)}
+          onEdit={() => handleEdit(selectedCategory)}
         />
       )}
 
       {isFormOpen && (
-        <CategoryForm 
-          initialData={selectedCategory} 
+        <CategoryForm
+          initialData={selectedCategory}
           categories={categories} // Passed to populate "Parent Category" dropdown
-          onClose={() => setIsFormOpen(false)} 
+          onClose={() => setIsFormOpen(false)}
           onSuccess={() => {
             setIsFormOpen(false);
             fetchCategories();
-          }} 
+          }}
         />
       )}
     </div>

@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
       {/* Shows ONLY on PC, ONLY on the Home Page */}
-      <PCCategoryBar /> 
+      {/* <PCCategoryBar />  */}
       
       <Hero1 />
       <FeaturedCategories/>
