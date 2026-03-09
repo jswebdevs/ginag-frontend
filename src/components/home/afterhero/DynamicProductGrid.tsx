@@ -74,7 +74,7 @@ export default function DynamicProductGrid() {
                 <div key={product.id} className="bg-card border border-border rounded-2xl overflow-hidden group hover:border-primary/50 hover:shadow-theme-md transition-all flex flex-col">
                   
                   {/* Image Area */}
-                  <Link href={`/product/${product.slug || product.id}`} className="aspect-square bg-white relative flex items-center justify-center overflow-hidden block">
+                  <Link href={`/products/${product.slug || product.id}`} className="aspect-square bg-white relative flex items-center justify-center overflow-hidden block">
                     {imageUrl ? (
                       <img 
                         src={imageUrl} 

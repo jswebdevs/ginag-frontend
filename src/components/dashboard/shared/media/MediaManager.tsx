@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
-import { UploadCloud, Image as ImageIcon, Trash2, Copy, Check, Loader2, X } from "lucide-react";
+import { UploadCloud, Image as ImageIcon, Trash2, Copy, Check, Loader2, X, Film } from "lucide-react";
+import Swal from "sweetalert2"; // 🔥 IMPORT SWAL
 
 interface MediaManagerProps {
-  isPicker?: boolean; 
-  multiple?: boolean; // NEW: Supports array selection
+  isPicker?: boolean;
+  multiple?: boolean;
   onSelect?: (media: any | any[]) => void;
 }
 
@@ -14,10 +15,10 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
   const [activeTab, setActiveTab] = useState<"upload" | "library">("library");
   const [mediaItems, setMediaItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Selection & Upload States
-  const [previewItem, setPreviewItem] = useState<any | null>(null); // For the sidebar
-  const [selectedItems, setSelectedItems] = useState<any[]>([]); // For the checkmarks
+  const [previewItem, setPreviewItem] = useState<any | null>(null);
+  const [selectedItems, setSelectedItems] = useState<any[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -41,9 +42,24 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    const file = files[0];
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+
+    // 🔥 FIX: Beautiful SweetAlert instead of native alert
+    if (file.size > MAX_SIZE) {
+      Swal.fire({
+        title: "File Too Large",
+        text: `Maximum size is 10MB. Your file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.`,
+        icon: "warning",
+        confirmButtonColor: "#0ea5e9"
+      });
+      e.target.value = ''; // Reset input
+      return;
+    }
+
     setIsUploading(true);
     const formData = new FormData();
-    formData.append('file', files[0]); 
+    formData.append('file', file);
 
     try {
       await api.post('/media', formData, {
@@ -51,23 +67,51 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
       });
       setActiveTab("library");
       fetchMedia();
-    } catch (error) {
+    } catch (error: any) {
       console.error("Upload failed:", error);
-      alert("Failed to upload image.");
+      // 🔥 FIX: Beautiful SweetAlert for upload errors
+      Swal.fire({
+        title: "Upload Failed",
+        text: error.response?.data?.message || "Failed to upload media. Please try again.",
+        icon: "error",
+        confirmButtonColor: "#0ea5e9"
+      });
     } finally {
       setIsUploading(false);
     }
   };
 
+  // 🔥 FIX: Beautiful SweetAlert instead of window.confirm
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Delete this file permanently?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This file will be deleted permanently from the database and storage.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Yes, delete it!",
+      reverseButtons: true
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await api.delete(`/media/${id}`);
       setPreviewItem(null);
       setSelectedItems(selectedItems.filter(i => i.id !== id));
       fetchMedia();
+
+      Swal.fire({
+        title: "Deleted!",
+        text: "The file has been permanently removed.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false
+      });
     } catch (error) {
       console.error("Delete failed:", error);
+      Swal.fire("Error", "Failed to delete the file.", "error");
     }
   };
 
@@ -77,9 +121,8 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // NEW: Handles clicking an image in the grid
   const handleItemClick = (item: any) => {
-    setPreviewItem(item); // Always show details in sidebar
+    setPreviewItem(item);
 
     if (multiple) {
       const isSelected = selectedItems.some(i => i.id === item.id);
@@ -93,21 +136,25 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
     }
   };
 
-  // Helper to check if an item has a checkmark
   const isSelected = (id: string) => selectedItems.some(i => i.id === id);
+
+  const isVideo = (url: string) => {
+    if (!url) return false;
+    return /\.(mp4|webm|ogg|mov)$/i.test(url);
+  };
 
   return (
     <div className="flex flex-col h-full min-h-[60vh] bg-card border border-border rounded-2xl shadow-theme-lg overflow-hidden">
-      
+
       {/* TOP TABS */}
       <div className="flex items-center gap-6 px-6 border-b border-border bg-muted/10 shrink-0">
-        <button 
+        <button
           onClick={() => setActiveTab("library")}
           className={`py-4 text-sm font-bold border-b-2 transition-all ${activeTab === "library" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
         >
           Media Library
         </button>
-        <button 
+        <button
           onClick={() => setActiveTab("upload")}
           className={`py-4 text-sm font-bold border-b-2 transition-all ${activeTab === "upload" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
         >
@@ -117,12 +164,12 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
 
       {/* MAIN CONTENT AREA */}
       <div className="flex flex-1 overflow-hidden relative">
-        
+
         {/* UPLOAD ZONE */}
         {activeTab === "upload" && (
           <div className="flex-1 flex items-center justify-center p-6 bg-muted/5 animate-in fade-in">
             <label className="w-full max-w-2xl h-64 border-2 border-dashed border-border hover:border-primary/50 rounded-3xl flex flex-col items-center justify-center cursor-pointer transition-colors bg-card hover:bg-muted/10">
-              <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={isUploading} />
+              <input type="file" className="hidden" accept="image/*,video/*" onChange={handleFileUpload} disabled={isUploading} />
               {isUploading ? (
                 <>
                   <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
@@ -134,7 +181,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
                     <UploadCloud className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <h3 className="text-xl font-black text-foreground mb-2">Drop files to upload</h3>
-                  <p className="text-muted-foreground">or click to select files</p>
+                  <p className="text-muted-foreground">Supports Images & Videos (Max 10MB)</p>
                 </>
               )}
             </label>
@@ -155,25 +202,47 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
               </div>
             ) : (
               <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 auto-rows-max">
-                {mediaItems.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleItemClick(item)}
-                    className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all group bg-muted ${isSelected(item.id) ? 'border-primary ring-4 ring-primary/20' : 'border-border hover:border-primary/50'}`}
-                  >
-                    <img 
-                      src={item.thumbUrl || item.originalUrl} 
-                      alt={item.title || "Media"} 
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                    />
-                    {/* Checkmark when selected */}
-                    {isSelected(item.id) && (
-                      <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-md shadow-md animate-in zoom-in">
-                        <Check className="w-4 h-4" />
-                      </div>
-                    )}
-                  </button>
-                ))}
+                {mediaItems.map((item) => {
+                  const mediaIsVideo = isVideo(item.originalUrl);
+
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleItemClick(item)}
+                      className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all group bg-muted ${isSelected(item.id) ? 'border-primary ring-4 ring-primary/20' : 'border-border hover:border-primary/50'}`}
+                    >
+                      {mediaIsVideo ? (
+                        <video
+                          src={item.originalUrl}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          muted
+                          loop
+                          playsInline
+                          onMouseEnter={(e) => e.currentTarget.play()}
+                          onMouseLeave={(e) => e.currentTarget.pause()}
+                        />
+                      ) : (
+                        <img
+                          src={item.thumbUrl || item.originalUrl}
+                          alt={item.title || "Media"}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      )}
+
+                      {mediaIsVideo && (
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white p-1 rounded shadow-md pointer-events-none">
+                          <Film size={12} />
+                        </div>
+                      )}
+
+                      {isSelected(item.id) && (
+                        <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-md shadow-md animate-in zoom-in">
+                          <Check className="w-4 h-4" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -182,7 +251,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
         {/* RIGHT SIDEBAR: ATTACHMENT DETAILS */}
         {activeTab === "library" && previewItem && (
           <div className="absolute top-0 right-0 h-full w-full md:w-80 bg-card border-l border-border shadow-2xl flex flex-col animate-in slide-in-from-right-8 duration-300 z-10">
-            
+
             <div className="flex items-center justify-between p-4 border-b border-border bg-muted/10 shrink-0">
               <h3 className="font-black text-foreground uppercase tracking-wider text-sm">Attachment Details</h3>
               <button onClick={() => setPreviewItem(null)} className="p-1 hover:bg-muted rounded text-muted-foreground transition-colors">
@@ -191,14 +260,26 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-              <div className="aspect-square bg-muted rounded-xl border border-border/50 overflow-hidden flex items-center justify-center p-2">
-                <img src={previewItem.originalUrl} alt={previewItem.title} className="max-w-full max-h-full object-contain drop-shadow-md" />
+              <div className="aspect-square bg-muted rounded-xl border border-border/50 overflow-hidden flex items-center justify-center p-2 relative">
+                {isVideo(previewItem.originalUrl) ? (
+                  <video
+                    src={previewItem.originalUrl}
+                    controls
+                    className="max-w-full max-h-full object-contain rounded-lg drop-shadow-md"
+                  />
+                ) : (
+                  <img
+                    src={previewItem.originalUrl}
+                    alt={previewItem.title}
+                    className="max-w-full max-h-full object-contain drop-shadow-md"
+                  />
+                )}
               </div>
 
               <div className="space-y-3 text-sm">
                 <div>
                   <p className="text-muted-foreground font-bold text-xs uppercase tracking-wider">File name</p>
-                  <p className="text-foreground break-all font-medium">{previewItem.filename || previewItem.title}</p>
+                  <p className="text-foreground break-all font-medium">{previewItem.filename || previewItem.title || "Uploaded File"}</p>
                 </div>
               </div>
 
@@ -217,17 +298,16 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
                   <Trash2 className="w-4 h-4" /> Delete Permanently
                 </button>
 
-                {/* THE SELECTION SUBMIT BUTTON */}
                 {isPicker && onSelect && selectedItems.length > 0 && (
-                  <button 
+                  <button
                     onClick={() => {
                       onSelect(multiple ? selectedItems : selectedItems[0]);
-                      setSelectedItems([]); // reset
+                      setSelectedItems([]);
                     }}
                     className="w-full py-3 mt-4 bg-primary text-primary-foreground font-black rounded-xl shadow-theme-md hover:scale-[1.02] transition-transform flex items-center justify-center gap-2"
                   >
                     <Check size={18} />
-                    {multiple ? `Insert ${selectedItems.length} Images` : `Set as Featured Image`}
+                    {multiple ? `Insert ${selectedItems.length} Files` : `Set as Featured Media`}
                   </button>
                 )}
               </div>

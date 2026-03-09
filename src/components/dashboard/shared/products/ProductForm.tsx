@@ -19,6 +19,9 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
   const router = useRouter();
   const isEdit = !!initialData;
 
+  const [loading, setLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+
   const [product, setProduct] = useState({
     name: "",
     slug: "",
@@ -45,10 +48,9 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     suggestedProducts: [] as string[]
   });
 
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
-    if (initialData) {
+    // Only load the data ONCE to stop the form from wiping newly selected images
+    if (initialData && !isInitialized) {
       let parsedSpecs = "";
       if (typeof initialData.specifications === 'string') {
         parsedSpecs = initialData.specifications;
@@ -60,19 +62,21 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         ...initialData,
         basePrice: Number(initialData.basePrice) || 0,
         salePrice: Number(initialData.salePrice) || 0,
-        // FIX: Explicitly handle null origin so the text input doesn't break
         origin: initialData.origin || "",
+        brandId: initialData.brandId || "",
 
         categoryIds: initialData.categories?.map((c: any) => c.id) || initialData.categoryIds || [],
         suggestedProducts: initialData.suggestedProducts?.map((p: any) => p.id) || initialData.suggestedProducts || [],
 
-        featuredImage: initialData.featuredImage
+        // 🔥 THE FIX: Fallback to featuredImageId if the API forgot to include the ID inside the image object!
+        featuredImage: (initialData.featuredImage || initialData.featuredImageId)
           ? {
-            id: initialData.featuredImage.id,
-            thumbUrl: initialData.featuredImage.thumbUrl,
-            originalUrl: initialData.featuredImage.originalUrl,
+            id: initialData.featuredImage?.id || initialData.featuredImageId,
+            thumbUrl: initialData.featuredImage?.thumbUrl || "",
+            originalUrl: initialData.featuredImage?.originalUrl || "",
           }
           : undefined,
+
         galleryImages: initialData.images?.map((img: any) => ({
           id: img.id,
           thumbUrl: img.thumbUrl,
@@ -85,8 +89,10 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         awareness: initialData.awareness || "",
         specifications: parsedSpecs,
       });
+
+      setIsInitialized(true);
     }
-  }, [initialData]);
+  }, [initialData, isInitialized]);
 
   const updateProduct = (fields: Partial<typeof product>) => {
     setProduct((prev) => ({ ...prev, ...fields }));
@@ -99,22 +105,43 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
     setLoading(true);
     try {
-      const { featuredImage, galleryImages, variations, ...rest } = product;
+      // 🔥 THE FIX 2: Explicitly build the payload. 
+      // Do NOT use ...rest because it might contain garbage data from Prisma (like the old categories array).
       const payload = {
-        ...rest,
-        featuredImageId: featuredImage?.id || "",
-        galleryImageIds: galleryImages.map((img) => img.id),
+        name: product.name,
+        slug: product.slug,
+        productCode: product.productCode,
+        origin: product.origin,
+        brandId: product.brandId,
+        basePrice: product.basePrice,
+        salePrice: product.salePrice,
+        shortDesc: product.shortDesc,
+        longDesc: product.longDesc,
+        tags: product.tags,
+        productStatus: product.productStatus,
+        blogUrl: product.blogUrl,
+        material: product.material,
+        usage: product.usage,
+        usefulness: product.usefulness,
+        awareness: product.awareness,
+        specifications: product.specifications,
+        attributes: product.attributes,
+        categoryIds: product.categoryIds,
+        suggestedProducts: product.suggestedProducts,
+
+        // This is now guaranteed to send a valid ID string or strict null
+        featuredImageId: product.featuredImage ? product.featuredImage.id : null,
+        galleryImageIds: product.galleryImages.map((img) => img.id).filter(Boolean),
       };
 
       if (isEdit) {
         // 1. Update Core Product
         await api.patch(`/products/${initialData.id}`, payload);
 
-        // 2. --- THE FIX: SYNC VARIATIONS DURING EDIT ---
-        const existingVars = variations.filter(v => v.id);
-        const newVars = variations.filter(v => !v.id);
+        // 2. Sync Variations
+        const existingVars = product.variations.filter(v => v.id);
+        const newVars = product.variations.filter(v => !v.id);
 
-        // A. Update Existing Variations (Stock, Price, SKU changes)
         if (existingVars.length > 0) {
           await Promise.all(existingVars.map(v =>
             api.patch(`/variations/${v.id}`, {
@@ -127,21 +154,19 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
           ));
         }
 
-        // B. Create New Variations (If user clicked "Generate Matrix" again)
         if (newVars.length > 0) {
           await api.post("/variations/bulk", {
             productId: initialData.id,
             variations: newVars
           });
         }
-
       } else {
-        // CREATE NEW PRODUCT
+        // Create Product
         const res = await api.post("/products", payload);
-        if (variations.length > 0) {
+        if (product.variations.length > 0) {
           await api.post("/variations/bulk", {
             productId: res.data.product.id,
-            variations: variations
+            variations: product.variations
           });
         }
       }
@@ -149,6 +174,7 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
       Swal.fire("Success", "Product saved successfully", "success");
       router.push("/dashboard/super-admin/products");
     } catch (err: any) {
+      console.error(err);
       Swal.fire("Error", err.response?.data?.message || "Internal Server Error", "error");
     } finally {
       setLoading(false);
@@ -157,7 +183,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
   return (
     <div className="flex flex-col xl:flex-row gap-8 items-start">
-      {/* LEFT SIDE: Core Data */}
       <div className="flex-1 w-full space-y-8">
         <BasicInfoPart product={product} update={updateProduct} />
         <StatusTagsPart product={product} update={updateProduct} />
@@ -166,12 +191,10 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         <MediaPart product={product} update={updateProduct} />
       </div>
 
-      {/* RIGHT SIDE: Configurations & Final Action */}
       <div className="w-full xl:w-[450px] space-y-8 xl:sticky xl:top-24">
         <CategorySidebar product={product} update={updateProduct} />
         <VariationManager product={product} update={updateProduct} />
 
-        {/* Save Action */}
         <div className="bg-card border border-border rounded-3xl p-6 shadow-theme-sm mt-8">
           <button
             onClick={handleSave}

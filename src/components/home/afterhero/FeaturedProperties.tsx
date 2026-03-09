@@ -97,11 +97,11 @@ export default function FeaturedCategories() {
               return (
                 <SwiperSlide key={category.id}>
                   <Link
-                    href={`/category/${category.slug}`}
-                    className="bg-card border border-border rounded-[2rem] p-8 flex flex-col items-center text-center group hover:border-primary hover:shadow-xl hover:-translate-y-2 transition-all duration-500 h-full"
+                    href={`/categories/${category.slug}`}
+                    className="bg-card border border-border rounded-4xl p-8 flex flex-col items-center text-center group hover:border-primary hover:shadow-xl hover:-translate-y-2 transition-all duration-500 h-full"
                   >
                     {/* Icon Container */}
-                    <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 transition-all duration-500 group-hover:rotate-[10deg] shadow-sm ${colorClass}`}>
+                    <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mb-6 transition-all duration-500 group-hover:rotate-10 shadow-sm ${colorClass}`}>
                       <DynamicIcon
                         iconName={category.icon}
                         className="w-10 h-10"
