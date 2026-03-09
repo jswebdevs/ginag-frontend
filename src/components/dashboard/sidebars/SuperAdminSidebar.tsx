@@ -87,16 +87,17 @@ export default function SuperAdminSidebar() {
       name: "Catalog",
       icon: PackageSearch,
       subItems: [
-        { name: "Products", href: "/dashboard/super-admin/products" },
+        { name: "Brands", href: "/dashboard/super-admin/brands" },
         { name: "Categories", href: "/dashboard/super-admin/categories" },
-        { name: "Brands & Attributes", href: "/dashboard/super-admin/brands" },
+        { name: "Products", href: "/dashboard/super-admin/products" },
+        { name: "Media", href: "/dashboard/super-admin/media" }
       ]
     },
     {
       name: "Marketing",
       icon: Megaphone,
       subItems: [
-        { name: "Coupons & Discounts", href: "/dashboard/super-admin/coupons" },
+        { name: "Coupons", href: "/dashboard/super-admin/coupons" },
       ]
     },
     {
@@ -104,9 +105,6 @@ export default function SuperAdminSidebar() {
       icon: Store,
       subItems: [
         { name: "Pages", href: "/dashboard/super-admin/storefront/pages" },
-        { name: "Navigation", href: "/dashboard/super-admin/storefront/navigation" },
-        { name: "Legal", href: "/dashboard/super-admin/storefront/legal" },
-        { name: "Reviews", href: "/dashboard/super-admin/storefront/reviews" },
         { name: "Social", href: "/dashboard/super-admin/storefront/social"}
       ]
     },

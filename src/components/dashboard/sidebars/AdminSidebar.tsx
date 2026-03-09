@@ -68,12 +68,13 @@ export default function AdminSidebar() {
             ]
         },
         {
-            name: "Inventory",
+            name: "Catalog",
             icon: PackageSearch,
             subItems: [
-                { name: "Products", href: "/dashboard/admin/products" },
-                { name: "Categories", href: "/dashboard/admin/categories" },
-                { name: "Brands", href: "/dashboard/admin/brands" },
+                { name: "Brands", href: "/dashboard/super-admin/brands" },
+                { name: "Categories", href: "/dashboard/super-admin/categories" },
+                { name: "Products", href: "/dashboard/super-admin/products" },
+                { name: "Media", href: "/dashboard/super-admin/media" }
             ]
         },
         {
