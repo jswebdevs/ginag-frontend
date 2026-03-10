@@ -30,10 +30,19 @@ export default function FeaturedCategories() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/categories?tree=false") // Fetch flat list with product counts
+    api.get("/categories?tree=false") // Fetch flat list
       .then((res) => {
         const data = res.data?.data || [];
-        setCategories(data);
+
+        // 🔥 FILTER & MAP: Keep only top-level, and count their subcategories dynamically
+        const mainCategories = data
+          .filter((cat: any) => !cat.parentId)
+          .map((mainCat: any) => {
+            const subCategoryCount = data.filter((c: any) => c.parentId === mainCat.id).length;
+            return { ...mainCat, subCategoryCount };
+          });
+
+        setCategories(mainCategories);
       })
       .catch((err) => console.error("Category Fetch Error:", err))
       .finally(() => setLoading(false));
@@ -44,6 +53,9 @@ export default function FeaturedCategories() {
     const IconComponent = (LucideIcons as any)[iconName] || Folder;
     return <IconComponent className={className} />;
   };
+
+  // If there are no categories to show, hide the section
+  if (!loading && categories.length === 0) return null;
 
   return (
     <section className="py-12 md:py-24 bg-background overflow-hidden">
@@ -133,8 +145,9 @@ export default function FeaturedCategories() {
                       <h3 className="font-black text-heading text-sm md:text-base mb-1 group-hover:text-primary transition-colors line-clamp-1 uppercase tracking-tighter w-full">
                         {category.name}
                       </h3>
+                      {/* 🔥 Updated to show subCategoryCount */}
                       <p className="text-xs font-black text-muted-foreground/60 uppercase tracking-widest">
-                        {category._count?.products || 0} Items
+                        {category.subCategoryCount} Subcategories
                       </p>
                     </Link>
                   </SwiperSlide>

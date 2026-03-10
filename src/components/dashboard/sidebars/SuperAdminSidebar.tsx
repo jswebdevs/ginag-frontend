@@ -98,6 +98,8 @@ export default function SuperAdminSidebar() {
       icon: Megaphone,
       subItems: [
         { name: "Coupons", href: "/dashboard/super-admin/coupons" },
+        { name: "Blog Categories", href: "/dashboard/super-admin/blogs/blog-category"},
+        { name: "Blogs", href: "/dashboard/super-admin/blogs/blog" }
       ]
     },
     {
@@ -106,6 +108,7 @@ export default function SuperAdminSidebar() {
       subItems: [
         { name: "Pages", href: "/dashboard/super-admin/storefront/pages" },
         { name: "Social", href: "/dashboard/super-admin/storefront/social"},
+        { name: "Reviews", href: "/dashboard/super-admin/storefront/reviews"},
         { name: "Colors", href: "/dashboard/super-admin/storefront/colors"}
       ]
     },

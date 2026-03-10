@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
         hostname: 'ppouajachylwosassljl.supabase.co', // Your exact Supabase domain!
         port: '',
         pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com', // Added Unsplash for the BrandStory placeholder!
+        port: '',
+        pathname: '/**',
       }
     ],
   },
