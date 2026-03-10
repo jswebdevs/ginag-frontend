@@ -150,7 +150,7 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                   </div>
                 </td>
 
-                <td className="p-4 text-sm font-medium text-foreground max-w-[200px] truncate" title={categoryText}>
+                <td className="p-4 text-sm font-medium text-foreground max-w-50 truncate" title={categoryText}>
                   {categoryText || <span className="text-muted-foreground italic">None</span>}
                 </td>
                 

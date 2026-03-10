@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Search, Edit, Trash2, ExternalLink, FileText } from "lucide-react";
+import { Search, Edit, Trash2, ExternalLink, FileText, Loader2 } from "lucide-react";
 import api from "@/lib/axios";
+import Swal from "sweetalert2"; // 🔥 Import SweetAlert2
 
 interface StorefrontPage {
     id: string;
@@ -30,15 +31,48 @@ export default function PageTable() {
         fetchPages();
     }, []);
 
+    // 🔥 UPDATED: Beautiful Swal confirmation and error handling
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this page? This cannot be undone.")) return;
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "This storefront page will be permanently deleted. This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#ef4444", // Destructive red
+            cancelButtonColor: "#64748b", // Slate muted
+            confirmButtonText: "Yes, delete it!",
+            reverseButtons: true,
+            background: 'hsl(var(--card))',
+            color: 'hsl(var(--foreground))',
+        });
+
+        if (!result.isConfirmed) return;
 
         try {
             await api.delete(`/pages/${id}`);
-            fetchPages(); // Refresh the list
-        } catch (error) {
+
+            Swal.fire({
+                title: "Deleted!",
+                text: "The page has been successfully removed.",
+                icon: "success",
+                timer: 1500,
+                showConfirmButton: false,
+                background: 'hsl(var(--card))',
+                color: 'hsl(var(--foreground))',
+            });
+
+            fetchPages();
+        } catch (error: any) {
             console.error("Failed to delete page:", error);
-            alert("Failed to delete page. Check console.");
+
+            Swal.fire({
+                title: "Error!",
+                text: error.response?.data?.message || "Failed to delete page.",
+                icon: "error",
+                confirmButtonColor: "hsl(var(--primary))",
+                background: 'hsl(var(--card))',
+                color: 'hsl(var(--foreground))',
+            });
         }
     };
 
@@ -64,7 +98,7 @@ export default function PageTable() {
                         placeholder="Search pages by title or slug..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-muted-foreground/50"
+                        className="w-full pl-10 pr-4 py-2.5 bg-background border border-border rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all placeholder:text-muted-foreground/50"
                     />
                 </div>
             </div>
@@ -87,11 +121,14 @@ export default function PageTable() {
                             {loading ? (
                                 [...Array(3)].map((_, i) => (
                                     <tr key={i} className="animate-pulse">
-                                        <td className="px-6 py-5"><div className="h-5 w-32 bg-muted rounded"></div></td>
+                                        <td className="px-6 py-5 flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-muted shrink-0"></div>
+                                            <div className="h-4 w-32 bg-muted rounded"></div>
+                                        </td>
                                         <td className="px-6 py-5"><div className="h-4 w-24 bg-muted rounded"></div></td>
                                         <td className="px-6 py-5"><div className="h-6 w-20 bg-muted rounded-full"></div></td>
                                         <td className="px-6 py-5"><div className="h-4 w-24 bg-muted rounded"></div></td>
-                                        <td className="px-6 py-5 flex justify-end"><div className="h-8 w-8 bg-muted rounded-lg"></div></td>
+                                        <td className="px-6 py-5 flex justify-end"><div className="h-8 w-24 bg-muted rounded-lg"></div></td>
                                     </tr>
                                 ))
                             ) : filteredPages.length > 0 ? (
@@ -106,10 +143,12 @@ export default function PageTable() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">/{page.slug}</span>
+                                            <span className="text-sm font-bold text-muted-foreground whitespace-nowrap">/{page.slug}</span>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap ${page.status === "PUBLISHED" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                            <span className={`inline-flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest whitespace-nowrap ${page.status === "PUBLISHED"
+                                                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
                                                 }`}>
                                                 {page.status}
                                             </span>
@@ -118,14 +157,27 @@ export default function PageTable() {
                                             {formatDate(page.updatedAt)}
                                         </td>
                                         <td className="px-6 py-5">
-                                            <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Link href={`/${page.slug}`} target="_blank" className="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-heading transition-colors">
+                                            <div className="flex items-center justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Link
+                                                    href={`/${page.slug}`}
+                                                    target="_blank"
+                                                    className="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-heading border border-transparent hover:border-border transition-all"
+                                                    title="View Page"
+                                                >
                                                     <ExternalLink className="w-4 h-4" />
                                                 </Link>
-                                                <Link href={`/dashboard/super-admin/storefront/pages/edit/${page.slug}`} className="w-8 h-8 rounded-lg flex items-center justify-center text-blue-500 hover:bg-blue-500/10 transition-colors">
+                                                <Link
+                                                    href={`/dashboard/super-admin/storefront/pages/edit/${page.slug}`}
+                                                    className="w-9 h-9 rounded-xl flex items-center justify-center text-blue-500 hover:bg-blue-500/10 border border-transparent hover:border-blue-500/20 transition-all"
+                                                    title="Edit Layout"
+                                                >
                                                     <Edit className="w-4 h-4" />
                                                 </Link>
-                                                <button onClick={() => handleDelete(page.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-500/10 transition-colors">
+                                                <button
+                                                    onClick={() => handleDelete(page.id)}
+                                                    className="w-9 h-9 rounded-xl flex items-center justify-center text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all"
+                                                    title="Delete Page"
+                                                >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
@@ -134,11 +186,13 @@ export default function PageTable() {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-16 text-center">
+                                    <td colSpan={5} className="px-6 py-20 text-center">
                                         <div className="flex flex-col items-center justify-center text-muted-foreground">
-                                            <FileText className="w-8 h-8 mb-4" />
-                                            <h3 className="text-lg font-black text-heading uppercase tracking-tight mb-1">No Pages Found</h3>
-                                            <p className="text-sm font-medium max-w-sm">Create your first dynamic page to see it here.</p>
+                                            <div className="w-16 h-16 bg-muted/30 rounded-full flex items-center justify-center mb-4">
+                                                <FileText className="w-8 h-8 opacity-20" />
+                                            </div>
+                                            <h3 className="text-lg font-black text-heading uppercase tracking-tight mb-1">No Dynamic Pages</h3>
+                                            <p className="text-sm font-medium max-w-sm opacity-60 uppercase tracking-widest text-[10px]">Your storefront content will appear here.</p>
                                         </div>
                                     </td>
                                 </tr>

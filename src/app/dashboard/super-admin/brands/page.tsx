@@ -6,6 +6,7 @@ import { Plus, Loader2 } from "lucide-react";
 import BrandTable from "@/components/dashboard/shared/brands/BrandTable";
 import ViewBrandModal from "@/components/dashboard/shared/brands/ViewBrandModal";
 import BrandForm from "@/components/dashboard/shared/brands/BrandForm";
+import Swal from "sweetalert2"; // 🔥 Added Swal
 
 export default function BrandsManagementPage() {
   const [brands, setBrands] = useState<any[]>([]);
@@ -48,14 +49,48 @@ export default function BrandsManagementPage() {
     setIsViewOpen(true);
   };
 
+  // 🔥 Refactored handleDelete with SweetAlert2
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this brand?")) return;
-    try {
-      await api.delete(`/brands/${id}`);
-      fetchBrands();
-    } catch (error: any) {
-      console.error("Failed to delete:", error);
-      alert(error.response?.data?.message || "Failed to delete brand.");
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This brand will be permanently deleted!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      background: 'hsl(var(--card))', // Optional: Match your theme
+      color: 'hsl(var(--foreground))'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await api.delete(`/brands/${id}`);
+
+        // Success Toast
+        Swal.fire({
+          title: "Deleted!",
+          text: "Brand has been deleted.",
+          icon: "success",
+          timer: 1500,
+          showConfirmButton: false,
+          background: 'hsl(var(--card))',
+          color: 'hsl(var(--foreground))'
+        });
+
+        fetchBrands();
+      } catch (error: any) {
+        console.error("Failed to delete:", error);
+
+        // Error Alert
+        Swal.fire({
+          title: "Error!",
+          text: error.response?.data?.message || "Failed to delete brand.",
+          icon: "error",
+          background: 'hsl(var(--card))',
+          color: 'hsl(var(--foreground))'
+        });
+      }
     }
   };
 
@@ -66,8 +101,8 @@ export default function BrandsManagementPage() {
           <h1 className="text-2xl font-black text-foreground tracking-tight">Brands</h1>
           <p className="text-sm text-muted-foreground">Manage your store's product brands</p>
         </div>
-        
-        <button 
+
+        <button
           onClick={handleCreateNew}
           className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all"
         >
@@ -83,31 +118,42 @@ export default function BrandsManagementPage() {
             <p className="text-muted-foreground font-medium">Loading brands...</p>
           </div>
         ) : (
-          <BrandTable 
-            brands={brands} 
-            onView={handleView} 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
+          <BrandTable
+            brands={brands}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         )}
       </div>
 
       {isViewOpen && selectedBrand && (
-        <ViewBrandModal 
-          brand={selectedBrand} 
-          onClose={() => setIsViewOpen(false)} 
-          onEdit={() => handleEdit(selectedBrand)} 
+        <ViewBrandModal
+          brand={selectedBrand}
+          onClose={() => setIsViewOpen(false)}
+          onEdit={() => handleEdit(selectedBrand)}
         />
       )}
 
       {isFormOpen && (
-        <BrandForm 
-          initialData={selectedBrand} 
-          onClose={() => setIsFormOpen(false)} 
+        <BrandForm
+          initialData={selectedBrand}
+          onClose={() => setIsFormOpen(false)}
           onSuccess={() => {
             setIsFormOpen(false);
             fetchBrands();
-          }} 
+
+            // Optional: Show success alert on create/update
+            Swal.fire({
+              toast: true,
+              position: 'top-end',
+              icon: 'success',
+              title: 'Success!',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+            });
+          }}
         />
       )}
     </div>

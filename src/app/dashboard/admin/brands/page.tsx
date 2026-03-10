@@ -6,6 +6,7 @@ import { Plus, Loader2 } from "lucide-react";
 import BrandTable from "@/components/dashboard/shared/brands/BrandTable";
 import ViewBrandModal from "@/components/dashboard/shared/brands/ViewBrandModal";
 import BrandForm from "@/components/dashboard/shared/brands/BrandForm";
+import Swal from "sweetalert2"; // 🔥 Import SweetAlert2
 
 export default function BrandsManagementPage() {
   const [brands, setBrands] = useState<any[]>([]);
@@ -48,14 +49,49 @@ export default function BrandsManagementPage() {
     setIsViewOpen(true);
   };
 
+  // 🔥 UPDATED: Beautiful Swal confirmation and error handling
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this brand?")) return;
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This brand will be permanently deleted from your store.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444", // Destructive red
+      cancelButtonColor: "#64748b", // Slate muted
+      confirmButtonText: "Yes, delete it!",
+      reverseButtons: true,
+      background: 'hsl(var(--card))',
+      color: 'hsl(var(--foreground))',
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       await api.delete(`/brands/${id}`);
+
+      // Show success toast or small alert
+      Swal.fire({
+        title: "Deleted!",
+        text: "The brand has been removed.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false,
+        background: 'hsl(var(--card))',
+        color: 'hsl(var(--foreground))',
+      });
+
       fetchBrands();
     } catch (error: any) {
       console.error("Failed to delete:", error);
-      alert(error.response?.data?.message || "Failed to delete brand.");
+
+      Swal.fire({
+        title: "Error!",
+        text: error.response?.data?.message || "Failed to delete brand.",
+        icon: "error",
+        confirmButtonColor: "hsl(var(--primary))",
+        background: 'hsl(var(--card))',
+        color: 'hsl(var(--foreground))',
+      });
     }
   };
 
@@ -63,13 +99,13 @@ export default function BrandsManagementPage() {
     <div className="p-6 max-w-7xl mx-auto animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="text-2xl font-black text-foreground tracking-tight">Brands</h1>
-          <p className="text-sm text-muted-foreground">Manage your store's product brands</p>
+          <h1 className="text-2xl font-black text-foreground tracking-tight uppercase">Brands</h1>
+          <p className="text-sm text-muted-foreground font-medium">Manage your store's product brands</p>
         </div>
-        
-        <button 
+
+        <button
           onClick={handleCreateNew}
-          className="flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all"
+          className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:shadow-theme-md hover:scale-105 transition-all shadow-theme-sm"
         >
           <Plus className="w-5 h-5" />
           Add Brand
@@ -80,34 +116,34 @@ export default function BrandsManagementPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center p-20">
             <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground font-medium">Loading brands...</p>
+            <p className="text-muted-foreground font-bold uppercase text-xs tracking-widest">Loading brands...</p>
           </div>
         ) : (
-          <BrandTable 
-            brands={brands} 
-            onView={handleView} 
-            onEdit={handleEdit} 
-            onDelete={handleDelete} 
+          <BrandTable
+            brands={brands}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         )}
       </div>
 
       {isViewOpen && selectedBrand && (
-        <ViewBrandModal 
-          brand={selectedBrand} 
-          onClose={() => setIsViewOpen(false)} 
-          onEdit={() => handleEdit(selectedBrand)} 
+        <ViewBrandModal
+          brand={selectedBrand}
+          onClose={() => setIsViewOpen(false)}
+          onEdit={() => handleEdit(selectedBrand)}
         />
       )}
 
       {isFormOpen && (
-        <BrandForm 
-          initialData={selectedBrand} 
-          onClose={() => setIsFormOpen(false)} 
+        <BrandForm
+          initialData={selectedBrand}
+          onClose={() => setIsFormOpen(false)}
           onSuccess={() => {
             setIsFormOpen(false);
             fetchBrands();
-          }} 
+          }}
         />
       )}
     </div>
