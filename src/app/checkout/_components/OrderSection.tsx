@@ -117,7 +117,7 @@ export default function OrderSection({
         type="submit"
         form="checkout-form"
         disabled={placingOrder}
-        className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-70 disabled:pointer-events-none"
+        className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg hover:shadow-md hover:-translate-y-0.5 transition-all disabled:opacity-70 cursor-pointer disabled:pointer-events-none"
       >
         {placingOrder ? (
           <>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 
@@ -20,24 +20,26 @@ interface CartData {
 
 export default function CheckoutPage() {
   const router = useRouter();
-  
-  // States
+
+  // --- States ---
   const [cart, setCart] = useState<CartData | null>(null);
   const [loading, setLoading] = useState(true);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+  const [userAddresses, setUserAddresses] = useState<any[]>([]);
 
   // Coupon States
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null); 
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [discountAmount, setDiscountAmount] = useState(0);
 
   // Form States
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
+    email: "",
     district: "",
     thana: "",
     house: "",
@@ -48,64 +50,63 @@ export default function CheckoutPage() {
   // Payment States
   const [paymentMethod, setPaymentMethod] = useState<"COD" | "MFS">("COD");
   const [mfsInfo, setMfsInfo] = useState({ provider: "bKash", senderNumber: "", transactionId: "" });
-  
-  // --- DYNAMIC SHIPPING COST LOGIC ---
-  // If no district is selected, show 0. If "Dhaka", show 80. Otherwise, 150.
+
+  // Dynamic Shipping Cost
   const SHIPPING_COST = formData.district === "" ? 0 : (formData.district === "Dhaka" ? 80 : 150);
 
-  // --- Initialization ---
+  // --- Initialization & Persistence Logic ---
   useEffect(() => {
     const initializeCheckout = async () => {
       try {
+        // 1. Fetch Cart Data
         const cartRes = await api.get("/cart");
         const cartData = cartRes.data.data;
-        
         if (!cartData || cartData.items.length === 0) {
           router.push("/cart");
           return;
         }
-        setCart(cartData);
+        setCart(cartRes.data.data);
 
+        // 2. Fetch User Profile (if any)
         try {
           const userRes = await api.get("/users/me");
           const user = userRes.data.data;
-          
+
           if (user) {
             setIsLoggedIn(true);
-            const updatedForm = {
+            setUserAddresses(user.addresses || []);
+
+            // PERSISTENCE CHECK: DB Verification status OR Session Verification
+            const sessionVerifiedPhone = sessionStorage.getItem("verified_phone");
+            if (user.phoneVerified || (sessionVerifiedPhone && user.phone === sessionVerifiedPhone)) {
+              setIsPhoneVerified(true);
+              // Ensure session storage stays in sync for reloads
+              if (user.phoneVerified) sessionStorage.setItem("verified_phone", user.phone);
+            }
+
+            // Pre-fill form from profile (default address)
+            const defaultAddr = user.addresses?.find((a: any) => a.isDefault) || user.addresses?.[0];
+            setFormData({
               fullName: user.fullName || "",
               phone: user.phone || "",
               email: user.email || "",
-              address: "",
-              city: "",
-              zipCode: "",
-              district: "",
-              thana: "",
-              house: "",
-              road: "",
-              area: "",
-            };
-
-            // If the user's phone is already verified in DB, mark it true
-            if (user.phoneVerified) {
-              setIsPhoneVerified(true);
-            }
-
-            if (user.addresses && user.addresses.length > 0) {
-              const defaultAddr = user.addresses[0];
-              updatedForm.district = defaultAddr.district || "";
-              updatedForm.thana = defaultAddr.thana || "";
-              updatedForm.house = defaultAddr.house || "";
-              updatedForm.road = defaultAddr.road || "";
-              updatedForm.area = defaultAddr.area || "";
-            }
-            setFormData(updatedForm);
+              district: defaultAddr?.district || "",
+              thana: defaultAddr?.thana || "",
+              house: defaultAddr?.house || "",
+              road: defaultAddr?.road || "",
+              area: defaultAddr?.area || "",
+            });
           }
         } catch (error) {
-          console.log("Proceeding as guest checkout");
+          // Guest Persistence Logic
+          const guestVerifiedPhone = sessionStorage.getItem("verified_phone");
+          if (guestVerifiedPhone) {
+            setFormData(prev => ({ ...prev, phone: guestVerifiedPhone }));
+            setIsPhoneVerified(true);
+          }
         }
       } catch (error) {
-        console.error("Failed to initialize checkout:", error);
+        console.error("Checkout Initialization Failed:", error);
       } finally {
         setLoading(false);
       }
@@ -114,25 +115,26 @@ export default function CheckoutPage() {
     initializeCheckout();
   }, [router]);
 
-  // --- Handlers ---
+  // --- Form Handlers ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // --- Coupon Handlers ---
   const handleApplyCoupon = async () => {
     if (!couponCode || !cart) return;
     setCouponLoading(true);
 
     try {
-      const res = await api.post("/coupons/validate", { 
+      const res = await api.post("/coupons/validate", {
         code: couponCode.trim().toUpperCase(),
-        cartAmount: cart.totalAmount 
+        cartAmount: cart.totalAmount
       });
-      
+
       const coupon = res.data.data;
       setAppliedCoupon(coupon);
-      
+
       let discount = 0;
       if (coupon.discountType === 'PERCENTAGE') {
         discount = (cart.totalAmount * Number(coupon.discountValue)) / 100;
@@ -159,39 +161,55 @@ export default function CheckoutPage() {
     setCouponCode("");
   };
 
+  // --- Order Placement Handler ---
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 1. Mandatory Verification Check
+    if (!isPhoneVerified) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Phone Not Verified',
+        text: 'You must verify your phone number via OTP before placing an order.'
+      });
+      return;
+    }
+
+    // 2. MFS Validation
     if (paymentMethod === "MFS" && (!mfsInfo.senderNumber || !mfsInfo.transactionId)) {
-      Swal.fire({ icon: 'warning', title: 'Missing Info', text: 'Please enter your TrxID and Sender Number for manual payment.' });
+      Swal.fire({ icon: 'warning', title: 'Payment Info Required', text: 'Please enter your TrxID and Sender Number.' });
       return;
     }
 
     setPlacingOrder(true);
 
     try {
+      // Note: Backend will update User profile address inside this call if userId exists
       await api.post("/orders/checkout", {
         shippingAddress: formData,
         paymentMethod: paymentMethod,
         paymentDetails: paymentMethod === "MFS" ? mfsInfo : null,
         shippingCost: SHIPPING_COST,
         couponId: appliedCoupon?.id || null,
-        customerPhone: formData.phone // Ensure phone is sent directly as well
+        customerPhone: formData.phone
       });
 
+      // Verification cycle complete, clean up session
+      sessionStorage.removeItem("verified_phone");
+
       Swal.fire({
-        title: "Order Placed!",
-        text: "Your order has been successfully placed.",
+        title: "Order Successful!",
+        text: "Your order has been placed and your address has been saved to your profile.",
         icon: "success",
         confirmButtonColor: "#0ea5e9",
       }).then(() => {
-        router.push(isLoggedIn ? "/dashboard/orders" : "/order-success"); 
+        router.push(isLoggedIn ? "/dashboard/orders" : "/order-success");
       });
 
     } catch (error: any) {
       Swal.fire({
-        title: "Checkout Failed",
-        text: error.response?.data?.message || "Something went wrong.",
+        title: "Order Failed",
+        text: error.response?.data?.message || "Something went wrong. Please try again.",
         icon: "error",
       });
     } finally {
@@ -199,10 +217,14 @@ export default function CheckoutPage() {
     }
   };
 
+  // Loading State
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Initializing Secure Checkout...</p>
+        </div>
       </div>
     );
   }
@@ -214,39 +236,44 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-muted/30 py-6 sm:py-8 md:py-12">
       <div className="container mx-auto px-4 max-w-6xl">
-        
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-6 sm:mb-8">
-          <Link href="/cart" className="w-10 h-10 flex items-center justify-center bg-card border border-border rounded-full text-muted-foreground hover:text-foreground hover:border-primary transition-colors">
+
+        {/* Page Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <Link href="/cart" className="w-10 h-10 flex items-center justify-center bg-card border border-border rounded-full text-muted-foreground hover:text-foreground hover:border-primary transition-all">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground">Secure Checkout</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-foreground uppercase tracking-tight">
+            Secure <span className="text-primary italic">Checkout</span>
+          </h1>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-12">
-          
-          {/* LEFT: Forms */}
-          <div className="flex-grow space-y-6 sm:space-y-8">
-            <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-6 sm:space-y-8">
-              <Address 
-                formData={formData} 
-                handleInputChange={handleInputChange as any} 
+        {/* MAIN GRID STRUCTURE */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+          {/* LEFT COLUMN: Input Forms (7 out of 12) */}
+          <div className="lg:col-span-7 space-y-8">
+            <form id="checkout-form" onSubmit={handlePlaceOrder} className="space-y-8">
+              <Address
+                formData={formData}
+                setFormData={setFormData}
+                handleInputChange={handleInputChange as any}
                 isPhoneVerified={isPhoneVerified}
                 setIsPhoneVerified={setIsPhoneVerified}
+                userAddresses={userAddresses}
               />
-              <Payment 
-                paymentMethod={paymentMethod} 
-                setPaymentMethod={setPaymentMethod} 
-                mfsInfo={mfsInfo} 
-                setMfsInfo={setMfsInfo} 
-                totalPayable={totalPayable} 
+              <Payment
+                paymentMethod={paymentMethod}
+                setPaymentMethod={setPaymentMethod}
+                mfsInfo={mfsInfo}
+                setMfsInfo={setMfsInfo}
+                totalPayable={totalPayable}
               />
             </form>
           </div>
 
-          {/* RIGHT: Summary */}
-          <div className="w-full lg:w-[420px] flex-shrink-0">
-            <OrderSection 
+          {/* RIGHT COLUMN: Order Summary (5 out of 12) */}
+          <div className="lg:col-span-5 sticky top-8">
+            <OrderSection
               cart={cart}
               totalPayable={totalPayable}
               shippingCost={SHIPPING_COST}
@@ -258,7 +285,7 @@ export default function CheckoutPage() {
               couponLoading={couponLoading}
               discountAmount={discountAmount}
               placingOrder={placingOrder}
-              isPhoneVerified={isPhoneVerified} // <-- Passing this down
+              isPhoneVerified={isPhoneVerified}
             />
           </div>
 
