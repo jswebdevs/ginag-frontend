@@ -1,61 +1,37 @@
-// src/store/themeStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-type Theme = 'sapphire' | 'emerald' | 'ruby' | 'amber' | 'amethyst' | 'rose' | 'ocean' | 'slate' | 'custom';
-
 interface ThemeState {
-  theme: Theme;
   isDark: boolean;
-  setTheme: (theme: Theme) => void;
+  userTheme: any | null; // Stores the specific theme object chosen by user
   toggleDark: () => void;
-  initTheme: () => void; // Added for initial DOM setup
+  setTheme: (theme: any) => void;
+  initTheme: () => void;
 }
 
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      theme: 'sapphire', // Default matching your CSS preset 1
       isDark: false,
+      userTheme: null, 
       
-      setTheme: (theme) => {
-        set({ theme });
-        // Update DOM attributes for Tailwind logic
-        if (typeof document !== 'undefined') {
-          document.documentElement.setAttribute('data-theme', theme);
-        }
-      },
-      
+      setTheme: (theme) => set({ userTheme: theme }),
+
       toggleDark: () => {
         const nextDark = !get().isDark;
         set({ isDark: nextDark });
-        
-        // Update DOM class for Tailwind `.dark` layer
         if (typeof document !== 'undefined') {
-          if (nextDark) {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
+          document.documentElement.classList.toggle('dark', nextDark);
         }
       },
       
-      // Call this in your root layout/provider to apply persisted state on load
       initTheme: () => {
-        const { theme, isDark } = get();
+        const { isDark } = get();
         if (typeof document !== 'undefined') {
-          document.documentElement.setAttribute('data-theme', theme);
-          if (isDark) {
-            document.documentElement.classList.add('dark');
-          } else {
-            document.documentElement.classList.remove('dark');
-          }
+          document.documentElement.classList.toggle('dark', isDark);
         }
       }
     }),
-    { 
-      name: 'theme-storage',
-      // Ensure hydration doesn't cause UI flickering by syncing with DOM
-    }
+    { name: 'dreamshop-theme-storage' }
   )
-); 
+);

@@ -8,28 +8,16 @@ import { useUserStore } from "@/store/useUserStore";
 import { useEffect, useState, useRef } from "react";
 import MobileCategoryDrawer from "./MobileCategoryDrawer";
 import api from "@/lib/axios";
-
-// You can keep the local logo as a strict fallback if the API fails
 import Image from "next/image";
 import fallbackLogo from "./logo.png";
 
-const previewColors: Record<string, string> = {
-  sapphire: '#2563eb',
-  emerald: '#16a34a',
-  ruby: '#dc2626',
-  amber: '#d97706',
-  amethyst: '#7c3aed',
-  rose: '#db2777',
-  ocean: '#0891b2',
-  slate: '#0f172a'
-};
 
-const palettes = ['sapphire', 'emerald', 'ruby', 'amber', 'amethyst', 'rose', 'ocean', 'slate'] as const;
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { theme, setTheme, isDark, toggleDark } = useThemeStore();
+  const { userTheme, setTheme, isDark, toggleDark } = useThemeStore();
+  const [ availableThemes, setAvailableThemes] = useState<any[]>([]);
   const { user, isAuthenticated } = useUserStore();
 
   const [mounted, setMounted] = useState(false);
@@ -75,6 +63,15 @@ export default function Navbar() {
         console.error("Failed to load navbar settings", error);
       }
     };
+    const fetchThemes = async () => {
+      try {
+        const res = await api.get('/themes/list');
+        setAvailableThemes(res.data.data || []);
+      } catch (error) {
+        console.error("Failed to load themes", error);
+      }
+    };
+    fetchThemes();
 
     fetchSettings();
   }, []);
@@ -163,31 +160,50 @@ export default function Navbar() {
     }
   };
 
+  // --- THEME UI LOGIC ---
   const ThemeSwitcherUI = () => {
     if (!mounted) return <div className="w-20 h-8 bg-muted animate-pulse rounded-full" />;
+
+    // Get the primary color of the currently active theme for the "dot"
+    // It looks into the lightVariables JSON we stored in the DB
+    const activePreviewColor = userTheme?.lightVariables?.primary
+      ? `hsl(${userTheme.lightVariables.primary})`
+      : 'var(--color-primary)';
 
     return (
       <div className="flex items-center gap-1 md:gap-2 p-1 border border-border rounded-full bg-background/50 backdrop-blur-sm transition-colors">
         <button onClick={toggleDark} className="p-1 md:p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors">
           {isDark ? <LucideIcons.Moon className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <LucideIcons.Sun className="w-3.5 h-3.5 md:w-4 md:h-4" />}
         </button>
+
         <div className="h-4 w-[1px] bg-border" />
+
         <div className="relative" ref={dropdownRef}>
           <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center gap-1 md:gap-2 p-1 md:p-1.5 pl-2 pr-1 text-sm font-medium rounded-full hover:bg-muted transition-colors">
-            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border border-border" style={{ backgroundColor: previewColors[theme] || previewColors.sapphire }} />
+            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border border-black/10" style={{ backgroundColor: activePreviewColor }} />
             <LucideIcons.ChevronDown className="w-3 h-3 opacity-50" />
           </button>
 
-          {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 py-2 bg-popover border border-border rounded-xl shadow-theme-lg z-50">
-              <div className="grid grid-cols-4 gap-2 px-3">
-                {palettes.map((p) => (
+          {isDropdownOpen && availableThemes.length > 0 && (
+            <div className="absolute right-0 mt-3 w-56 py-3 bg-popover border border-border rounded-2xl shadow-theme-xl z-50 animate-in fade-in zoom-in-95 duration-200">
+              <p className="px-4 pb-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Select Mood</p>
+              <div className="grid grid-cols-4 gap-3 px-4">
+                {availableThemes.map((t) => (
                   <button
-                    key={p}
-                    onClick={() => { setTheme(p); setIsDropdownOpen(false); }}
-                    className={`flex justify-center w-8 h-8 rounded-full border transition-all ${theme === p ? 'border-primary ring-2 ring-primary/30 ring-offset-2 ring-offset-background' : 'border-transparent hover:scale-110'}`}
+                    key={t.id}
+                    title={t.name}
+                    onClick={() => { setTheme(t); setIsDropdownOpen(false); }}
+                    className={`group relative flex justify-center w-9 h-9 rounded-xl border transition-all ${userTheme?.id === t.id ? 'border-primary bg-primary/10' : 'border-transparent hover:bg-muted'}`}
                   >
-                    <div className="w-5 h-5 rounded-full border border-black/10 dark:border-white/10 m-auto" style={{ backgroundColor: previewColors[p] }} />
+                    <div
+                      className="w-6 h-6 rounded-lg border border-black/5 shadow-sm m-auto transition-transform group-hover:scale-110"
+                      style={{ backgroundColor: `hsl(${t.lightVariables.primary})` }}
+                    />
+                    {userTheme?.id === t.id && (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background flex items-center justify-center">
+                        <LucideIcons.Check className="text-white w-2 h-2" strokeWidth={4} />
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>

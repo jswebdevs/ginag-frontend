@@ -96,7 +96,7 @@ export default function CartPage() {
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
           
           {/* --- LEFT: Cart Items List --- */}
-          <div className="flex-grow space-y-6">
+          <div className="grow space-y-6">
             {cart.items.map((item: any) => {
               const imageUrl = item.variation.product.featuredImage?.originalUrl;
               const price = Number(item.variation.salePrice || item.variation.basePrice);
@@ -119,7 +119,7 @@ export default function CartPage() {
                   </Link>
 
                   {/* Item Details */}
-                  <div className="flex flex-col flex-grow justify-between py-1">
+                  <div className="flex flex-col grow justify-between py-1">
                     <div className="flex justify-between items-start gap-4">
                       <div className="space-y-2 relative">
                         <Link href={`/products/${item.variation.product.slug}`} className="font-bold text-foreground text-lg hover:text-primary transition-colors line-clamp-2 pr-4">

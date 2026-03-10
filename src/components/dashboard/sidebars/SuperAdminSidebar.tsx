@@ -105,7 +105,8 @@ export default function SuperAdminSidebar() {
       icon: Store,
       subItems: [
         { name: "Pages", href: "/dashboard/super-admin/storefront/pages" },
-        { name: "Social", href: "/dashboard/super-admin/storefront/social"}
+        { name: "Social", href: "/dashboard/super-admin/storefront/social"},
+        { name: "Colors", href: "/dashboard/super-admin/storefront/colors"}
       ]
     },
     {

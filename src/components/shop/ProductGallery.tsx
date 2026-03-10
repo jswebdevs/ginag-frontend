@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, MouseEvent } from "react";
-import { ImageIcon, Film } from "lucide-react";
+import { useState, MouseEvent, useRef } from "react";
+import { ImageIcon, Film, Maximize } from "lucide-react";
 
 interface ProductGalleryProps {
     featuredImage?: { originalUrl: string; thumbUrl?: string };
@@ -14,6 +14,9 @@ export default function ProductGallery({ featuredImage, images, productName }: P
     const [activeImage, setActiveImage] = useState<string | null>(defaultImg);
     const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
     const [isHovering, setIsHovering] = useState(false);
+
+    // Ref for the video element to trigger fullscreen
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     // Combine featured and gallery images, filtering out duplicates if needed
     const allImages = featuredImage ? [featuredImage, ...images] : images;
@@ -31,6 +34,19 @@ export default function ProductGallery({ featuredImage, images, productName }: P
         setZoomPos({ x, y });
     };
 
+    // Cross-browser fullscreen handler
+    const handleFullscreen = () => {
+        if (videoRef.current) {
+            if (videoRef.current.requestFullscreen) {
+                videoRef.current.requestFullscreen();
+            } else if ((videoRef.current as any).webkitRequestFullscreen) { // Safari
+                (videoRef.current as any).webkitRequestFullscreen();
+            } else if ((videoRef.current as any).msRequestFullscreen) { // IE11
+                (videoRef.current as any).msRequestFullscreen();
+            }
+        }
+    };
+
     return (
         <div className="space-y-4 lg:sticky lg:top-24 z-10">
 
@@ -44,15 +60,27 @@ export default function ProductGallery({ featuredImage, images, productName }: P
                 {activeImage ? (
                     isVideo(activeImage) ? (
                         // VIDEO RENDERER
-                        <video
-                            src={activeImage}
-                            controls
-                            autoPlay
-                            muted
-                            loop
-                            playsInline
-                            className="w-full h-full object-cover bg-black"
-                        />
+                        <div className="w-full h-full relative bg-black flex items-center justify-center group/video">
+                            <video
+                                ref={videoRef}
+                                src={activeImage}
+                                controls
+                                autoPlay
+                                muted
+                                loop
+                                playsInline
+                                // object-contain ensures the whole video fits without cropping, adding black bars as needed
+                                className="w-full h-full object-contain"
+                            />
+                            {/* Custom Fullscreen Button Overlay */}
+                            <button
+                                onClick={handleFullscreen}
+                                className="absolute top-4 right-4 p-2.5 bg-black/60 text-white rounded-xl backdrop-blur-sm opacity-0 group-hover/video:opacity-100 hover:bg-primary transition-all shadow-lg"
+                                title="View Fullscreen"
+                            >
+                                <Maximize className="w-5 h-5" />
+                            </button>
+                        </div>
                     ) : (
                         // IMAGE RENDERER WITH ZOOM
                         <>
@@ -88,13 +116,13 @@ export default function ProductGallery({ featuredImage, images, productName }: P
                                 key={idx}
                                 onClick={() => setActiveImage(img.originalUrl)}
                                 className={`relative w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all bg-muted ${activeImage === img.originalUrl
-                                        ? 'border-primary ring-2 ring-primary/20'
-                                        : 'border-transparent hover:border-primary/50'
+                                    ? 'border-primary ring-2 ring-primary/20'
+                                    : 'border-transparent hover:border-primary/50'
                                     }`}
                             >
                                 {mediaIsVideo ? (
                                     <>
-                                        {/* The browser will automatically grab the first frame of the video to act as a thumbnail */}
+                                        {/* Thumbnails stay object-cover so they look uniform in the strip */}
                                         <video
                                             src={img.originalUrl}
                                             preload="metadata"
