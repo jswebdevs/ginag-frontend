@@ -2,10 +2,18 @@
 
 import { useState } from "react";
 import { MapPin, Plus, Trash2, CheckCircle2, Home } from "lucide-react";
-import Swal from "sweetalert2"; // 🔥 Import SweetAlert2
+import Swal from "sweetalert2";
 
 const DIVISIONS = ["Dhaka", "Chittagong", "Rajshahi", "Khulna", "Barishal", "Sylhet", "Rangpur", "Mymensingh"];
 const ADDRESS_TYPES = ["PRESENT", "PERMANENT", "HOME", "WORK", "SHIPPING", "BILLING"];
+
+// 🔥 Added Interface for Sub-component Props
+interface AddressInputProps {
+    label: string;
+    value: string;
+    onChange: (val: string) => void;
+    isMono?: boolean;
+}
 
 export default function FormAddresses({ data, update }: any) {
     const [isAdding, setIsAdding] = useState(false);
@@ -24,7 +32,6 @@ export default function FormAddresses({ data, update }: any) {
     });
 
     const handleAddAddress = () => {
-        // 🔥 UPDATED: Beautiful validation alert
         if (!draft.district || !draft.thana || !draft.postalCode) {
             Swal.fire({
                 title: "Incomplete Address",
@@ -55,7 +62,6 @@ export default function FormAddresses({ data, update }: any) {
         });
         setIsAdding(false);
 
-        // Optional: Success Toast
         Swal.fire({
             toast: true,
             position: 'top-end',
@@ -68,7 +74,6 @@ export default function FormAddresses({ data, update }: any) {
         });
     };
 
-    // 🔥 UPDATED: Added confirmation before removal
     const removeAddress = async (index: number) => {
         const result = await Swal.fire({
             title: "Remove Address?",
@@ -88,7 +93,7 @@ export default function FormAddresses({ data, update }: any) {
         const newAddresses = [...data.addresses];
         newAddresses.splice(index, 1);
 
-        if (newAddresses.length > 0 && !newAddresses.some(a => a.isDefault)) {
+        if (newAddresses.length > 0 && !newAddresses.some((a: any) => a.isDefault)) {
             newAddresses[0].isDefault = true;
         }
 
@@ -200,13 +205,14 @@ export default function FormAddresses({ data, update }: any) {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <AddressInput label="House / Apt (Opt)" value={draft.house} onChange={v => setDraft({ ...draft, house: v })} />
-                        <AddressInput label="Road / Street (Opt)" value={draft.road} onChange={v => setDraft({ ...draft, road: v })} />
-                        <AddressInput label="Area / Block (Opt)" value={draft.area} onChange={v => setDraft({ ...draft, area: v })} />
+                        {/* 🔥 Passing explicit string type in the anonymous function */}
+                        <AddressInput label="House / Apt (Opt)" value={draft.house} onChange={(v: string) => setDraft({ ...draft, house: v })} />
+                        <AddressInput label="Road / Street (Opt)" value={draft.road} onChange={(v: string) => setDraft({ ...draft, road: v })} />
+                        <AddressInput label="Area / Block (Opt)" value={draft.area} onChange={(v: string) => setDraft({ ...draft, area: v })} />
 
-                        <AddressInput label="Thana / Upazila *" value={draft.thana} onChange={v => setDraft({ ...draft, thana: v })} />
-                        <AddressInput label="District / City *" value={draft.district} onChange={v => setDraft({ ...draft, district: v })} />
-                        <AddressInput label="Postal Code *" value={draft.postalCode} onChange={v => setDraft({ ...draft, postalCode: v })} isMono />
+                        <AddressInput label="Thana / Upazila *" value={draft.thana} onChange={(v: string) => setDraft({ ...draft, thana: v })} />
+                        <AddressInput label="District / City *" value={draft.district} onChange={(v: string) => setDraft({ ...draft, district: v })} />
+                        <AddressInput label="Postal Code *" value={draft.postalCode} onChange={(v: string) => setDraft({ ...draft, postalCode: v })} isMono />
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Division</label>
@@ -238,13 +244,14 @@ export default function FormAddresses({ data, update }: any) {
     );
 }
 
-// Sub-component for cleaner inputs
-function AddressInput({ label, value, onChange, isMono = false }: any) {
+// 🔥 Updated sub-component with explicit typing
+function AddressInput({ label, value, onChange, isMono = false }: AddressInputProps) {
     return (
         <div className="space-y-2">
             <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</label>
             <input
                 type="text"
+                placeholder="Input your Address"
                 value={value}
                 onChange={e => onChange(e.target.value)}
                 className={`w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-bold focus:ring-2 focus:ring-primary focus:outline-none transition-all ${isMono ? 'font-mono' : ''}`}
