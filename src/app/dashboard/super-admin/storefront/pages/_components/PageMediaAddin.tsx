@@ -67,7 +67,7 @@ export default function PageMediaAddin({ isOpen, onClose, onSelect }: PageMediaA
                             // Format all selected media
                             const formattedMedias = mediaArray.map(media => {
                                 const url = media.originalUrl || media.thumbUrl;
-                                const type = (media.mediaType === "VIDEO" || isVideo(url)) ? "VIDEO" : "IMAGE";
+                                const type = (media.mediaType === "VIDEO" || isVideo(url)) ? ("VIDEO" as const)  : ("IMAGE" as const);
                                 return { url, type };
                             });
 
