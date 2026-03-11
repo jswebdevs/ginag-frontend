@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, TrendingUp, CircleDollarSign, 
   Users, PackageSearch, Megaphone, Store, ShieldCheck, 
-  Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle 
+  Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle, MessageCircleMore
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
 import Cookies from "js-cookie";
@@ -62,6 +62,7 @@ export default function SuperAdminSidebar() {
   const menuItems = [
     { name: "Dashboard", href: "/dashboard/super-admin", icon: LayoutDashboard },
     { name: "Insights", href: "/dashboard/super-admin/insights", icon: TrendingUp },
+    { name: "Chats", href: "/dashboard/super-admin/chats", icon: MessageCircleMore},
     {
       name: "Sales & Finance",
       icon: CircleDollarSign,
@@ -109,7 +110,7 @@ export default function SuperAdminSidebar() {
         { name: "Pages", href: "/dashboard/super-admin/storefront/pages" },
         { name: "Social", href: "/dashboard/super-admin/storefront/social"},
         { name: "Reviews", href: "/dashboard/super-admin/storefront/reviews"},
-        { name: "Colors", href: "/dashboard/super-admin/storefront/colors"}
+        { name: "Themes", href: "/dashboard/super-admin/storefront/themes"}
       ]
     },
     {
