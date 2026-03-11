@@ -1,0 +1,18 @@
+# 1. Enable Phusion Passenger
+PassengerEnabled on
+PassengerAppType node
+
+# 2. Set the entry point (Next.js standalone server)
+PassengerStartupFile server.js
+
+# 3. Force the specific Node.js version we installed
+PassengerNodejs /home/vertexfo/.nvm/versions/node/v22.22.1/bin/node
+
+# 4. Set environment to production
+SetEnv NODE_ENV production
+
+# 5. Fix for WebSockets (Socket.IO support)
+SetEnv DISCARD_ABORTED_REQUESTS 1
+
+# 6. Ensure the backend URL is available to the client
+SetEnv NEXT_PUBLIC_API_URL https://dreamback.jswebdevs.com
