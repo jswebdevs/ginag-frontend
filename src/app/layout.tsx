@@ -10,6 +10,10 @@ import Footer from "@/components/shared/footer/Footer";
 import { getGlobalSettings } from "@/lib/getSettings";
 import MaintenanceGuard from "@/components/shared/MaintenanceGuard";
 
+// 🔥 Import the Global Floating Components
+import FloatingWidget from "@/components/shared/chatbox/FloatingWidget";
+import ToTopButton from "@/components/shared/totop/ToTopButton";
+
 // 2. Dynamic Metadata Generation
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getGlobalSettings();
@@ -68,7 +72,6 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Fetch settings at the root level to determine maintenance status
   const settings = await getGlobalSettings();
 
   const isMaintenanceMode = settings?.maintenanceMode ?? false;
@@ -81,22 +84,24 @@ export default async function RootLayout({
           <AuthProvider>
             <ThemeProvider>
 
-              {/* The MaintenanceGuard wraps everything. 
-                  If maintenance is ON, it will swap the storefront UI with a "Back Soon" message,
-                  but it will still allow you to access /dashboard routes.
-              */}
               <MaintenanceGuard
                 isMaintenanceMode={isMaintenanceMode}
                 message={maintenanceMessage}
               >
                 <Navbar />
-
                 <main className="flex-1">
                   {children}
                 </main>
-
                 <Footer />
               </MaintenanceGuard>
+
+              {/* These components use React Portals to break out of layout constraints automatically */}
+              {!isMaintenanceMode && (
+                <>
+                  <FloatingWidget />
+                  <ToTopButton />
+                </>
+              )}
 
             </ThemeProvider>
           </AuthProvider>

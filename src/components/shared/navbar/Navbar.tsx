@@ -11,19 +11,25 @@ import api from "@/lib/axios";
 import Image from "next/image";
 import fallbackLogo from "./logo.png";
 
-
+// 🔥 Import Chat Components for Mobile Overlay
+import ChatLogin from "@/components/shared/chatbox/ChatLogin";
+import CustomerChatBox from "@/components/shared/chatbox/CustomerChatBox";
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const { userTheme, setTheme, isDark, toggleDark } = useThemeStore();
-  const [ availableThemes, setAvailableThemes] = useState<any[]>([]);
+  const [availableThemes, setAvailableThemes] = useState<any[]>([]);
   const { user, isAuthenticated } = useUserStore();
 
   const [mounted, setMounted] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+
+  // 🔥 Mobile Chat State
+  const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
+  const [chatToken, setChatToken] = useState<string | null>(null);
 
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
@@ -47,7 +53,6 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
 
-    // FETCH DYNAMIC LOGO & STORE NAME
     const fetchSettings = async () => {
       try {
         const res = await api.get('/settings');
@@ -72,9 +77,16 @@ export default function Navbar() {
       }
     };
     fetchThemes();
-
     fetchSettings();
   }, []);
+
+  // Check Chat Token when Mobile Chat Opens
+  useEffect(() => {
+    if (isMobileChatOpen) {
+      const storedToken = localStorage.getItem("token") || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      if (storedToken) setChatToken(storedToken);
+    }
+  }, [isMobileChatOpen]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -97,7 +109,6 @@ export default function Navbar() {
         try {
           const res = await api.get(`/search?q=${searchQuery}&limit=6`);
           const data = res.data.data || res.data.results || res.data || [];
-
           setSearchResults(Array.isArray(data) ? data : []);
           setShowResults(true);
         } catch (err) {
@@ -124,13 +135,10 @@ export default function Navbar() {
     }
   };
 
-  // --- SMART DASHBOARD LINK GENERATOR ---
   const getDashboardLink = () => {
     if (!isAuthenticated || !user) return "/login";
-
     const rawRoles = (user as any)?.roles || (user as any)?.role;
     const rolesArray = Array.isArray(rawRoles) ? rawRoles : [rawRoles].filter(Boolean);
-
     if (rolesArray.length === 0) return "/dashboard";
 
     const ROLE_HIERARCHY = [
@@ -145,7 +153,6 @@ export default function Navbar() {
         break;
       }
     }
-
     if (primaryRole === 'CUSTOMER') return '/dashboard';
     return `/dashboard/${primaryRole.toLowerCase().replace('_', '-')}`;
   };
@@ -154,18 +161,20 @@ export default function Navbar() {
 
   const handleMobileSearchToggle = () => {
     setShowMobileSearch(!showMobileSearch);
+    setIsMobileChatOpen(false); // Close chat if opening search
     if (!showMobileSearch) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       setTimeout(() => searchInputRef.current?.focus(), 300);
     }
   };
 
-  // --- THEME UI LOGIC ---
+  const handleMobileChatToggle = () => {
+    setIsMobileChatOpen(!isMobileChatOpen);
+    setShowMobileSearch(false); // Close search if opening chat
+  };
+
   const ThemeSwitcherUI = () => {
     if (!mounted) return <div className="w-20 h-8 bg-muted animate-pulse rounded-full" />;
-
-    // Get the primary color of the currently active theme for the "dot"
-    // It looks into the lightVariables JSON we stored in the DB
     const activePreviewColor = userTheme?.lightVariables?.primary
       ? `hsl(${userTheme.lightVariables.primary})`
       : 'var(--color-primary)';
@@ -175,15 +184,12 @@ export default function Navbar() {
         <button onClick={toggleDark} className="p-1 md:p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors">
           {isDark ? <LucideIcons.Moon className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <LucideIcons.Sun className="w-3.5 h-3.5 md:w-4 md:h-4" />}
         </button>
-
         <div className="h-4 w-[1px] bg-border" />
-
         <div className="relative" ref={dropdownRef}>
           <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center gap-1 md:gap-2 p-1 md:p-1.5 pl-2 pr-1 text-sm font-medium rounded-full hover:bg-muted transition-colors">
             <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border border-black/10" style={{ backgroundColor: activePreviewColor }} />
             <LucideIcons.ChevronDown className="w-3 h-3 opacity-50" />
           </button>
-
           {isDropdownOpen && availableThemes.length > 0 && (
             <div className="absolute right-0 mt-3 w-56 py-3 bg-popover border border-border rounded-2xl shadow-theme-xl z-50 animate-in fade-in zoom-in-95 duration-200">
               <p className="px-4 pb-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Select Mood</p>
@@ -224,7 +230,6 @@ export default function Navbar() {
               <LucideIcons.Menu className="w-6 h-6" />
             </button>
 
-            {/* DYNAMIC LOGO / STORE NAME RENDERING */}
             <Link href="/" className="relative flex items-center gap-2">
               {storeLogo ? (
                 <img
@@ -250,7 +255,6 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* DESKTOP SEARCH BAR */}
           <div className="hidden md:flex flex-1 max-w-xl mx-8 relative" ref={searchRef}>
             <form onSubmit={handleSearchSubmit} className="w-full relative">
               <input
@@ -266,7 +270,6 @@ export default function Navbar() {
               </button>
             </form>
 
-            {/* GENERIC RESULTS OVERLAY */}
             {showResults && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-2xl shadow-theme-lg overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                 {searchResults.length > 0 ? (
@@ -274,7 +277,6 @@ export default function Navbar() {
                     {searchResults.map((item, index) => {
                       const itemName = item.name || item.title || "Unknown Result";
                       const itemSlug = item.slug || item.id || "";
-
                       let itemLink = `/products/${itemSlug}`;
                       if (item.type === 'category' || item.parentId === null) itemLink = `/category/${itemSlug}`;
                       if (item.type === 'brand') itemLink = `/brand/${itemSlug}`;
@@ -346,7 +348,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* MOBILE SEARCH BAR */}
         {showMobileSearch && (
           <div className="md:hidden px-4 pb-3 animate-in slide-in-from-top duration-300">
             <form onSubmit={handleSearchSubmit} className="relative">
@@ -375,35 +376,74 @@ export default function Navbar() {
         }
       `}} />
 
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-gradient-theme border-t border-border pb-safe shadow-theme-md">
+      {/* 🔥 FULL SCREEN MOBILE CHAT OVERLAY (Sits exactly above the navbar) */}
+      {isMobileChatOpen && (
+        <div className="md:hidden fixed top-0 left-0 right-0 bottom-16 z-50 bg-background flex flex-col animate-in slide-in-from-bottom-5 duration-300" style={{ bottom: "calc(4rem + env(safe-area-inset-bottom))" }}>
+          <div className="p-4 bg-primary text-primary-foreground flex justify-between items-center z-10 shadow-md">
+            <div>
+              <h3 className="font-black text-lg tracking-tight leading-none">Live Support</h3>
+              <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">We typically reply instantly</p>
+            </div>
+            <div className="flex gap-2">
+              {chatToken && (
+                <button onClick={() => {
+                  localStorage.removeItem("token");
+                  document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                  setChatToken(null);
+                }} className="p-1.5 hover:bg-black/10 rounded-lg transition-colors">
+                  <LucideIcons.LogOut size={16} />
+                </button>
+              )}
+              <button onClick={() => setIsMobileChatOpen(false)} className="p-1.5 hover:bg-black/10 rounded-lg transition-colors">
+                <LucideIcons.X size={20} />
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-hidden relative">
+            {!chatToken ? (
+              <ChatLogin onLoginSuccess={(newToken) => setChatToken(newToken)} />
+            ) : (
+              <CustomerChatBox token={chatToken} />
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* MOBILE BOTTOM NAV */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[60] bg-gradient-theme border-t border-border pb-safe shadow-theme-md">
         <div className="flex justify-around items-center h-16 px-2">
-          <Link href="/wishlist" className={`flex flex-col items-center justify-center w-full h-full gap-1 relative ${pathname === '/wishlist' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+
+          <Link href="/wishlist" className={`flex flex-col items-center justify-center w-full h-full gap-1 relative ${pathname === '/wishlist' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
             <LucideIcons.Heart className="w-5 h-5" />
             <span className="text-[10px] font-medium">Wishlist</span>
             {wishlistCount > 0 && <span className="absolute top-2 right-4 bg-primary text-white text-[8px] font-bold px-1.5 rounded-full">{wishlistCount}</span>}
           </Link>
 
-          <Link href="/deals" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${pathname === '/deals' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <LucideIcons.Zap className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Deals</span>
+          {/* Home button moved here (Replacing Deals) */}
+          <Link href="/" onClick={() => { setIsMobileChatOpen(false); setShowMobileSearch(false); }} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${pathname === '/' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+            <LucideIcons.Home className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Home</span>
           </Link>
 
-          <Link href="/" className="flex flex-col items-center justify-center w-full h-full gap-1 -mt-4 relative z-10">
-            <div className="w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-theme-sm border-4 border-background">
-              <LucideIcons.Home className="w-6 h-6" />
+          {/* Center Prominent Item: Search (Replacing Home) */}
+          <button onClick={handleMobileSearchToggle} className="flex flex-col items-center justify-center w-full h-full gap-1 -mt-4 relative z-10">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-theme-sm border-4 border-background transition-colors ${showMobileSearch ? 'bg-muted text-primary' : 'bg-primary text-primary-foreground'}`}>
+              <LucideIcons.Search className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-medium text-muted-foreground mt-0.5">Home</span>
-          </Link>
-
-          <button onClick={handleMobileSearchToggle} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <LucideIcons.Search className="w-5 h-5" />
-            <span className="text-[10px] font-medium">Search</span>
+            <span className={`text-[10px] font-medium mt-0.5 ${showMobileSearch ? 'text-primary' : 'text-muted-foreground'}`}>Search</span>
           </button>
 
-          <Link href={dashboardLink} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isDashboard || pathname === '/login' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+          {/* 4th Item: Chat (Replacing Search) */}
+          <button onClick={handleMobileChatToggle} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isMobileChatOpen ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+            <LucideIcons.MessageSquare className="w-5 h-5" />
+            <span className="text-[10px] font-medium">Chat</span>
+          </button>
+
+          <Link href={dashboardLink} onClick={() => { setIsMobileChatOpen(false); setShowMobileSearch(false); }} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isDashboard || pathname === '/login' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
             <LucideIcons.User className="w-5 h-5" />
             <span className="text-[10px] font-medium">{isAuthenticated ? "Account" : "Login"}</span>
           </Link>
+
         </div>
       </div>
     </>

@@ -100,7 +100,9 @@ export default function SuperAdminSidebar() {
       subItems: [
         { name: "Coupons", href: "/dashboard/super-admin/coupons" },
         { name: "Blog Categories", href: "/dashboard/super-admin/blogs/blog-category"},
-        { name: "Blogs", href: "/dashboard/super-admin/blogs/blog" }
+        { name: "Blogs", href: "/dashboard/super-admin/blogs/blog" },
+        { name: "Wishlists", href: "/dashboard/super-admin/wishlist"},
+        { name: "Carts", href: "/dashboard/super-admin/cart"}
       ]
     },
     {
