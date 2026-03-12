@@ -15,10 +15,12 @@ export default function OrdersPage() {
 
     const router = useRouter();
     const { user, isAuthenticated } = useUserStore();
-    const { mode, primaryColor } = useThemeStore(); // Assuming 'mode' is 'light'|'dark' and 'primaryColor' is a hex
+
+    // FIX: Extract only what exists in ThemeState
+    const { isDark } = useThemeStore();
 
     useEffect(() => {
-        // Redirect if not logged in using your store
+        // Redirect if not logged in
         if (!isAuthenticated && !isLoading) {
             router.push('/login');
             return;
@@ -26,7 +28,6 @@ export default function OrdersPage() {
 
         const fetchOrders = async () => {
             try {
-                // Utilizing your configured axios instance - it already handles base URL and tokens!
                 const response = await axiosInstance.get('/orders/my-orders');
                 const fetchedOrders = response.data.data || response.data || [];
                 setOrders(fetchedOrders);
@@ -41,7 +42,7 @@ export default function OrdersPage() {
         if (isAuthenticated) {
             fetchOrders();
         }
-    }, [isAuthenticated, router]);
+    }, [isAuthenticated, router, isLoading]);
 
     const handleCancel = (orderId: string) => {
         Swal.fire({
@@ -49,16 +50,20 @@ export default function OrdersPage() {
             text: "This action cannot be undone.",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: primaryColor || '#ef4444', // Theme primary or red
-            cancelButtonColor: mode === 'dark' ? '#374151' : '#9ca3af',
+            confirmButtonColor: '#ef4444', // Red for delete action
+            cancelButtonColor: isDark ? '#374151' : '#9ca3af',
             confirmButtonText: 'Yes, Cancel it',
             cancelButtonText: 'Keep Order',
             showLoaderOnConfirm: true,
-            background: mode === 'dark' ? '#171717' : '#ffffff',
-            color: mode === 'dark' ? '#f3f4f6' : '#111827',
+            // FIX: Use your CSS variables for theming
+            background: 'hsl(var(--card))',
+            color: 'hsl(var(--foreground))',
+            customClass: {
+                popup: 'border border-border rounded-2xl shadow-theme-lg',
+                htmlContainer: 'text-muted-foreground'
+            },
             preConfirm: async () => {
                 try {
-                    // Using your axios instance
                     const response = await axiosInstance.patch(`/orders/${orderId}/cancel`);
                     return response.data;
                 } catch (error: any) {
@@ -74,11 +79,17 @@ export default function OrdersPage() {
                     title: 'Cancelled',
                     text: 'Your order has been cancelled.',
                     icon: 'success',
-                    confirmButtonColor: primaryColor,
-                    background: mode === 'dark' ? '#171717' : '#ffffff',
-                    color: mode === 'dark' ? '#f3f4f6' : '#111827',
+                    confirmButtonColor: 'hsl(var(--primary))',
+                    background: 'hsl(var(--card))',
+                    color: 'hsl(var(--foreground))',
+                    customClass: {
+                        popup: 'border border-border rounded-2xl shadow-theme-lg',
+                        htmlContainer: 'text-muted-foreground',
+                        confirmButton: 'text-primary-foreground font-bold rounded-lg px-4 py-2'
+                    }
                 });
-                setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'cancelled' } : o));
+                // Optimistic UI update
+                setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'CANCELLED' } : o));
             }
         });
     };
@@ -86,22 +97,24 @@ export default function OrdersPage() {
     const handleChangeVariation = async (orderId: string, item: OrderItem) => {
         Swal.fire({
             title: 'Feature coming soon',
-            text: `Changing variation for ${item.name} will require a backend update endpoint.`,
+            text: `Changing variation for ${item.productName} will require a backend update endpoint.`,
             icon: 'info',
-            confirmButtonColor: primaryColor,
-            background: mode === 'dark' ? '#171717' : '#ffffff',
-            color: mode === 'dark' ? '#f3f4f6' : '#111827',
+            confirmButtonColor: 'hsl(var(--primary))',
+            background: 'hsl(var(--card))',
+            color: 'hsl(var(--foreground))',
+            customClass: {
+                popup: 'border border-border rounded-2xl shadow-theme-lg',
+                htmlContainer: 'text-muted-foreground',
+                confirmButton: 'text-primary-foreground font-bold rounded-lg px-4 py-2'
+            }
         });
     };
 
     if (isLoading) {
         return (
             <div className="flex justify-center items-center min-h-[50vh]">
-                {/* Spinner uses theme primary color */}
-                <div
-                    className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2"
-                    style={{ borderColor: primaryColor || (mode === 'dark' ? '#ffffff' : '#000000') }}
-                ></div>
+                {/* FIX: Removed inline styles, using standard Tailwind classes */}
+                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
     }
@@ -122,11 +135,11 @@ export default function OrdersPage() {
     return (
         <div className="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">
                     My Orders
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 sm:mt-0">
-                    Welcome back, {user?.name || 'User'}
+                <p className="text-sm text-muted-foreground mt-2 sm:mt-0">
+                    Welcome back, {user?.firstName || 'User'}
                 </p>
             </div>
 
