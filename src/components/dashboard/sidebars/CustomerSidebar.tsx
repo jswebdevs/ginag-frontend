@@ -49,7 +49,7 @@ export default function CustomerSidebar() {
     };
 
     const menuItems = [
-        { name: "Dashboard", href: "/dashboard/customer", icon: LayoutDashboard },
+        { name: "Dashboard", href: "/dashboard/customer/dashboard", icon: LayoutDashboard },
         { name: "My Orders", href: "/dashboard/customer/orders", icon: Package },
         { name: "Wishlist", href: "/dashboard/customer/wishlist", icon: Heart },
         { name: "My Cart", href: "/dashboard/customer/cart", icon: ShoppingCart }, // Usually global, but keeping in sidebar for ease

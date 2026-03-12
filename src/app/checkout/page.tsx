@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
+import { useUserStore } from "@/store/useUserStore"; // Added to access role
 
 // Import Components
 import Address from "./_components/Address";
@@ -20,6 +21,9 @@ interface CartData {
 
 export default function CheckoutPage() {
   const router = useRouter();
+
+  // Bring in the user from the store
+  const { user } = useUserStore();
 
   // --- States ---
   const [cart, setCart] = useState<CartData | null>(null);
@@ -70,26 +74,26 @@ export default function CheckoutPage() {
         // 2. Fetch User Profile (if any)
         try {
           const userRes = await api.get("/users/me");
-          const user = userRes.data.data;
+          const fetchedUser = userRes.data.data;
 
-          if (user) {
+          if (fetchedUser) {
             setIsLoggedIn(true);
-            setUserAddresses(user.addresses || []);
+            setUserAddresses(fetchedUser.addresses || []);
 
             // PERSISTENCE CHECK: DB Verification status OR Session Verification
             const sessionVerifiedPhone = sessionStorage.getItem("verified_phone");
-            if (user.phoneVerified || (sessionVerifiedPhone && user.phone === sessionVerifiedPhone)) {
+            if (fetchedUser.phoneVerified || (sessionVerifiedPhone && fetchedUser.phone === sessionVerifiedPhone)) {
               setIsPhoneVerified(true);
               // Ensure session storage stays in sync for reloads
-              if (user.phoneVerified) sessionStorage.setItem("verified_phone", user.phone);
+              if (fetchedUser.phoneVerified) sessionStorage.setItem("verified_phone", fetchedUser.phone);
             }
 
             // Pre-fill form from profile (default address)
-            const defaultAddr = user.addresses?.find((a: any) => a.isDefault) || user.addresses?.[0];
+            const defaultAddr = fetchedUser.addresses?.find((a: any) => a.isDefault) || fetchedUser.addresses?.[0];
             setFormData({
-              fullName: user.fullName || "",
-              phone: user.phone || "",
-              email: user.email || "",
+              fullName: fetchedUser.fullName || "",
+              phone: fetchedUser.phone || "",
+              email: fetchedUser.email || "",
               district: defaultAddr?.district || "",
               thana: defaultAddr?.thana || "",
               house: defaultAddr?.house || "",
@@ -199,11 +203,19 @@ export default function CheckoutPage() {
 
       Swal.fire({
         title: "Order Successful!",
-        text: "Your order has been placed and your address has been saved to your profile.",
+        text: "Your order has been placed successfully.",
         icon: "success",
         confirmButtonColor: "#0ea5e9",
       }).then(() => {
-        router.push(isLoggedIn ? "/dashboard/orders" : "/order-success");
+        // Dynamic Role-Based Redirect
+        if (isLoggedIn && user?.roles && user.roles.length > 0) {
+          // Format role string (e.g., 'SUPER_ADMIN' -> 'super-admin', 'CUSTOMER' -> 'customer')
+          const primaryRole = user.roles[0].toLowerCase().replace('_', '-');
+          router.push(`/dashboard/${primaryRole}/orders`);
+        } else {
+          // Fallback for guests
+          router.push("/order-success");
+        }
       });
 
     } catch (error: any) {
