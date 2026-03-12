@@ -43,7 +43,7 @@ export const getHighestRole = (userRoles: string[] | string | undefined | null):
 export const getDashboardRedirectPath = (userRoles: string[] | string | undefined | null): string => {
   const primaryRole = getHighestRole(userRoles);
 
-  if (primaryRole === 'CUSTOMER') return '/dashboard';
+  if (primaryRole === 'CUSTOMER') return '/dashboard/customer';
 
   // Converts "SUPER_ADMIN" to "/dashboard/super-admin"
   const formattedPath = primaryRole.toLowerCase().replace('_', '-');

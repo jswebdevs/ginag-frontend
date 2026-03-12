@@ -72,7 +72,7 @@ function LoginForm() {
         if (!token) throw new Error("No token received from server");
 
         const isProduction = process.env.NODE_ENV === 'production';
-        const primaryRole = getHighestRole(loggedInUser.roles || []);
+        const primaryRole = getHighestRole(loggedInUser.roles || ['CUSTOMER']);
 
         Cookies.set("auth_token", token, {
           expires: 7,

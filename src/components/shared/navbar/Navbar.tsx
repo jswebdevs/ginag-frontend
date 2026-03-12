@@ -153,7 +153,7 @@ export default function Navbar() {
         break;
       }
     }
-    if (primaryRole === 'CUSTOMER') return '/dashboard';
+    if (primaryRole === 'CUSTOMER') return '/dashboard/customer';
     return `/dashboard/${primaryRole.toLowerCase().replace('_', '-')}`;
   };
 

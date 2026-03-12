@@ -1,4 +1,0 @@
-make sure:
-1. theme (dark/light) mode working
-2. color switching working
-3. mobile responsiveness working

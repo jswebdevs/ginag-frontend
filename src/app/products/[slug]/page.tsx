@@ -3,9 +3,10 @@
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Heart } from "lucide-react";
 import api from "@/lib/axios";
 import { useCartStore } from "@/store/useCartStore";
+import { useUserStore } from "@/store/useUserStore"; // Added User Store for Auth
 import Swal from "sweetalert2";
 
 // Import our newly split components
@@ -16,7 +17,9 @@ import ProductTabs from "@/components/shop/ProductTabs";
 export default function ProductDetailsPage({ params }: { params: Promise<{ slug: string }> }) {
   const resolvedParams = use(params);
   const router = useRouter();
+
   const addToCart = useCartStore(state => state.addToCart);
+  const { isAuthenticated } = useUserStore(); // Track if user is logged in
 
   const [product, setProduct] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,6 +30,10 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
 
+  // --- WISHLIST STATE ---
+  const [wishlistVarIds, setWishlistVarIds] = useState<Set<string>>(new Set());
+
+  // 1. Fetch Product
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -48,6 +55,23 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
     fetchProduct();
   }, [resolvedParams.slug]);
 
+  // 2. Fetch Wishlist (Only if authenticated)
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!isAuthenticated) return;
+      try {
+        const res = await api.get('/wishlist');
+        const items = res.data.data?.items || [];
+        const ids = items.map((item: any) => item.variationId);
+        setWishlistVarIds(new Set(ids));
+      } catch (err) {
+        console.error("Failed to load wishlist", err);
+      }
+    };
+    fetchWishlist();
+  }, [isAuthenticated]);
+
+  // 3. Keep Variation in Sync with Options
   useEffect(() => {
     if (!product || !product.variations) return;
     const matchedVariation = product.variations.find((v: any) => {
@@ -59,6 +83,54 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
 
   const handleOptionSelect = (attributeName: string, value: string) => {
     setSelectedOptions(prev => ({ ...prev, [attributeName]: value }));
+  };
+
+  // 4. Handle Wishlist Action (Independent of child components)
+  const handleWishlistToggle = async () => {
+    if (!isAuthenticated) {
+      const result = await Swal.fire({
+        title: "Login Required",
+        text: "Please log in to save items to your wishlist.",
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "Go to Login",
+        cancelButtonText: "Cancel",
+        background: "hsl(var(--card))",
+        color: "hsl(var(--foreground))",
+        customClass: {
+          popup: 'border border-border rounded-2xl shadow-theme-lg',
+          htmlContainer: 'text-muted-foreground',
+          confirmButton: 'bg-primary text-primary-foreground font-bold rounded-lg px-4 py-2',
+        }
+      });
+
+      if (result.isConfirmed) router.push("/login");
+      return;
+    }
+
+    if (!currentVariation) return;
+
+    const targetVarId = currentVariation.id;
+    const currentlyWished = wishlistVarIds.has(targetVarId);
+
+    // Optimistic UI Updates (Update UI instantly, revert if API fails)
+    if (currentlyWished) {
+      setWishlistVarIds(prev => { const next = new Set(prev); next.delete(targetVarId); return next; });
+      try {
+        await api.delete(`/wishlist/${targetVarId}`);
+      } catch (error) {
+        setWishlistVarIds(prev => { const next = new Set(prev); next.add(targetVarId); return next; });
+        Swal.fire({ toast: true, position: 'bottom-end', icon: 'error', title: 'Failed to remove from wishlist', showConfirmButton: false, timer: 3000 });
+      }
+    } else {
+      setWishlistVarIds(prev => { const next = new Set(prev); next.add(targetVarId); return next; });
+      try {
+        await api.post('/wishlist', { variationId: targetVarId });
+      } catch (error) {
+        setWishlistVarIds(prev => { const next = new Set(prev); next.delete(targetVarId); return next; });
+        Swal.fire({ toast: true, position: 'bottom-end', icon: 'error', title: 'Failed to add to wishlist', showConfirmButton: false, timer: 3000 });
+      }
+    }
   };
 
   const handleAddToCart = async () => {
@@ -74,7 +146,14 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
         cancelButtonColor: "#64748b",
         confirmButtonText: "Go to Cart",
         cancelButtonText: "Keep Shopping",
-        reverseButtons: true
+        reverseButtons: true,
+        background: "hsl(var(--card))",
+        color: "hsl(var(--foreground))",
+        customClass: {
+          popup: 'border border-border rounded-2xl shadow-theme-lg',
+          htmlContainer: 'text-muted-foreground',
+          confirmButton: 'bg-primary text-primary-foreground font-bold rounded-lg px-4 py-2',
+        }
       }).then((result) => {
         if (result.isConfirmed) router.push("/cart");
       });
@@ -85,8 +164,9 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
           text: "You need to log in to add items to your cart.",
           icon: "warning",
           showCancelButton: true,
-          confirmButtonColor: "#0ea5e9",
           confirmButtonText: "Go to Login",
+          background: "hsl(var(--card))",
+          color: "hsl(var(--foreground))",
         }).then((result) => {
           if (result.isConfirmed) router.push("/login");
         });
@@ -115,17 +195,37 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
     );
   }
 
+  // Derive if the exact selected variation is in the wishlist
+  const isWished = currentVariation ? wishlistVarIds.has(currentVariation.id) : false;
+
   return (
     <main className="min-h-screen bg-background py-6 md:py-12">
       <div className="container mx-auto px-[5%] max-w-360">
 
-        {/* Breadcrumbs */}
-        <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest mb-8">
-          <Link href="/" className="hover:text-primary transition-colors">Home</Link>
-          <ChevronRight className="w-3 h-3" />
-          <Link href="/products" className="hover:text-primary transition-colors">Products</Link>
-          <ChevronRight className="w-3 h-3" />
-          <span className="text-primary truncate max-w-75">{product.name}</span>
+        {/* TOP ACTION BAR: Breadcrumbs & Wishlist Button */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+
+          {/* Breadcrumbs */}
+          <div className="hidden sm:flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+            <Link href="/" className="hover:text-primary transition-colors">Home</Link>
+            <ChevronRight className="w-3 h-3" />
+            <Link href="/products" className="hover:text-primary transition-colors">Products</Link>
+            <ChevronRight className="w-3 h-3" />
+            <span className="text-primary truncate max-w-75">{product.name}</span>
+          </div>
+
+          {/* INDEPENDENT WISHLIST BUTTON */}
+          <button
+            onClick={handleWishlistToggle}
+            disabled={!currentVariation}
+            className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border-2 transition-all font-bold disabled:opacity-50 disabled:cursor-not-allowed ${isWished
+                ? 'border-red-500 bg-red-500/10 text-red-500 hover:bg-red-500/20 shadow-sm'
+                : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary shadow-sm'
+              }`}
+          >
+            <Heart className={`w-4 h-4 transition-transform ${isWished ? 'fill-red-500 scale-110' : 'scale-100'}`} />
+            <span>{isWished ? 'Saved to Wishlist' : 'Add to Wishlist'}</span>
+          </button>
         </div>
 
         {/* Row 1: Split 50/50 Layout */}

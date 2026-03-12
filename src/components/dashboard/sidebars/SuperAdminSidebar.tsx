@@ -6,7 +6,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, TrendingUp, CircleDollarSign, 
   Users, PackageSearch, Megaphone, Store, ShieldCheck, 
-  Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle, MessageCircleMore
+  Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle, MessageCircleMore,
+  User
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
 import Cookies from "js-cookie";
@@ -122,6 +123,14 @@ export default function SuperAdminSidebar() {
         { name: "General Settings", href: "/dashboard/super-admin/settings" },
         { name: "System Health", href: "/dashboard/super-admin/system-health" },
         { name: "Audit Logs", href: "/dashboard/super-admin/audit-logs" },
+      ]
+    },
+    {
+      name: "Profile",
+      icon: User,
+      subItems: [
+        { name: "My Orders", href: "/dashboard/super-admin/my-orders" },
+        { name: "My Profile", href: "/dashboard/super-admin/profile"}
       ]
     }
   ];
