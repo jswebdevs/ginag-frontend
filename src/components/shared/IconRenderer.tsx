@@ -75,3 +75,7 @@ export default function IconRenderer({
 
     return <IconComponent className={className} />;
 }
+
+export const allIconNames = Object.keys(IconLibrary).filter(
+    (key) => /^[A-Z]/.test(key) && key !== "DefaultContext"
+);
