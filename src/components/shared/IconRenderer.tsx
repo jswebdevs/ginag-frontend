@@ -43,7 +43,8 @@ const IconLibrary: Record<string, any> = {
 interface IconRendererProps {
     name?: string;
     className?: string;
-    fallback?: React.ElementType;
+    // 🔥 FIXED: Tell TS this component accepts generic props (including className)
+    fallback?: React.ComponentType<any>;
 }
 
 export default function IconRenderer({
