@@ -84,7 +84,7 @@ export default function Hero1() {
             </h1>
 
             <Link
-              href={`/products/${hero.main.slug}`}
+              href={`/products`}
               className="group/btn relative overflow-hidden bg-primary text-primary-foreground px-8 py-4 rounded-2xl font-black flex items-center gap-3 transition-all hover:pr-10 active:scale-95 shadow-theme-md"
             >
               <span className="relative z-10">START SHOPPING</span>

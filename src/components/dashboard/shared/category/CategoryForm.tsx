@@ -2,9 +2,21 @@
 
 import { useState, useRef, useEffect } from "react";
 import api from "@/lib/axios";
-import { X, Loader2, Save, ChevronDown, Image as ImageIcon, Search } from "lucide-react";
+import Image from "next/image";
+import Swal from "sweetalert2";
+import { generateAIContent } from "@/services/ai.service";
 
-// Updated paths based on your new structure
+// 🔥 Use stable static icons from React Icons
+import {
+  LuX,
+  LuLoader,
+  LuSave,
+  LuChevronDown,
+  LuImage,
+  LuSearch,
+  LuSparkles
+} from "react-icons/lu";
+
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
 
@@ -29,6 +41,7 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
   });
 
   const [loading, setLoading] = useState(false);
+  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   const [error, setError] = useState("");
 
   // --- UI States ---
@@ -56,6 +69,28 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // --- AI GENERATION: DESCRIPTION ---
+  const generateDescription = async () => {
+    if (!formData.name) {
+      return Swal.fire("Name Required", "Please enter a category name first.", "warning");
+    }
+
+    setIsGeneratingDesc(true);
+    const prompt = `Write a professional, catchy 2-sentence description for an e-commerce category named "${formData.name}". Return ONLY the description text.`;
+
+    try {
+      const aiResponse = await generateAIContent(prompt, "You are a professional e-commerce merchandiser and copywriter.");
+      if (aiResponse) {
+        setFormData(prev => ({ ...prev, description: aiResponse.trim() }));
+      }
+    } catch (err: any) {
+      console.error("AI Description Error:", err);
+      Swal.fire("Generation Failed", "Could not generate description.", "error");
+    } finally {
+      setIsGeneratingDesc(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -92,67 +127,67 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-        <div className="bg-card w-full max-w-lg border border-border rounded-3xl shadow-theme-2xl overflow-hidden flex flex-col max-h-[80vh]">
+        <div className="bg-card w-full max-w-xl border border-border rounded-3xl shadow-theme-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
           <div className="flex items-center justify-between p-6 border-b border-border bg-muted/10">
-            <h2 className="text-xl font-black text-foreground">
+            <h2 className="text-xl font-black text-foreground tracking-tight">
               {isEdit ? "Edit Category" : "Add New Category"}
             </h2>
-            <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-destructive bg-background border border-border rounded-lg transition-colors">
-              <X className="w-5 h-5" />
+            <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-destructive bg-background border border-border rounded-xl transition-colors">
+              <LuX className="w-5 h-5" />
             </button>
           </div>
 
           <div className="p-6 overflow-y-auto custom-scrollbar">
             {error && (
-              <div className="mb-6 p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-xl text-sm font-bold">
+              <div className="mb-6 p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-xl text-xs font-bold uppercase tracking-widest">
                 {error}
               </div>
             )}
 
-            <form id="category-form" onSubmit={handleSubmit} className="space-y-5">
+            <form id="category-form" onSubmit={handleSubmit} className="space-y-6">
 
-              {/* Name & Slug - 🔥 Responsive Grid */}
+              {/* Name & Slug */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Name *</label>
+                  <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">Name *</label>
                   <input
                     type="text" required name="name"
                     value={formData.name} onChange={handleChange}
                     placeholder="e.g. Smart Watches"
-                    className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground focus:ring-2 focus:ring-primary outline-none transition-all"
+                    className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Slug</label>
+                  <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">Slug</label>
                   <input
                     type="text" name="slug"
                     value={formData.slug} onChange={handleChange}
                     placeholder="Auto-generated if blank"
-                    className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground focus:ring-2 focus:ring-primary outline-none transition-all"
+                    className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm font-mono focus:ring-2 focus:ring-primary outline-none transition-all"
                   />
                 </div>
               </div>
 
               {/* Custom Parent Category Dropdown */}
               <div className="relative" ref={parentDropdownRef}>
-                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Parent Category</label>
+                <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">Parent Category</label>
                 <div
                   onClick={() => setIsParentDropdownOpen(!isParentDropdownOpen)}
-                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground focus:ring-2 focus:ring-primary outline-none transition-all flex items-center justify-between cursor-pointer select-none hover:bg-muted/30"
+                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all flex items-center justify-between cursor-pointer select-none hover:bg-muted/30"
                 >
-                  <span className={formData.parentId ? "text-foreground font-medium" : "text-muted-foreground"}>
+                  <span className={formData.parentId ? "text-foreground font-bold" : "text-muted-foreground"}>
                     {selectedParentName}
                   </span>
-                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isParentDropdownOpen ? "rotate-180" : ""}`} />
+                  <LuChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isParentDropdownOpen ? "rotate-180" : ""}`} />
                 </div>
 
                 {isParentDropdownOpen && (
-                  <div className="absolute top-full left-0 w-full mt-2 bg-card border border-border rounded-xl shadow-theme-xl z-50 overflow-hidden">
-                    <div className="max-h-[210px] overflow-y-auto custom-scrollbar flex flex-col p-1">
+                  <div className="absolute top-full left-0 w-full mt-2 bg-card border border-border rounded-2xl shadow-theme-xl z-50 overflow-hidden">
+                    <div className="max-h-[210px] overflow-y-auto custom-scrollbar flex flex-col p-2 gap-1">
                       <div
                         onClick={() => { setFormData({ ...formData, parentId: "" }); setIsParentDropdownOpen(false); }}
-                        className={`px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors ${formData.parentId === "" ? "bg-primary text-primary-foreground font-bold" : "hover:bg-muted text-foreground"}`}
+                        className={`px-3 py-2 text-sm rounded-xl cursor-pointer transition-colors ${formData.parentId === "" ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted text-foreground"}`}
                       >
                         None (Top Level)
                       </div>
@@ -160,7 +195,7 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                         <div
                           key={cat.id}
                           onClick={() => { setFormData({ ...formData, parentId: cat.id }); setIsParentDropdownOpen(false); }}
-                          className={`px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors ${formData.parentId === cat.id ? "bg-primary text-primary-foreground font-bold" : "hover:bg-muted text-foreground"}`}
+                          className={`px-3 py-2 text-sm rounded-xl cursor-pointer transition-colors ${formData.parentId === cat.id ? "bg-primary/10 text-primary font-bold" : "hover:bg-muted text-foreground"}`}
                         >
                           {cat.name}
                         </div>
@@ -170,18 +205,18 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                 )}
               </div>
 
-              {/* Media & Icon Pickers - 🔥 Responsive Grid */}
+              {/* Media & Icon Pickers */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                 {/* 1. Icon Picker */}
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Category Icon</label>
+                  <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">Category Icon</label>
                   <div className="flex gap-2">
                     <input
                       type="text" name="icon"
                       value={formData.icon} onChange={handleChange}
-                      placeholder="e.g. Monitor"
-                      className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-foreground focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
+                      placeholder="e.g. LuMonitor"
+                      className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary outline-none transition-all"
                     />
                     <button
                       type="button"
@@ -189,55 +224,73 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                       className="px-3 bg-muted text-foreground border border-border rounded-xl hover:border-primary hover:text-primary transition-all flex items-center justify-center shrink-0"
                       title="Browse Icons"
                     >
-                      <Search className="w-4 h-4" />
+                      <LuSearch className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
 
                 {/* 2. Featured Image Picker */}
                 <div>
-                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Featured Image</label>
+                  <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mb-2">Featured Image</label>
                   <div className="flex gap-3 items-center">
-                    <div className="w-11 h-11 bg-muted border border-border rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+                    <div className="relative w-11 h-11 bg-muted/30 border border-border rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                       {mediaPreview ? (
-                        <img src={mediaPreview} alt="Preview" className="w-full h-full object-cover" />
+                        <Image
+                          src={mediaPreview}
+                          alt="Preview"
+                          fill
+                          sizes="44px"
+                          className="object-cover"
+                        />
                       ) : (
-                        <ImageIcon className="w-5 h-5 text-muted-foreground/50" />
+                        <LuImage className="w-5 h-5 text-muted-foreground/30" />
                       )}
                     </div>
                     <button
                       type="button"
                       onClick={() => setShowMediaPicker(true)}
-                      className="flex-1 px-3 py-2.5 text-sm font-bold bg-background text-foreground border border-border rounded-xl hover:border-primary hover:text-primary transition-all text-center"
+                      className="flex-1 px-3 py-2.5 text-[10px] uppercase tracking-widest font-black bg-muted text-foreground border border-border rounded-xl hover:border-primary hover:text-primary transition-all text-center"
                     >
-                      {formData.featuredImageId ? "Change Image" : "Select Image"}
+                      {formData.featuredImageId ? "Change" : "Select Image"}
                     </button>
                   </div>
                 </div>
 
               </div>
 
+              {/* Description with AI Button */}
               <div>
-                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Description</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Description</label>
+                  <button
+                    type="button"
+                    onClick={generateDescription}
+                    disabled={isGeneratingDesc}
+                    className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase tracking-widest hover:opacity-70 disabled:opacity-50 transition-all"
+                  >
+                    {isGeneratingDesc ? <LuLoader className="w-3 h-3 animate-spin" /> : <LuSparkles className="w-3 h-3" />}
+                    AI Description
+                  </button>
+                </div>
                 <textarea
                   name="description" rows={3}
                   value={formData.description} onChange={handleChange}
                   placeholder="Brief description of the category..."
-                  className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground focus:ring-2 focus:ring-primary outline-none transition-all resize-none"
+                  className="w-full bg-background border border-border rounded-2xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none transition-all resize-none leading-relaxed"
                 />
               </div>
             </form>
           </div>
 
           <div className="p-6 border-t border-border bg-muted/10 flex justify-end gap-3">
-            <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted transition-colors">
+            <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-muted-foreground hover:bg-muted transition-colors">
               Cancel
             </button>
             <button
               type="submit" form="category-form" disabled={loading}
-              className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
+              className="flex items-center gap-2 bg-primary text-primary-foreground px-8 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest hover:shadow-theme-md hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:translate-y-0"
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+              {loading ? <LuLoader className="w-4 h-4 animate-spin" /> : <LuSave className="w-4 h-4" />}
               {isEdit ? "Update" : "Save"} Category
             </button>
           </div>
@@ -248,17 +301,15 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
       {/* --- MEDIA MANAGER MODAL OVERLAY --- */}
       {showMediaPicker && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 bg-background/90 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
-          <div className="w-full max-w-6xl relative shadow-theme-2xl rounded-2xl overflow-hidden border border-border flex flex-col bg-card h-full max-h-[85vh]">
+          <div className="w-full max-w-6xl relative shadow-theme-2xl rounded-3xl overflow-hidden border border-border flex flex-col bg-card h-full max-h-[85vh]">
 
-            {/* Modal Header for Media Manager */}
             <div className="flex items-center justify-between p-4 border-b border-border bg-muted/10 shrink-0">
-              <h3 className="font-black text-foreground">Select Featured Image</h3>
-              <button onClick={() => setShowMediaPicker(false)} className="p-1.5 bg-background border border-border hover:bg-destructive hover:text-white rounded-lg transition-colors">
-                <X className="w-5 h-5" />
+              <h3 className="font-black text-foreground uppercase tracking-tight text-sm">Select Featured Image</h3>
+              <button onClick={() => setShowMediaPicker(false)} className="p-1.5 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl transition-colors">
+                <LuX className="w-5 h-5" />
               </button>
             </div>
 
-            {/* The actual MediaManager Component acting as a picker */}
             <div className="bg-background flex-1 overflow-hidden">
               <MediaManager
                 isPicker={true}
