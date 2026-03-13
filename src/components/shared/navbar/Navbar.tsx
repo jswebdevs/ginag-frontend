@@ -14,36 +14,23 @@ import fallbackLogo from "./logo.png";
 import ChatLogin from "@/components/shared/chatbox/ChatLogin";
 import CustomerChatBox from "@/components/shared/chatbox/CustomerChatBox";
 
-// Import Icons (already includes LuIcons)
-import * as AiIcons from "react-icons/ai";
-import * as BsIcons from "react-icons/bs";
-import * as BiIcons from "react-icons/bi";
-import * as CgIcons from "react-icons/cg";
-import * as DiIcons from "react-icons/di";
-import * as FiIcons from "react-icons/fi";
-import * as FcIcons from "react-icons/fc";
-import * as FaIcons from "react-icons/fa";
-import * as Fa6Icons from "react-icons/fa6";
-import * as GiIcons from "react-icons/gi";
-import * as GoIcons from "react-icons/go";
-import * as GrIcons from "react-icons/gr";
-import * as HiIcons from "react-icons/hi";
-import * as Hi2Icons from "react-icons/hi2";
-import * as ImIcons from "react-icons/im";
-import * as IoIcons from "react-icons/io";
-import * as Io5Icons from "react-icons/io5";
-import * as LuIcons from "react-icons/lu"; // ← This is what we're now using
-import * as MdIcons from "react-icons/md";
-import * as PiIcons from "react-icons/pi";
-import * as RxIcons from "react-icons/rx";
-import * as RiIcons from "react-icons/ri";
-import * as SiIcons from "react-icons/si";
-import * as SlIcons from "react-icons/sl";
-import * as TbIcons from "react-icons/tb";
-import * as TfiIcons from "react-icons/tfi";
-import * as TiIcons from "react-icons/ti";
-import * as VscIcons from "react-icons/vsc";
-import * as WiIcons from "react-icons/wi";
+// 🔥 Clean, specific imports for static UI elements
+import {
+  LuMoon,
+  LuSun,
+  LuChevronDown,
+  LuCheck,
+  LuMenu,
+  LuStore,
+  LuHeart,
+  LuShoppingCart,
+  LuUser,
+  LuSearch,
+  LuLogOut,
+  LuX,
+  LuHouse,
+  LuMessageSquare
+} from "react-icons/lu";
 
 export default function Navbar() {
   const router = useRouter();
@@ -212,13 +199,13 @@ export default function Navbar() {
     return (
       <div className="flex items-center gap-1 md:gap-2 p-1 border border-border rounded-full bg-background/50 backdrop-blur-sm transition-colors">
         <button onClick={toggleDark} className="p-1 md:p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors">
-          {isDark ? <LuIcons.LuMoon className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <LuIcons.LuSun className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+          {isDark ? <LuMoon className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <LuSun className="w-3.5 h-3.5 md:w-4 md:h-4" />}
         </button>
         <div className="h-4 w-px bg-border" />
         <div className="relative" ref={dropdownRef}>
           <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center gap-1 md:gap-2 p-1 md:p-1.5 pl-2 pr-1 text-sm font-medium rounded-full hover:bg-muted transition-colors">
             <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border border-black/10" style={{ backgroundColor: activePreviewColor }} />
-            <LuIcons.LuChevronDown className="w-3 h-3 opacity-50" />
+            <LuChevronDown className="w-3 h-3 opacity-50" />
           </button>
           {isDropdownOpen && availableThemes.length > 0 && (
             <div className="absolute right-0 mt-3 w-56 py-3 bg-popover border border-border rounded-2xl shadow-theme-xl z-50 animate-in fade-in zoom-in-95 duration-200">
@@ -237,7 +224,7 @@ export default function Navbar() {
                     />
                     {userTheme?.id === t.id && (
                       <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background flex items-center justify-center">
-                        <LuIcons.LuCheck className="text-white w-2 h-2" strokeWidth={4} />
+                        <LuCheck className="text-white w-2 h-2" strokeWidth={4} />
                       </div>
                     )}
                   </button>
@@ -257,7 +244,7 @@ export default function Navbar() {
 
           <div className="flex items-center gap-3">
             <button onClick={() => setIsDrawerOpen(true)} className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors" aria-label="Open menu" title="Menu">
-              <LuIcons.LuMenu className="w-6 h-6" />
+              <LuMenu className="w-6 h-6" />
             </button>
 
             <Link href="/" className="relative flex items-center gap-2">
@@ -278,27 +265,27 @@ export default function Navbar() {
                 />
               ) : (
                 <div className="flex items-center gap-2 text-primary">
-                  <LuIcons.LuStore size={28} />
+                  <LuStore size={28} />
                   <span className="font-black text-xl tracking-tight hidden sm:block">{storeName}</span>
                 </div>
               )}
             </Link>
           </div>
 
-          {/* ... rest of the desktop search, wishlist, cart, etc. stays exactly the same ... */}
+          {/* Desktop Search Area could go here... */}
 
           <div className="flex items-center gap-3 md:gap-5">
             <ThemeSwitcherUI />
 
             <Link href="/wishlist" className="hidden md:flex relative p-2 text-muted-foreground hover:text-primary transition-colors">
-              <LuIcons.LuHeart className="w-6 h-6" />
+              <LuHeart className="w-6 h-6" />
               <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                 {wishlistCount}
               </span>
             </Link>
 
             <Link href="/cart" className="relative p-2 text-muted-foreground hover:text-primary transition-colors">
-              <LuIcons.LuShoppingCart className="w-6 h-6" />
+              <LuShoppingCart className="w-6 h-6" />
               <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                 {cartCount}
               </span>
@@ -306,7 +293,7 @@ export default function Navbar() {
 
             <Link href={dashboardLink} className="hidden md:flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors ml-2">
               <div className="w-9 h-9 rounded-full bg-muted flex items-center justify-center border border-border hover:border-primary transition-colors">
-                <LuIcons.LuUser className="w-5 h-5" />
+                <LuUser className="w-5 h-5" />
               </div>
             </Link>
           </div>
@@ -325,7 +312,7 @@ export default function Navbar() {
                 className="w-full border border-border rounded-xl py-2 px-4 outline-none focus:ring-2 focus:ring-primary bg-background transition-all text-foreground"
               />
               <button type="submit" className="absolute right-3 top-2.5 text-muted-foreground">
-                <LuIcons.LuSearch className="w-5 h-5" />
+                <LuSearch className="w-5 h-5" />
               </button>
             </form>
           </div>
@@ -349,11 +336,11 @@ export default function Navbar() {
                   document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
                   setChatToken(null);
                 }} className="p-1.5 hover:bg-black/10 rounded-lg transition-colors">
-                  <LuIcons.LuLogOut size={16} />
+                  <LuLogOut size={16} />
                 </button>
               )}
               <button onClick={() => setIsMobileChatOpen(false)} className="p-1.5 hover:bg-black/10 rounded-lg transition-colors">
-                <LuIcons.LuX size={20} />
+                <LuX size={20} />
               </button>
             </div>
           </div>
@@ -372,30 +359,30 @@ export default function Navbar() {
         <div className="flex justify-around items-center h-16 px-2">
 
           <Link href="/wishlist" className={`flex flex-col items-center justify-center w-full h-full gap-1 relative ${pathname === '/wishlist' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <LuIcons.LuHeart className="w-5 h-5" />
+            <LuHeart className="w-5 h-5" />
             <span className="text-10px font-medium">Wishlist</span>
             {wishlistCount > 0 && <span className="absolute top-2 right-4 bg-primary text-white text-[8px] font-bold px-1.5 rounded-full">{wishlistCount}</span>}
           </Link>
 
           <Link href="/" onClick={() => { setIsMobileChatOpen(false); setShowMobileSearch(false); }} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${pathname === '/' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <LuIcons.LuHouse className="w-5 h-5" />
+            <LuHouse className="w-5 h-5" />
             <span className="text-10px font-medium">Home</span>
           </Link>
 
           <button onClick={handleMobileSearchToggle} className="flex flex-col items-center justify-center w-full h-full gap-1 -mt-4 relative z-10">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-theme-sm border-4 border-background transition-colors ${showMobileSearch ? 'bg-muted text-primary' : 'bg-primary text-primary-foreground'}`}>
-              <LuIcons.LuSearch className="w-6 h-6" />
+              <LuSearch className="w-6 h-6" />
             </div>
             <span className={`text-10px font-medium mt-0.5 ${showMobileSearch ? 'text-primary' : 'text-muted-foreground'}`}>Search</span>
           </button>
 
           <button onClick={handleMobileChatToggle} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isMobileChatOpen ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <LuIcons.LuMessageSquare className="w-5 h-5" />
+            <LuMessageSquare className="w-5 h-5" />
             <span className="text-10px font-medium">Chat</span>
           </button>
 
           <Link href={dashboardLink} onClick={() => { setIsMobileChatOpen(false); setShowMobileSearch(false); }} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${isDashboard || pathname === '/login' ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <LuIcons.LuUser className="w-5 h-5" />
+            <LuUser className="w-5 h-5" />
             <span className="text-10px font-medium">{isAuthenticated ? "Account" : "Login"}</span>
           </Link>
 

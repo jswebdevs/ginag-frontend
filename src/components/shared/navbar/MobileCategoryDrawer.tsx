@@ -4,68 +4,9 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/axios';
 
-// --- REACT-ICONS MASSIVE LOOKUP ---
-import * as AiIcons from "react-icons/ai";
-import * as BsIcons from "react-icons/bs";
-import * as BiIcons from "react-icons/bi";
-import * as CgIcons from "react-icons/cg";
-import * as DiIcons from "react-icons/di";
-import * as FiIcons from "react-icons/fi";
-import * as FcIcons from "react-icons/fc";
-import * as FaIcons from "react-icons/fa";
-import * as Fa6Icons from "react-icons/fa6";
-import * as GiIcons from "react-icons/gi";
-import * as GoIcons from "react-icons/go";
-import * as GrIcons from "react-icons/gr";
-import * as HiIcons from "react-icons/hi";
-import * as Hi2Icons from "react-icons/hi2";
-import * as ImIcons from "react-icons/im";
-import * as IoIcons from "react-icons/io";
-import * as Io5Icons from "react-icons/io5";
-import * as LuIcons from "react-icons/lu";
-import * as MdIcons from "react-icons/md";
-import * as PiIcons from "react-icons/pi";
-import * as RxIcons from "react-icons/rx";
-import * as RiIcons from "react-icons/ri";
-import * as SiIcons from "react-icons/si";
-import * as SlIcons from "react-icons/sl";
-import * as TbIcons from "react-icons/tb";
-import * as TfiIcons from "react-icons/tfi";
-import * as TiIcons from "react-icons/ti";
-import * as VscIcons from "react-icons/vsc";
-import * as WiIcons from "react-icons/wi";
-
-// Combine into lookup
-const IconLibrary: Record<string, any> = {
-  ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
-  ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons, ...Hi2Icons,
-  ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
-  ...RiIcons, ...SiIcons, ...SlIcons, ...TbIcons, ...TfiIcons, ...TiIcons, ...VscIcons, ...WiIcons
-};
-
-// --- SAFE HYBRID DYNAMIC ICON RENDERER ---
-const DynamicCategoryIcon = ({ iconData, className }: { iconData?: string, className?: string }) => {
-  // Fallback to a guaranteed existing component from the Lu set
-  const Fallback = LuIcons.LuPackage;
-
-  if (!iconData) return <Fallback className={className} />;
-
-  // 1. Handle Image URLs
-  if (iconData.startsWith('http') || iconData.startsWith('/')) {
-    return <img src={iconData} alt="Icon" className={`object-contain ${className}`} />;
-  }
-
-  // 2. Resolve Component (Check React-Icons then legacy strings)
-  const IconComponent = IconLibrary[iconData];
-
-  // 3. CRITICAL VALIDATION: Ensure IconComponent is a valid function or class (React component)
-  // This prevents the "Element type is invalid: expected a string... but got: undefined" error.
-  if (!IconComponent || typeof IconComponent !== 'function') {
-    return <Fallback className={className} />;
-  }
-
-  return <IconComponent className={className} />;
-};
+// 🔥 Use the central IconRenderer and stable static UI icons
+import IconRenderer from '@/components/shared/IconRenderer';
+import { LuX, LuLoader, LuChevronDown } from 'react-icons/lu';
 
 interface MobileCategoryDrawerProps {
   isOpen: boolean;
@@ -124,7 +65,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
         <div className="flex items-center justify-between p-4 border-b border-border bg-muted/10">
           <span className="font-black text-lg text-primary uppercase tracking-tighter italic">DreamShop</span>
           <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-xl hover:bg-muted border border-transparent hover:border-border">
-            <LuIcons.LuX className="w-5 h-5" />
+            <LuX className="w-5 h-5" />
           </button>
         </div>
 
@@ -132,7 +73,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
         <div className="flex-1 overflow-y-auto py-2 custom-scrollbar">
           {loading ? (
             <div className="flex justify-center items-center py-10 text-primary">
-              <LuIcons.LuLoader className="w-6 h-6 animate-spin" />
+              <LuLoader className="w-6 h-6 animate-spin" />
             </div>
           ) : categories.length === 0 ? (
             <div className="px-6 py-10 text-sm text-muted-foreground text-center font-medium italic">No categories found.</div>
@@ -151,7 +92,8 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                         className="flex-1 flex items-center gap-4 px-5 py-3.5 text-foreground hover:bg-primary/5 transition-colors"
                       >
                         <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary transition-colors group-hover:text-primary-foreground shadow-sm">
-                          <DynamicCategoryIcon iconData={cat.icon} className="w-4 h-4" />
+                          {/* 🔥 Using IconRenderer instead of local DynamicCategoryIcon */}
+                          <IconRenderer name={cat.icon} className="w-4 h-4" />
                         </div>
                         <span className="font-bold text-sm tracking-tight">{cat.name}</span>
                       </Link>
@@ -161,7 +103,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                           onClick={(e) => toggleExpand(cat.id, e)}
                           className="p-4 text-muted-foreground hover:text-primary transition-colors border-l border-border/30"
                         >
-                          <LuIcons.LuChevronDown
+                          <LuChevronDown
                             className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}
                           />
                         </button>
@@ -180,8 +122,9 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                               onClick={onClose}
                               className="py-2.5 text-sm text-muted-foreground hover:text-primary font-bold transition-colors flex items-center gap-3 group"
                             >
-                              <DynamicCategoryIcon
-                                iconData={child.icon}
+                              {/* 🔥 Using IconRenderer for the child icon as well */}
+                              <IconRenderer
+                                name={child.icon}
                                 className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-primary transition-colors"
                               />
                               <span>{child.name}</span>
