@@ -2,16 +2,68 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import * as LucideIcons from 'lucide-react';
 import api from '@/lib/axios';
 
-// Dynamic Icon Renderer
-const DynamicCategoryIcon = ({ iconData, className }: { iconData: string, className?: string }) => {
-  if (!iconData) return <LucideIcons.Package className={className} />;
+// --- REACT-ICONS MASSIVE LOOKUP ---
+import * as AiIcons from "react-icons/ai";
+import * as BsIcons from "react-icons/bs";
+import * as BiIcons from "react-icons/bi";
+import * as CgIcons from "react-icons/cg";
+import * as DiIcons from "react-icons/di";
+import * as FiIcons from "react-icons/fi";
+import * as FcIcons from "react-icons/fc";
+import * as FaIcons from "react-icons/fa";
+import * as Fa6Icons from "react-icons/fa6";
+import * as GiIcons from "react-icons/gi";
+import * as GoIcons from "react-icons/go";
+import * as GrIcons from "react-icons/gr";
+import * as HiIcons from "react-icons/hi";
+import * as Hi2Icons from "react-icons/hi2";
+import * as ImIcons from "react-icons/im";
+import * as IoIcons from "react-icons/io";
+import * as Io5Icons from "react-icons/io5";
+import * as LuIcons from "react-icons/lu";
+import * as MdIcons from "react-icons/md";
+import * as PiIcons from "react-icons/pi";
+import * as RxIcons from "react-icons/rx";
+import * as RiIcons from "react-icons/ri";
+import * as SiIcons from "react-icons/si";
+import * as SlIcons from "react-icons/sl";
+import * as TbIcons from "react-icons/tb";
+import * as TfiIcons from "react-icons/tfi";
+import * as TiIcons from "react-icons/ti";
+import * as VscIcons from "react-icons/vsc";
+import * as WiIcons from "react-icons/wi";
+
+// Combine into lookup
+const IconLibrary: Record<string, any> = {
+  ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
+  ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons, ...Hi2Icons,
+  ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
+  ...RiIcons, ...SiIcons, ...SlIcons, ...TbIcons, ...TfiIcons, ...TiIcons, ...VscIcons, ...WiIcons
+};
+
+// --- SAFE HYBRID DYNAMIC ICON RENDERER ---
+const DynamicCategoryIcon = ({ iconData, className }: { iconData?: string, className?: string }) => {
+  // Fallback to a guaranteed existing component from the Lu set
+  const Fallback = LuIcons.LuPackage;
+
+  if (!iconData) return <Fallback className={className} />;
+
+  // 1. Handle Image URLs
   if (iconData.startsWith('http') || iconData.startsWith('/')) {
-    return <img src={iconData} alt="Category Icon" className={`object-contain ${className}`} />;
+    return <img src={iconData} alt="Icon" className={`object-contain ${className}`} />;
   }
-  const IconComponent = (LucideIcons as any)[iconData] || LucideIcons.Package;
+
+  // 2. Resolve Component (Check React-Icons then legacy strings)
+  const IconComponent = IconLibrary[iconData];
+
+  // 3. CRITICAL VALIDATION: Ensure IconComponent is a valid function or class (React component)
+  // This prevents the "Element type is invalid: expected a string... but got: undefined" error.
+  if (!IconComponent || typeof IconComponent !== 'function') {
+    return <Fallback className={className} />;
+  }
+
   return <IconComponent className={className} />;
 };
 
@@ -26,20 +78,15 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
   const [expandedCats, setExpandedCats] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    // Only fetch if the drawer is opened or we already have data
-    if (!isOpen && categories.length > 0) return;
+    if (!isOpen) return;
 
     const fetchCategories = async () => {
       setLoading(true);
       try {
         const res = await api.get('/categories');
         const allCats = res.data.data || [];
-        console.log("Fetched categories:", allCats);
 
-        // Build Hierarchy: Separate parents from children
         const parents = allCats.filter((c: any) => !c.parentId);
-        
-        // Attach children to their parents
         const nestedCategories = parents.map((parent: any) => ({
           ...parent,
           children: allCats.filter((c: any) => c.parentId === parent.id)
@@ -53,46 +100,42 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
       }
     };
 
-    if (isOpen) {
-      fetchCategories();
-    }
+    fetchCategories();
   }, [isOpen]);
 
   const toggleExpand = (id: string, e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation when just opening the accordion
+    e.preventDefault();
     e.stopPropagation();
     setExpandedCats(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   return (
     <>
-      {/* Overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 md:hidden transition-opacity" 
-          onClick={onClose} 
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] md:hidden transition-opacity"
+          onClick={onClose}
         />
       )}
-      
-      {/* Drawer */}
-      <div className={`fixed top-0 left-0 h-full w-72 bg-gradient-theme z-50 transform transition-transform duration-300 ease-in-out md:hidden flex flex-col shadow-theme-lg border-r border-border ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        
+
+      <div className={`fixed top-0 left-0 h-full w-72 bg-card z-[101] transform transition-transform duration-300 ease-in-out md:hidden flex flex-col shadow-theme-lg border-r border-border ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
+
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border bg-transparent">
-          <span className="font-bold text-lg text-primary">Shop Categories</span>
-          <button onClick={onClose} className="p-1 text-muted-foreground hover:text-destructive transition-colors rounded-full hover:bg-muted">
-            <LucideIcons.X className="w-6 h-6" />
+        <div className="flex items-center justify-between p-4 border-b border-border bg-muted/10">
+          <span className="font-black text-lg text-primary uppercase tracking-tighter italic">DreamShop</span>
+          <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-xl hover:bg-muted border border-transparent hover:border-border">
+            <LuIcons.LuX className="w-5 h-5" />
           </button>
         </div>
-        
+
         {/* Content */}
         <div className="flex-1 overflow-y-auto py-2 custom-scrollbar">
           {loading ? (
             <div className="flex justify-center items-center py-10 text-primary">
-              <LucideIcons.Loader2 className="w-6 h-6 animate-spin" />
+              <LuIcons.LuLoader className="w-6 h-6 animate-spin" />
             </div>
           ) : categories.length === 0 ? (
-            <div className="px-6 py-4 text-sm text-muted-foreground text-center">No categories found.</div>
+            <div className="px-6 py-10 text-sm text-muted-foreground text-center font-medium italic">No categories found.</div>
           ) : (
             <div className="flex flex-col">
               {categories.map((cat) => {
@@ -101,67 +144,49 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
 
                 return (
                   <div key={cat.id} className="border-b border-border/50 last:border-0">
-                    {/* Parent Row */}
-                    <Link 
-                      href={`/categories/${cat.slug}`}
-                      onClick={(e) => {
-                        // If it has children and we click the chevron area, just expand. 
-                        // If we click the name/icon, navigate and close.
-                        if (!hasChildren) onClose();
-                      }}
-                      className="group flex items-center justify-between px-5 py-3.5 text-foreground hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-4" onClick={() => !hasChildren && onClose()}>
-                        <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary transition-colors group-hover:text-primary-foreground">
-                          <DynamicCategoryIcon iconData={cat.icon} className="w-4 h-4 transition-all duration-300" />
+                    <div className="flex items-center justify-between group">
+                      <Link
+                        href={`/category/${cat.slug}`}
+                        onClick={onClose}
+                        className="flex-1 flex items-center gap-4 px-5 py-3.5 text-foreground hover:bg-primary/5 transition-colors"
+                      >
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary transition-colors group-hover:text-primary-foreground shadow-sm">
+                          <DynamicCategoryIcon iconData={cat.icon} className="w-4 h-4" />
                         </div>
-                        <span className="font-semibold text-sm">{cat.name}</span>
-                      </div>
-                      
-                      {/* Accordion Toggle Button */}
+                        <span className="font-bold text-sm tracking-tight">{cat.name}</span>
+                      </Link>
+
                       {hasChildren && (
-                        <button 
+                        <button
                           onClick={(e) => toggleExpand(cat.id, e)}
-                          className="p-2 -mr-2 text-muted-foreground hover:text-primary transition-colors"
+                          className="p-4 text-muted-foreground hover:text-primary transition-colors border-l border-border/30"
                         >
-                          <LucideIcons.ChevronDown 
-                            className={`w-5 h-5 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`} 
+                          <LuIcons.LuChevronDown
+                            className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}
                           />
                         </button>
                       )}
-                    </Link>
+                    </div>
 
-                    {/* Children Container (Accordion) */}
                     {hasChildren && (
-                      <div 
-                        className={`overflow-hidden transition-all duration-300 ease-in-out bg-muted/20 ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+                      <div
+                        className={`overflow-hidden transition-all duration-300 ease-in-out bg-muted/20 ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}
                       >
-                        <div className="py-2 px-14 flex flex-col gap-1 border-l-2 border-primary/20 ml-7 my-2">
+                        <div className="py-2 px-10 flex flex-col gap-1 border-l-2 border-primary/20 ml-7 my-2">
                           {cat.children.map((child: any) => (
-                            <Link 
+                            <Link
                               key={child.id}
-                              href={`/categories/${child.slug}`}
+                              href={`/category/${child.slug}`}
                               onClick={onClose}
-                              // Removed the before: CSS classes that created the bullet
-                              className="py-2 text-sm text-muted-foreground hover:text-primary font-medium transition-colors flex items-center gap-2.5 group"
+                              className="py-2.5 text-sm text-muted-foreground hover:text-primary font-bold transition-colors flex items-center gap-3 group"
                             >
-                              {/* Render dynamic icon for the child category */}
-                              <DynamicCategoryIcon 
-                                iconData={child.icon} 
-                                className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" 
+                              <DynamicCategoryIcon
+                                iconData={child.icon}
+                                className="w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-primary transition-colors"
                               />
                               <span>{child.name}</span>
                             </Link>
                           ))}
-                          
-                          {/* "View All" link for the parent category */}
-                          <Link
-                            href={`/categories/${cat.slug}`}
-                            onClick={onClose}
-                            className="py-2 text-xs text-primary font-bold hover:underline mt-1"
-                          >
-                            View all in {cat.name} &rarr;
-                          </Link>
                         </div>
                       </div>
                     )}
@@ -170,6 +195,10 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
               })}
             </div>
           )}
+        </div>
+
+        <div className="p-4 border-t border-border bg-muted/5">
+          <p className="text-[10px] font-black text-center text-muted-foreground uppercase tracking-[0.2em]">DreamShop Lifestyle</p>
         </div>
       </div>
     </>

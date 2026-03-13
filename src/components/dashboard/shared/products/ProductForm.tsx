@@ -105,8 +105,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
 
     setLoading(true);
     try {
-      // 🔥 THE FIX 2: Explicitly build the payload. 
-      // Do NOT use ...rest because it might contain garbage data from Prisma (like the old categories array).
       const payload = {
         name: product.name,
         slug: product.slug,
@@ -129,10 +127,13 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         categoryIds: product.categoryIds,
         suggestedProducts: product.suggestedProducts,
 
-        // This is now guaranteed to send a valid ID string or strict null
         featuredImageId: product.featuredImage ? product.featuredImage.id : null,
         galleryImageIds: product.galleryImages.map((img) => img.id).filter(Boolean),
       };
+
+      // --- EXTRACT MAIN IMAGES FOR FALLBACKS ---
+      const defaultFeaturedImageUrl = product.featuredImage ? product.featuredImage.originalUrl : null;
+      const defaultGalleryUrls = product.galleryImages.length > 0 ? product.galleryImages.map(img => img.originalUrl) : [];
 
       if (isEdit) {
         // 1. Update Core Product
@@ -149,24 +150,42 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
               salePrice: v.salePrice,
               stock: v.stock,
               sku: v.sku,
-              isDefault: v.isDefault
+              isDefault: v.isDefault,
+              // Apply fallback logic if variation is missing images
+              featuredImage: v.featuredImage || defaultFeaturedImageUrl,
+              gallery: (v.gallery && v.gallery.length > 0) ? v.gallery : defaultGalleryUrls
             })
           ));
         }
 
         if (newVars.length > 0) {
+          // Map new variations to ensure fallbacks are applied before creating
+          const processedNewVars = newVars.map(v => ({
+            ...v,
+            featuredImage: v.featuredImage || defaultFeaturedImageUrl,
+            gallery: (v.gallery && v.gallery.length > 0) ? v.gallery : defaultGalleryUrls
+          }));
+
           await api.post("/variations/bulk", {
             productId: initialData.id,
-            variations: newVars
+            variations: processedNewVars
           });
         }
       } else {
-        // Create Product
+        // Create Core Product
         const res = await api.post("/products", payload);
+
         if (product.variations.length > 0) {
+          // Map variations to ensure fallbacks are applied during initial creation
+          const processedAllVars = product.variations.map(v => ({
+            ...v,
+            featuredImage: v.featuredImage || defaultFeaturedImageUrl,
+            gallery: (v.gallery && v.gallery.length > 0) ? v.gallery : defaultGalleryUrls
+          }));
+
           await api.post("/variations/bulk", {
             productId: res.data.product.id,
-            variations: product.variations
+            variations: processedAllVars
           });
         }
       }
@@ -182,8 +201,11 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
   };
 
   return (
-    <div className="flex flex-col xl:flex-row gap-8 items-start">
-      <div className="flex-1 w-full space-y-8">
+    // 1. Give the wrapper a fixed height on large screens to act as a boundaries for the scrollbars
+    <div className="flex flex-col xl:flex-row gap-8 items-start xl:h-[calc(100vh-8rem)]">
+
+      {/* Left Column */}
+      <div className="flex-1 w-full xl:overflow-y-auto xl:pr-4 space-y-8 xl:h-full scrollbar-thin">
         <BasicInfoPart product={product} update={updateProduct} />
         <StatusTagsPart product={product} update={updateProduct} />
         <DescriptionPart product={product} update={updateProduct} />
@@ -191,7 +213,8 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         <MediaPart product={product} update={updateProduct} />
       </div>
 
-      <div className="w-full xl:w-[450px] space-y-8 xl:sticky xl:top-24">
+      {/* Right Column */}
+      <div className="w-full xl:w-[450px] xl:overflow-y-auto xl:pr-4 space-y-8 xl:h-full scrollbar-thin">
         <CategorySidebar product={product} update={updateProduct} />
         <VariationManager product={product} update={updateProduct} />
 
@@ -200,13 +223,14 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
             onClick={handleSave}
             disabled={loading}
             title="Commit all product data to database"
-            className="w-full py-4 bg-primary text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:shadow-theme-md hover:scale-[1.02] transition-all disabled:opacity-50"
+            className="w-full py-4 bg-primary text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:shadow-theme-md hover:scale-[1.02] transition-all disabled:opacity-50 cursor-pointer"
           >
             {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
             {isEdit ? "Update Changes" : "Publish Product"}
           </button>
         </div>
       </div>
+
     </div>
   );
 }

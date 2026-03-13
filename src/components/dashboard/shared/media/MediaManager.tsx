@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
-import { UploadCloud, Image as ImageIcon, Trash2, Copy, Check, Loader2, X, Film } from "lucide-react";
+import { UploadCloud, Image as ImageIcon, Trash2, Copy, Check, Loader2, X, Film, Search } from "lucide-react";
 import Swal from "sweetalert2";
 
 interface MediaManagerProps {
@@ -15,6 +15,10 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
   const [activeTab, setActiveTab] = useState<"upload" | "library">("library");
   const [mediaItems, setMediaItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Search & Infinite Scroll States
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(20);
 
   // Selection & Upload States
   const [previewItem, setPreviewItem] = useState<any | null>(null);
@@ -38,6 +42,31 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
     if (activeTab === "library") fetchMedia();
   }, [activeTab]);
 
+  // Reset pagination when search changes
+  useEffect(() => {
+    setVisibleCount(20);
+  }, [searchQuery, activeTab]);
+
+  // --- FILTERING & PAGINATION ---
+  const filteredItems = mediaItems.filter((item) => {
+    if (!searchQuery) return true;
+    const query = searchQuery.toLowerCase();
+    const searchableText = (item.filename || item.title || item.originalUrl || "").toLowerCase();
+    return searchableText.includes(query);
+  });
+
+  const visibleItems = filteredItems.slice(0, visibleCount);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+    // If scrolled within 100px of the bottom, load more
+    if (scrollHeight - scrollTop <= clientHeight + 100) {
+      if (visibleCount < filteredItems.length) {
+        setVisibleCount((prev) => prev + 20);
+      }
+    }
+  };
+
   // --- BULK UPLOAD HANDLER ---
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -46,7 +75,6 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
     const fileList = Array.from(files);
     const MAX_SIZE = 10 * 1024 * 1024; // 10MB limit per file
 
-    // Check for files exceeding the size limit
     const oversizedFiles = fileList.filter(f => f.size > MAX_SIZE);
     if (oversizedFiles.length > 0) {
       Swal.fire({
@@ -65,7 +93,6 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
 
     setIsUploading(true);
     const formData = new FormData();
-    // 🔥 Append each valid file under the "files" field
     validFiles.forEach(file => formData.append('files', file));
 
     try {
@@ -108,7 +135,6 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
     if (!result.isConfirmed) return;
 
     try {
-      // Send the array of IDs in the body
       await api.request({
         method: 'DELETE',
         url: '/media',
@@ -141,7 +167,6 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
   const handleItemClick = (item: any) => {
     const isAlreadySelected = selectedItems.some(i => i.id === item.id);
 
-    // If we're picking multi-files OR we just want multi-select for deleting items in the library
     if (multiple || !isPicker) {
       if (isAlreadySelected) {
         setSelectedItems(selectedItems.filter(i => i.id !== item.id));
@@ -151,7 +176,6 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
         setPreviewItem(item);
       }
     } else {
-      // Single picker mode
       setSelectedItems([item]);
       setPreviewItem(item);
     }
@@ -165,7 +189,7 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
   };
 
   return (
-    <div className="flex flex-col h-full min-h-[70vh] bg-card border border-border rounded-2xl shadow-theme-lg overflow-hidden">
+    <div className="flex flex-col h-full min-h-[70vh] bg-card border border-border rounded-2xl shadow-theme-lg overflow-hidden relative">
 
       {/* TOP TABS & BULK ACTIONS */}
       <div className="flex items-center justify-between px-6 border-b border-border bg-muted/10 shrink-0">
@@ -222,61 +246,82 @@ export default function MediaManager({ isPicker = false, multiple = false, onSel
           </div>
         )}
 
-        {/* MEDIA LIBRARY GRID */}
+        {/* MEDIA LIBRARY GRID + SEARCH */}
         {activeTab === "library" && (
-          <div className={`flex-1 overflow-y-auto p-4 transition-all duration-300 ${previewItem ? 'md:pr-80' : ''} custom-scrollbar`}>
-            {loading ? (
-              <div className="h-full flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              </div>
-            ) : mediaItems.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
-                <ImageIcon className="w-12 h-12 mb-4 opacity-20" />
-                <p>No media files found.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 auto-rows-max">
-                {mediaItems.map((item) => {
-                  const mediaIsVideo = isVideo(item.originalUrl);
+          <div className={`flex flex-col flex-1 transition-all duration-300 min-w-0 ${previewItem ? 'md:pr-80' : ''}`}>
 
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleItemClick(item)}
-                      className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all group bg-muted ${isSelected(item.id) ? 'border-primary ring-4 ring-primary/20' : 'border-border hover:border-primary/50'}`}
-                    >
-                      {mediaIsVideo ? (
-                        <video
-                          src={item.originalUrl}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                          muted loop playsInline
-                          onMouseEnter={(e) => e.currentTarget.play()}
-                          onMouseLeave={(e) => e.currentTarget.pause()}
-                        />
-                      ) : (
-                        <img
-                          src={item.thumbUrl || item.originalUrl}
-                          alt={item.title || "Media"}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                        />
-                      )}
-
-                      {mediaIsVideo && (
-                        <div className="absolute bottom-2 left-2 bg-black/60 text-white p-1 rounded shadow-md pointer-events-none">
-                          <Film size={12} />
-                        </div>
-                      )}
-
-                      {isSelected(item.id) && (
-                        <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-md shadow-md animate-in zoom-in">
-                          <Check className="w-4 h-4" />
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
+            {/* SEARCH BAR */}
+            <div className="p-4 border-b border-border bg-card shrink-0">
+              <div className="relative max-w-sm">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search media by name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-4 py-2 bg-muted/50 border border-border rounded-xl text-sm font-medium focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-foreground"
+                />
               </div>
-            )}
+            </div>
+
+            {/* GRID AREA */}
+            <div
+              className="flex-1 overflow-y-auto p-4 custom-scrollbar"
+              onScroll={handleScroll}
+            >
+              {loading ? (
+                <div className="h-full flex items-center justify-center">
+                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                </div>
+              ) : filteredItems.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center text-muted-foreground">
+                  <Search className="w-12 h-12 mb-4 opacity-20" />
+                  <p className="font-medium">No media files found matching "{searchQuery}".</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 auto-rows-max">
+                  {visibleItems.map((item) => {
+                    const mediaIsVideo = isVideo(item.originalUrl);
+
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleItemClick(item)}
+                        className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all group bg-muted ${isSelected(item.id) ? 'border-primary ring-4 ring-primary/20' : 'border-border hover:border-primary/50'}`}
+                      >
+                        {mediaIsVideo ? (
+                          <video
+                            src={item.originalUrl}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                            muted loop playsInline
+                            onMouseEnter={(e) => e.currentTarget.play()}
+                            onMouseLeave={(e) => e.currentTarget.pause()}
+                          />
+                        ) : (
+                          <img
+                            src={item.thumbUrl || item.originalUrl}
+                            alt={item.title || "Media"}
+                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          />
+                        )}
+
+                        {mediaIsVideo && (
+                          <div className="absolute bottom-2 left-2 bg-black/60 text-white p-1 rounded shadow-md pointer-events-none">
+                            <Film size={12} />
+                          </div>
+                        )}
+
+                        {isSelected(item.id) && (
+                          <div className="absolute top-2 right-2 bg-primary text-white p-1 rounded-md shadow-md animate-in zoom-in">
+                            <Check className="w-4 h-4" />
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Calendar, ChevronLeft, ChevronRight, User, Hash } from "lucide-react";
+
+import { LuCalendar, LuChevronLeft, LuChevronRight, LuUser, LuHash } from "react-icons/lu";
 
 // Strict Next.js 15+ Type Definition
 type PageProps = {
@@ -103,7 +104,7 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
                                             />
                                         ) : (
                                             <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/20">
-                                                <Hash size={48} />
+                                                <LuHash size={48} />
                                             </div>
                                         )}
                                         {blog.category && (
@@ -119,11 +120,11 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
                                     <div className="p-6 flex-1 flex flex-col space-y-4">
                                         <div className="flex items-center gap-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
                                             <div className="flex items-center gap-1.5">
-                                                <Calendar size={12} className="text-primary" />
+                                                <LuCalendar size={12} className="text-primary" />
                                                 {new Date(blog.createdAt).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' })}
                                             </div>
                                             <div className="flex items-center gap-1.5">
-                                                <User size={12} className="text-primary" />
+                                                <LuUser size={12} className="text-primary" />
                                                 {blog.author?.fullName?.split(' ')[0] || "Team"}
                                             </div>
                                         </div>
@@ -138,7 +139,7 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
 
                                         <div className="pt-4 mt-auto">
                                             <span className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2 group-hover:gap-3 transition-all">
-                                                Read Full Story <ChevronRight size={14} />
+                                                Read Full Story <LuChevronRight size={14} />
                                             </span>
                                         </div>
                                     </div>
@@ -164,7 +165,7 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
                             className={`p-3 rounded-2xl border border-border transition-all ${currentPage <= 1 ? "pointer-events-none opacity-20" : "hover:bg-primary hover:text-white"
                                 }`}
                         >
-                            <ChevronLeft size={20} />
+                            <LuChevronLeft size={20} />
                         </Link>
 
                         <div className="text-sm font-black uppercase tracking-widest">
@@ -176,7 +177,7 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
                             className={`p-3 rounded-2xl border border-border transition-all ${currentPage >= totalPages ? "pointer-events-none opacity-20" : "hover:bg-primary hover:text-white"
                                 }`}
                         >
-                            <ChevronRight size={20} />
+                            <LuChevronRight size={20} />
                         </Link>
                     </div>
                 )}

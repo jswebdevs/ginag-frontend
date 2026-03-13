@@ -47,4 +47,64 @@
   .shadow-theme-sm { box-shadow: 0 1px 2px 0 hsl(var(--shadow-color) / 0.05); }
   .shadow-theme-md { box-shadow: 0 4px 6px -1px hsl(var(--shadow-color) / 0.1), 0 2px 4px -2px hsl(var(--shadow-color) / 0.1); }
   .shadow-theme-lg { box-shadow: 0 10px 15px -3px hsl(var(--shadow-color) / 0.1), 0 4px 6px -4px hsl(var(--shadow-color) / 0.1); }
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  /* Option B: Ultra-thin, sleek scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 3px; /* Very thin */
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #e2e8f0; /* Tailwind slate-200 */
+    border-radius: 10px;
+  }
+  /* Dark mode support for the thin scrollbar */
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #334155; /* Tailwind slate-700 */
+  }
+  /* Firefox support for thin scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+  }
+  .dark .scrollbar-thin {
+    scrollbar-color: #334155 transparent;
+  }
+}
+/* Add to globals.css */
+.custom-quill-editor .ql-toolbar {
+  border: none !important;
+  border-bottom: 1px solid hsl(var(--border)) !important;
+  background-color: hsl(var(--muted) / 0.3);
+  padding: 12px !important;
+}
+
+.custom-quill-editor .ql-container {
+  border: none !important;
+  font-family: inherit !important;
+  font-size: 1rem !important;
+  color: hsl(var(--foreground));
+}
+
+.custom-quill-editor .ql-editor {
+  padding: 1.5rem !important;
+}
+
+/* Dark mode fixes for toolbar icons */
+.dark .custom-quill-editor .ql-stroke {
+  stroke: hsl(var(--foreground)) !important;
+}
+.dark .custom-quill-editor .ql-fill {
+  fill: hsl(var(--foreground)) !important;
+}
+.dark .custom-quill-editor .ql-picker {
+  color: hsl(var(--foreground)) !important;
 }

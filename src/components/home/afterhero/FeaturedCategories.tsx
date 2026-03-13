@@ -3,9 +3,38 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Folder } from "lucide-react";
-import * as LucideIcons from "lucide-react";
 import api from "@/lib/axios";
+
+// --- REACT-ICONS MASSIVE LOOKUP ---
+import * as AiIcons from "react-icons/ai";
+import * as BsIcons from "react-icons/bs";
+import * as BiIcons from "react-icons/bi";
+import * as CgIcons from "react-icons/cg";
+import * as DiIcons from "react-icons/di";
+import * as FiIcons from "react-icons/fi";
+import * as FcIcons from "react-icons/fc";
+import * as FaIcons from "react-icons/fa";
+import * as Fa6Icons from "react-icons/fa6";
+import * as GiIcons from "react-icons/gi";
+import * as GoIcons from "react-icons/go";
+import * as GrIcons from "react-icons/gr";
+import * as HiIcons from "react-icons/hi";
+import * as Hi2Icons from "react-icons/hi2";
+import * as ImIcons from "react-icons/im";
+import * as IoIcons from "react-icons/io";
+import * as Io5Icons from "react-icons/io5";
+import * as LuIcons from "react-icons/lu";
+import * as MdIcons from "react-icons/md";
+import * as PiIcons from "react-icons/pi";
+import * as RxIcons from "react-icons/rx";
+import * as RiIcons from "react-icons/ri";
+import * as SiIcons from "react-icons/si";
+import * as SlIcons from "react-icons/sl";
+import * as TbIcons from "react-icons/tb";
+import * as TfiIcons from "react-icons/tfi";
+import * as TiIcons from "react-icons/ti";
+import * as VscIcons from "react-icons/vsc";
+import * as WiIcons from "react-icons/wi";
 
 // Swiper Imports
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -13,7 +42,13 @@ import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-// Color palette for dynamic icon backgrounds (Theme-safe opacities)
+const IconLibrary: Record<string, any> = {
+  ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
+  ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons, ...Hi2Icons,
+  ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
+  ...RiIcons, ...SiIcons, ...SlIcons, ...TbIcons, ...TfiIcons, ...TiIcons, ...VscIcons, ...WiIcons
+};
+
 const bgColors = [
   "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   "bg-pink-500/10 text-pink-600 dark:text-pink-400",
@@ -30,31 +65,39 @@ export default function FeaturedCategories() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get("/categories?tree=false") // Fetch flat list
+    api.get("/categories?tree=false")
       .then((res) => {
         const data = res.data?.data || [];
-
-        // 🔥 FILTER & MAP: Keep only top-level, and count their subcategories dynamically
         const mainCategories = data
           .filter((cat: any) => !cat.parentId)
           .map((mainCat: any) => {
             const subCategoryCount = data.filter((c: any) => c.parentId === mainCat.id).length;
             return { ...mainCat, subCategoryCount };
           });
-
         setCategories(mainCategories);
       })
       .catch((err) => console.error("Category Fetch Error:", err))
       .finally(() => setLoading(false));
   }, []);
 
+  // ── HYBRID DYNAMIC ICON (Pure react-icons) ──
   const DynamicIcon = ({ iconName, className }: { iconName?: string; className: string }) => {
-    if (!iconName) return <Folder className={className} />;
-    const IconComponent = (LucideIcons as any)[iconName] || Folder;
-    return <IconComponent className={className} />;
+    if (!iconName) return <LuIcons.LuFolder className={className} />;
+
+    // 1. Direct match (e.g. "LuHome", "FaApple", "MdStore")
+    let IconComponent = IconLibrary[iconName];
+    if (IconComponent) return <IconComponent className={className} />;
+
+    // 2. Legacy support: if DB still has old name without "Lu" (e.g. "Monitor")
+    if (!iconName.startsWith("Lu")) {
+      IconComponent = IconLibrary[`Lu${iconName}`];
+      if (IconComponent) return <IconComponent className={className} />;
+    }
+
+    // 3. Final fallback
+    return <LuIcons.LuFolder className={className} />;
   };
 
-  // If there are no categories to show, hide the section
   if (!loading && categories.length === 0) return null;
 
   return (
@@ -73,15 +116,13 @@ export default function FeaturedCategories() {
           </div>
           <Link
             href="/categories"
-            title="View All Categories"
             className="group flex items-center gap-2 text-primary font-black text-xs md:text-sm uppercase tracking-widest hover:opacity-80 transition-all w-fit"
           >
             All Categories
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
+            <LuIcons.LuArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform" />
           </Link>
         </div>
 
-        {/* LOADING SKELETON STATE */}
         {loading ? (
           <div className="flex gap-4 md:gap-5 overflow-hidden pb-14">
             {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -96,7 +137,6 @@ export default function FeaturedCategories() {
             ))}
           </div>
         ) : (
-          /* ACTUAL CAROUSEL */
           <div className="relative group">
             <Swiper
               modules={[Autoplay, Pagination]}
@@ -119,11 +159,9 @@ export default function FeaturedCategories() {
                 return (
                   <SwiperSlide key={category.id}>
                     <Link
-                      href={`/categories/${category.slug}`}
-                      title={`Shop ${category.name}`}
+                      href={`/category/${category.slug}`}
                       className="bg-card border border-border rounded-3xl p-6 md:p-8 flex flex-col items-center text-center group hover:border-primary hover:shadow-theme-lg hover:-translate-y-2 transition-all duration-500 h-full"
                     >
-                      {/* Thumbnail/Icon Container */}
                       <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center mb-5 md:mb-6 transition-all duration-500 group-hover:rotate-12 shadow-sm relative overflow-hidden ${hasImage ? 'bg-muted' : colorClass}`}>
                         {hasImage ? (
                           <Image
@@ -141,12 +179,10 @@ export default function FeaturedCategories() {
                         )}
                       </div>
 
-                      {/* Category Info */}
                       <h3 className="font-black text-heading text-sm md:text-base mb-1 group-hover:text-primary transition-colors line-clamp-1 uppercase tracking-tighter w-full">
                         {category.name}
                       </h3>
-                      {/* 🔥 Updated to show subCategoryCount */}
-                      <p className="text-xs font-black text-muted-foreground/60 uppercase tracking-widest">
+                      <p className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest">
                         {category.subCategoryCount} Subcategories
                       </p>
                     </Link>

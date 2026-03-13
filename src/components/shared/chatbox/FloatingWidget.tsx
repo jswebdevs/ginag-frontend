@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MessageSquare, X, LogOut } from "lucide-react";
+import { MessageSquare, X } from "lucide-react";
 import ChatLogin from "./ChatLogin";
 import CustomerChatBox from "./CustomerChatBox";
 
@@ -15,12 +15,6 @@ export default function FloatingWidget() {
             if (storedToken) setToken(storedToken);
         }
     }, [isOpen]);
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        setToken(null);
-    };
 
     return (
         <div
@@ -39,11 +33,6 @@ export default function FloatingWidget() {
                             <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mt-1">We typically reply instantly</p>
                         </div>
                         <div className="flex gap-2">
-                            {token && (
-                                <button onClick={handleLogout} className="p-1.5 hover:bg-black/10 rounded-lg transition-colors">
-                                    <LogOut size={16} />
-                                </button>
-                            )}
                             <button onClick={() => setIsOpen(false)} className="p-1.5 hover:bg-black/10 rounded-lg transition-colors">
                                 <X size={20} />
                             </button>

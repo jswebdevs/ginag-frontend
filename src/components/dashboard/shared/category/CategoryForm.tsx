@@ -35,7 +35,7 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
   const [isParentDropdownOpen, setIsParentDropdownOpen] = useState(false);
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [showIconPicker, setShowIconPicker] = useState(false);
-  
+
   // To show a visual preview of the selected image
   const [mediaPreview, setMediaPreview] = useState<string | null>(
     initialData?.featuredImage?.thumbUrl || initialData?.featuredImage?.originalUrl || null
@@ -85,15 +85,15 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
 
   // Filter out the current category so it can't be its own parent
   const availableParents = categories.filter(c => c.id !== initialData?.id);
-  const selectedParentName = formData.parentId 
-    ? availableParents.find(c => c.id === formData.parentId)?.name 
+  const selectedParentName = formData.parentId
+    ? availableParents.find(c => c.id === formData.parentId)?.name
     : "None (Top Level)";
 
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
-        <div className="bg-card w-full max-w-lg border border-border rounded-3xl shadow-theme-2xl overflow-hidden flex flex-col max-h-[90vh]">
-          
+        <div className="bg-card w-full max-w-lg border border-border rounded-3xl shadow-theme-2xl overflow-hidden flex flex-col max-h-[80vh]">
+
           <div className="flex items-center justify-between p-6 border-b border-border bg-muted/10">
             <h2 className="text-xl font-black text-foreground">
               {isEdit ? "Edit Category" : "Add New Category"}
@@ -103,7 +103,7 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
             </button>
           </div>
 
-          <div className="p-6 overflow-y-auto">
+          <div className="p-6 overflow-y-auto custom-scrollbar">
             {error && (
               <div className="mb-6 p-4 bg-destructive/10 text-destructive border border-destructive/20 rounded-xl text-sm font-bold">
                 {error}
@@ -111,12 +111,12 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
             )}
 
             <form id="category-form" onSubmit={handleSubmit} className="space-y-5">
-              
-              {/* Name & Slug */}
-              <div className="grid grid-cols-2 gap-4">
+
+              {/* Name & Slug - 🔥 Responsive Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Name *</label>
-                  <input 
+                  <input
                     type="text" required name="name"
                     value={formData.name} onChange={handleChange}
                     placeholder="e.g. Smart Watches"
@@ -125,7 +125,7 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Slug</label>
-                  <input 
+                  <input
                     type="text" name="slug"
                     value={formData.slug} onChange={handleChange}
                     placeholder="Auto-generated if blank"
@@ -134,10 +134,10 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                 </div>
               </div>
 
-              {/* Custom Parent Category Dropdown (Shows exactly 5 items and scrolls) */}
+              {/* Custom Parent Category Dropdown */}
               <div className="relative" ref={parentDropdownRef}>
                 <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Parent Category</label>
-                <div 
+                <div
                   onClick={() => setIsParentDropdownOpen(!isParentDropdownOpen)}
                   className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-foreground focus:ring-2 focus:ring-primary outline-none transition-all flex items-center justify-between cursor-pointer select-none hover:bg-muted/30"
                 >
@@ -150,14 +150,14 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                 {isParentDropdownOpen && (
                   <div className="absolute top-full left-0 w-full mt-2 bg-card border border-border rounded-xl shadow-theme-xl z-50 overflow-hidden">
                     <div className="max-h-[210px] overflow-y-auto custom-scrollbar flex flex-col p-1">
-                      <div 
+                      <div
                         onClick={() => { setFormData({ ...formData, parentId: "" }); setIsParentDropdownOpen(false); }}
                         className={`px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors ${formData.parentId === "" ? "bg-primary text-primary-foreground font-bold" : "hover:bg-muted text-foreground"}`}
                       >
                         None (Top Level)
                       </div>
                       {availableParents.map(cat => (
-                        <div 
+                        <div
                           key={cat.id}
                           onClick={() => { setFormData({ ...formData, parentId: cat.id }); setIsParentDropdownOpen(false); }}
                           className={`px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors ${formData.parentId === cat.id ? "bg-primary text-primary-foreground font-bold" : "hover:bg-muted text-foreground"}`}
@@ -170,21 +170,21 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                 )}
               </div>
 
-              {/* Media & Icon Pickers */}
-              <div className="grid grid-cols-2 gap-4">
-                
+              {/* Media & Icon Pickers - 🔥 Responsive Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 {/* 1. Icon Picker */}
                 <div>
                   <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Category Icon</label>
                   <div className="flex gap-2">
-                    <input 
+                    <input
                       type="text" name="icon"
                       value={formData.icon} onChange={handleChange}
                       placeholder="e.g. Monitor"
                       className="w-full bg-background border border-border rounded-xl px-3 py-2.5 text-foreground focus:ring-2 focus:ring-primary outline-none transition-all text-sm"
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setShowIconPicker(true)}
                       className="px-3 bg-muted text-foreground border border-border rounded-xl hover:border-primary hover:text-primary transition-all flex items-center justify-center shrink-0"
                       title="Browse Icons"
@@ -205,8 +205,8 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                         <ImageIcon className="w-5 h-5 text-muted-foreground/50" />
                       )}
                     </div>
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setShowMediaPicker(true)}
                       className="flex-1 px-3 py-2.5 text-sm font-bold bg-background text-foreground border border-border rounded-xl hover:border-primary hover:text-primary transition-all text-center"
                     >
@@ -219,7 +219,7 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
 
               <div>
                 <label className="block text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Description</label>
-                <textarea 
+                <textarea
                   name="description" rows={3}
                   value={formData.description} onChange={handleChange}
                   placeholder="Brief description of the category..."
@@ -233,7 +233,7 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
             <button type="button" onClick={onClose} className="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted transition-colors">
               Cancel
             </button>
-            <button 
+            <button
               type="submit" form="category-form" disabled={loading}
               className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all disabled:opacity-50 disabled:hover:scale-100"
             >
@@ -249,7 +249,7 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
       {showMediaPicker && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 bg-background/90 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
           <div className="w-full max-w-6xl relative shadow-theme-2xl rounded-2xl overflow-hidden border border-border flex flex-col bg-card h-full max-h-[85vh]">
-            
+
             {/* Modal Header for Media Manager */}
             <div className="flex items-center justify-between p-4 border-b border-border bg-muted/10 shrink-0">
               <h3 className="font-black text-foreground">Select Featured Image</h3>
@@ -257,16 +257,16 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             {/* The actual MediaManager Component acting as a picker */}
             <div className="bg-background flex-1 overflow-hidden">
-              <MediaManager 
-                isPicker={true} 
+              <MediaManager
+                isPicker={true}
                 onSelect={(media) => {
                   setFormData({ ...formData, featuredImageId: media.id });
                   setMediaPreview(media.thumbUrl || media.originalUrl);
                   setShowMediaPicker(false);
-                }} 
+                }}
               />
             </div>
           </div>
@@ -274,13 +274,13 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
       )}
 
       {/* --- ICON PICKER MODAL OVERLAY --- */}
-      <IconPickerModal 
-        isOpen={showIconPicker} 
-        onClose={() => setShowIconPicker(false)} 
+      <IconPickerModal
+        isOpen={showIconPicker}
+        onClose={() => setShowIconPicker(false)}
         onSelect={(selectedIconName) => {
           setFormData({ ...formData, icon: selectedIconName });
-          setShowIconPicker(false); 
-        }} 
+          setShowIconPicker(false);
+        }}
       />
     </>
   );

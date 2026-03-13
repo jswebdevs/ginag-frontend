@@ -3,19 +3,61 @@
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
-import {
-    Plus, Edit, Trash2, Loader2, Share2,
-    CheckCircle2, XCircle, Link2, ExternalLink
-} from "lucide-react";
-import * as LucideIcons from "lucide-react";
+
+// --- REACT-ICONS MASSIVE LOOKUP ---
+import * as AiIcons from "react-icons/ai";
+import * as BsIcons from "react-icons/bs";
+import * as BiIcons from "react-icons/bi";
+import * as CgIcons from "react-icons/cg";
+import * as DiIcons from "react-icons/di";
+import * as FiIcons from "react-icons/fi";
+import * as FcIcons from "react-icons/fc";
+import * as FaIcons from "react-icons/fa";
+import * as Fa6Icons from "react-icons/fa6";
+import * as GiIcons from "react-icons/gi";
+import * as GoIcons from "react-icons/go";
+import * as GrIcons from "react-icons/gr";
+import * as HiIcons from "react-icons/hi";
+import * as Hi2Icons from "react-icons/hi2";
+import * as ImIcons from "react-icons/im";
+import * as IoIcons from "react-icons/io";
+import * as Io5Icons from "react-icons/io5";
+import * as LuIcons from "react-icons/lu";
+import * as MdIcons from "react-icons/md";
+import * as PiIcons from "react-icons/pi";
+import * as RxIcons from "react-icons/rx";
+import * as RiIcons from "react-icons/ri";
+import * as SiIcons from "react-icons/si";
+import * as SlIcons from "react-icons/sl";
+import * as TbIcons from "react-icons/tb";
+import * as TfiIcons from "react-icons/tfi";
+import * as TiIcons from "react-icons/ti";
+import * as VscIcons from "react-icons/vsc";
+import * as WiIcons from "react-icons/wi";
+
+// Master lookup object
+const IconLibrary: Record<string, any> = {
+    ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
+    ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons, ...Hi2Icons,
+    ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
+    ...RiIcons, ...SiIcons, ...SlIcons, ...TbIcons, ...TfiIcons, ...TiIcons, ...VscIcons, ...WiIcons
+};
 
 // Import your existing IconPicker
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
 
-// Helper to render dynamic icons from strings
+// --- HYBRID DYNAMIC ICON RENDERER ---
 const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
-    const IconComponent = (LucideIcons as any)[name] || LucideIcons.Link2;
-    return <IconComponent className={className} />;
+    // 1. Try React-Icons (Prefixed names like FaFacebook)
+    const ReactIconComponent = IconLibrary[name];
+    if (ReactIconComponent) return <ReactIconComponent className={className} />;
+
+    // 2. Try Legacy Lucide Names (Old entries like "Facebook")
+    const LucideIconComponent = (LucideIcons as any)[name];
+    if (LucideIconComponent) return <LucideIconComponent className={className} />;
+
+    // 3. Fallback
+    return <LucideIcons.Link2 className={className} />;
 };
 
 export default function SocialLinksPage() {
@@ -31,7 +73,7 @@ export default function SocialLinksPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [formData, setFormData] = useState({
         name: "",
-        icon: "Link2",
+        icon: "LuLink2", // Default to React-Icon Lucide name
         link: "",
         order: 0,
         isActive: true,
@@ -55,7 +97,7 @@ export default function SocialLinksPage() {
 
     const openAddModal = () => {
         setEditingId(null);
-        setFormData({ name: "", icon: "Link2", link: "", order: links.length, isActive: true });
+        setFormData({ name: "", icon: "LuLink2", link: "", order: links.length, isActive: true });
         setIsModalOpen(true);
     };
 
@@ -154,7 +196,7 @@ export default function SocialLinksPage() {
                     </div>
                 ) : links.length === 0 ? (
                     <div className="flex flex-col h-64 items-center justify-center text-muted-foreground">
-                        <Link2 className="w-12 h-12 mb-4 opacity-20" />
+                        <LucideIcons.Link2 className="w-12 h-12 mb-4 opacity-20" />
                         <p className="font-bold">No social links configured.</p>
                         <p className="text-sm">Click 'Add New Link' to create one.</p>
                     </div>

@@ -51,7 +51,7 @@ export default function MediaPart({ product, update }: MediaPartProps) {
   return (
     <>
       <div className="bg-card border border-border rounded-3xl shadow-theme-sm overflow-hidden">
-        <div className="p-6 md:p-8 space-y-8">
+        <div className="p-4 md:p-8 space-y-8">
           <h2 className="text-xl font-black text-foreground uppercase tracking-wider">Media & Images</h2>
 
           {/* Featured Image */}

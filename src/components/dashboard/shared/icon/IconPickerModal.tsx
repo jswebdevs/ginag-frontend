@@ -1,8 +1,38 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import * as LucideIcons from "lucide-react";
-import { X, Search } from "lucide-react";
+import { X, Search } from "lucide-react"; // Keeping Lucide just for Modal UI
+
+// --- THE MASSIVE IMPORT BLOCK ---
+import * as AiIcons from "react-icons/ai"; // Ant Design
+import * as BsIcons from "react-icons/bs"; // Bootstrap
+import * as BiIcons from "react-icons/bi"; // BoxIcons
+import * as CgIcons from "react-icons/cg"; // Circum Icons
+import * as DiIcons from "react-icons/di"; // Devicons
+import * as FiIcons from "react-icons/fi"; // Feather
+import * as FcIcons from "react-icons/fc"; // Flat Color Icons
+import * as FaIcons from "react-icons/fa"; // FontAwesome 5
+import * as Fa6Icons from "react-icons/fa6"; // FontAwesome 6
+import * as GiIcons from "react-icons/gi"; // Game Icons
+import * as GoIcons from "react-icons/go"; // Github Octicons
+import * as GrIcons from "react-icons/gr"; // Grommet
+import * as HiIcons from "react-icons/hi"; // Heroicons
+import * as Hi2Icons from "react-icons/hi2"; // Heroicons 2
+import * as ImIcons from "react-icons/im"; // IcoMoon
+import * as IoIcons from "react-icons/io"; // Ionicons 4
+import * as Io5Icons from "react-icons/io5"; // Ionicons 5
+import * as LuIcons from "react-icons/lu"; // Lucide (Included!)
+import * as MdIcons from "react-icons/md"; // Material Design
+import * as PiIcons from "react-icons/pi"; // Phosphor
+import * as RxIcons from "react-icons/rx"; // Radix
+import * as RiIcons from "react-icons/ri"; // Remix
+import * as SiIcons from "react-icons/si"; // Simple Icons
+import * as SlIcons from "react-icons/sl"; // Simple Line Icons
+import * as TbIcons from "react-icons/tb"; // Tabler Icons
+import * as TfiIcons from "react-icons/tfi"; // Themify
+import * as TiIcons from "react-icons/ti"; // Typicons
+import * as VscIcons from "react-icons/vsc"; // VS Code
+import * as WiIcons from "react-icons/wi"; // Weather Icons
 
 interface IconPickerModalProps {
   isOpen: boolean;
@@ -10,26 +40,29 @@ interface IconPickerModalProps {
   onSelect: (iconName: string) => void;
 }
 
-// Extract only valid icon component names from the Lucide library
-const allIconNames = Object.keys(LucideIcons).filter(
-  (key) => 
-    key !== "createLucideIcon" && 
-    key !== "default" && 
-    key !== "Icon" && 
-    key !== "LucideProps" && 
-    /^[A-Z]/.test(key) // Ensure it starts with a capital letter (React component)
+// Combine all libraries into one massive lookup object
+const IconLibrary: Record<string, React.ElementType> = {
+  ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
+  ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons, ...Hi2Icons,
+  ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
+  ...RiIcons, ...SiIcons, ...SlIcons, ...TbIcons, ...TfiIcons, ...TiIcons, ...VscIcons, ...WiIcons
+};
+
+// Extract keys and filter out non-components
+const allIconNames = Object.keys(IconLibrary).filter(
+  (key) => /^[A-Z]/.test(key) && key !== "DefaultContext" // Ensure it's a React component
 );
 
 export default function IconPickerModal({ isOpen, onClose, onSelect }: IconPickerModalProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Optimize filtering to prevent lag when searching 1400+ icons
+  // Optimize filtering to prevent lag when searching 30,000+ icons
   const filteredIcons = useMemo(() => {
-    if (!searchQuery.trim()) return allIconNames.slice(0, 120); // Default to first 120
-    
+    if (!searchQuery.trim()) return allIconNames.slice(0, 150); // Default to first 150
+
     return allIconNames
       .filter((name) => name.toLowerCase().includes(searchQuery.toLowerCase()))
-      .slice(0, 120); // Cap at 120 to keep the DOM light and snappy
+      .slice(0, 150); // Cap at 150 to keep the DOM light and snappy
   }, [searchQuery]);
 
   if (!isOpen) return null;
@@ -37,16 +70,18 @@ export default function IconPickerModal({ isOpen, onClose, onSelect }: IconPicke
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 sm:p-6 bg-background/90 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-card w-full max-w-4xl border border-border rounded-3xl shadow-theme-2xl flex flex-col h-[85vh] overflow-hidden">
-        
+
         {/* Header & Search */}
         <div className="p-4 sm:p-6 border-b border-border bg-muted/10 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-xl font-black text-foreground tracking-tight">Icon Library</h2>
-              <p className="text-xs text-muted-foreground mt-1">Search and select an icon for your category</p>
+              <h2 className="text-xl font-black text-foreground tracking-tight">Ultimate Icon Library</h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                Searching across all React-Icons packs ({allIconNames.length.toLocaleString()} total)
+              </p>
             </div>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10 bg-background border border-border rounded-xl transition-colors"
             >
               <X className="w-5 h-5" />
@@ -54,15 +89,15 @@ export default function IconPickerModal({ isOpen, onClose, onSelect }: IconPicke
           </div>
 
           <div className="relative">
-            <input 
-              type="text" 
-              placeholder="Search icons (e.g., monitor, watch, laptop)..." 
+            <input
+              type="text"
+              placeholder="Search icons (e.g., FaStar, MdMonitor, TbBrandNextjs)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               autoFocus
               className="w-full bg-background border border-border rounded-xl pl-12 pr-4 py-3 text-sm text-foreground focus:ring-2 focus:ring-primary outline-none transition-all"
             />
-            <Search className="absolute left-4 top-3 text-muted-foreground w-5 h-5" />
+            <Search className="absolute left-4 top-3.5 text-muted-foreground w-5 h-5" />
           </div>
         </div>
 
@@ -71,8 +106,8 @@ export default function IconPickerModal({ isOpen, onClose, onSelect }: IconPicke
           {filteredIcons.length > 0 ? (
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
               {filteredIcons.map((iconName) => {
-                const IconComponent = (LucideIcons as any)[iconName];
-                
+                const IconComponent = IconLibrary[iconName];
+
                 return (
                   <button
                     key={iconName}

@@ -147,7 +147,7 @@ export default function BlogForm({ initialData }: BlogFormProps) {
                   [&_.ql-editor]:text-foreground [&_.ql-editor]:min-h-[300px] [&_.ql-editor]:text-base
                   [&_.ql-stroke]:!stroke-foreground [&_.ql-fill]:!fill-foreground"
                             >
-                                <ReactQuill theme="snow" value={content} onChange={setContent} modules={quillModules} formats={quillFormats} placeholder="Write something amazing..." />
+                                <ReactQuill theme="snow" value={content} onChange={setContent} modules={quillModules} formats={quillFormats} placeholder="" />
                             </div>
                         </div>
 

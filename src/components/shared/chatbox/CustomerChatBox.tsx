@@ -38,8 +38,33 @@ export default function CustomerChatBox({ token }: { token: string }) {
         setInput("");
     };
 
+    // 🔥 NEW: Helper function to turn plain URLs into clickable, wrapping links!
+    const renderMessageContent = (content: string) => {
+        if (!content) return null;
+
+        // Regex to detect URLs
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const parts = content.split(urlRegex);
+
+        return parts.map((part, index) => {
+            if (part.match(urlRegex)) {
+                return (
+                    <a
+                        key={index}
+                        href={part}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 underline font-medium break-all"
+                    >
+                        {part}
+                    </a>
+                );
+            }
+            return <span key={index}>{part}</span>;
+        });
+    };
+
     return (
-        // 🔥 FIX 1: Added w-full and overflow-hidden to contain the flex child perfectly
         <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
 
             {/* Messages Area */}
@@ -62,7 +87,12 @@ export default function CustomerChatBox({ token }: { token: string }) {
                                 {msg.attachmentUrl && (
                                     <img src={msg.attachmentUrl} alt="attachment" className="w-full rounded-xl mb-2" />
                                 )}
-                                {msg.content}
+
+                                {/* 🔥 FIX: We pass the text to our new helper, and enforce word wrapping */}
+                                <div className="whitespace-pre-wrap break-words">
+                                    {renderMessageContent(msg.content)}
+                                </div>
+
                             </div>
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mt-1">
                                 {isUser ? "You" : msg.senderType === 'BOT' ? "DreamBot AI" : "Support"}
@@ -74,7 +104,6 @@ export default function CustomerChatBox({ token }: { token: string }) {
             </div>
 
             {/* Input Area */}
-            {/* 🔥 FIX 2: Added shrink-0 so it NEVER gets pushed behind the navbar or crushed */}
             <div className="shrink-0 p-3 bg-card border-t border-border flex gap-2">
                 <input
                     type="text"

@@ -234,6 +234,7 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
             featuredImage={product.featuredImage}
             images={product.images || []}
             productName={product.name}
+            currentVariation={currentVariation}
           />
 
           <ProductInfo

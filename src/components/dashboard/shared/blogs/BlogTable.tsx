@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Edit, Trash2, ExternalLink, Image as ImageIcon, Eye, FileText } from "lucide-react";
+import { Search, Edit, Trash2, ExternalLink, Image as ImageIcon, Eye, FileText, Calendar } from "lucide-react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 
@@ -89,8 +89,111 @@ export default function BlogTable() {
                 </div>
             </div>
 
-            {/* Data Table */}
-            <div className="bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
+            {/* ======================================================= */}
+            {/* MOBILE CARD LAYOUT (Visible only on < md screens)       */}
+            {/* ======================================================= */}
+            <div className="flex flex-col gap-4 md:hidden">
+                {loading ? (
+                    // Mobile Skeletons
+                    [...Array(4)].map((_, i) => (
+                        <div key={i} className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-4 animate-pulse">
+                            <div className="flex gap-4 items-center">
+                                <div className="w-12 h-12 bg-muted rounded-xl shrink-0" />
+                                <div className="flex-1 space-y-2">
+                                    <div className="h-4 bg-muted rounded w-3/4" />
+                                    <div className="h-3 bg-muted rounded w-1/2" />
+                                </div>
+                            </div>
+                            <div className="h-20 bg-muted rounded-xl w-full" />
+                            <div className="h-10 bg-muted rounded-xl w-full" />
+                        </div>
+                    ))
+                ) : filteredBlogs.length > 0 ? (
+                    filteredBlogs.map((blog) => {
+                        const imageUrl = blog.featuredImage?.thumbUrl || blog.featuredImage?.originalUrl;
+
+                        return (
+                            <div key={blog.id} className="bg-card border border-border rounded-2xl p-4 shadow-sm flex flex-col relative overflow-hidden">
+                                {/* Top: Image, Title, Slug */}
+                                <div className="flex items-start gap-3 mb-4">
+                                    <div className="w-14 h-14 rounded-xl bg-muted overflow-hidden flex items-center justify-center shrink-0 border border-border/50">
+                                        {imageUrl ? (
+                                            <img src={imageUrl} alt={blog.title} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <ImageIcon className="w-6 h-6 text-muted-foreground/50" />
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0 pt-0.5">
+                                        <h3 className="font-bold text-heading text-lg leading-tight line-clamp-2">{blog.title}</h3>
+                                        <p className="text-xs font-medium text-muted-foreground mt-1 truncate">/{blog.slug}</p>
+                                    </div>
+                                </div>
+
+                                {/* Middle: Stats Grid */}
+                                <div className="grid grid-cols-2 gap-3 mb-4 bg-muted/30 p-3 rounded-xl border border-border/50">
+                                    <div>
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Category</span>
+                                        <span className="text-sm font-bold text-foreground line-clamp-1">{blog.category?.name || "Uncategorized"}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Status</span>
+                                        <span className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest ${blog.isPublished ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"}`}>
+                                            {blog.isPublished ? "Published" : "Draft"}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Date</span>
+                                        <span className="text-xs font-medium text-foreground flex items-center gap-1">
+                                            <Calendar className="w-3 h-3" /> {formatDate(blog.createdAt)}
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Views</span>
+                                        <span className="text-xs font-bold text-foreground flex items-center gap-1">
+                                            <Eye className="w-3.5 h-3.5" /> {blog.views}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Bottom: Actions */}
+                                <div className="flex items-center gap-2 mt-auto">
+                                    <Link
+                                        href={`/blogs/${blog.slug}`}
+                                        target="_blank"
+                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-muted hover:bg-muted/80 border border-transparent hover:border-border rounded-xl text-sm font-bold transition-all text-muted-foreground"
+                                    >
+                                        <ExternalLink size={16} /> View
+                                    </Link>
+                                    <Link
+                                        href={`/dashboard/super-admin/blogs/blog/edit/${blog.slug}`}
+                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 border border-transparent hover:border-blue-500/30 rounded-xl text-sm font-bold transition-all"
+                                    >
+                                        <Edit size={16} /> Edit
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDelete(blog.id)}
+                                        className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-destructive/10 hover:bg-destructive/20 text-destructive border border-transparent hover:border-destructive/30 rounded-xl text-sm font-bold transition-all"
+                                    >
+                                        <Trash2 size={16} /> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    })
+                ) : (
+                    // Mobile Empty State
+                    <div className="bg-card border border-border rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
+                        <FileText className="w-10 h-10 mb-4 opacity-20 text-muted-foreground" />
+                        <h3 className="text-lg font-black text-heading uppercase tracking-tight mb-1">No Blogs Found</h3>
+                        <p className="text-sm font-medium text-muted-foreground">Start writing your first post or adjust your search.</p>
+                    </div>
+                )}
+            </div>
+
+            {/* ======================================================= */}
+            {/* DESKTOP TABLE LAYOUT (Hidden on < md screens)           */}
+            {/* ======================================================= */}
+            <div className="hidden md:block bg-card border border-border rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -109,14 +212,21 @@ export default function BlogTable() {
                                 [...Array(4)].map((_, i) => (
                                     <tr key={i} className="animate-pulse">
                                         <td className="px-6 py-5 flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-muted rounded-xl"></div>
-                                            <div className="h-4 w-48 bg-muted rounded"></div>
+                                            <div className="w-12 h-12 bg-muted rounded-xl border border-border/50"></div>
+                                            <div className="space-y-2">
+                                                <div className="h-4 w-48 bg-muted rounded"></div>
+                                                <div className="h-3 w-24 bg-muted rounded"></div>
+                                            </div>
                                         </td>
                                         <td className="px-6 py-5"><div className="h-4 w-24 bg-muted rounded"></div></td>
                                         <td className="px-6 py-5"><div className="h-4 w-16 bg-muted rounded mx-auto"></div></td>
                                         <td className="px-6 py-5"><div className="h-6 w-20 bg-muted rounded-full"></div></td>
                                         <td className="px-6 py-5"><div className="h-4 w-24 bg-muted rounded"></div></td>
-                                        <td className="px-6 py-5 flex justify-end"><div className="h-8 w-16 bg-muted rounded-lg"></div></td>
+                                        <td className="px-6 py-5 flex justify-end gap-2">
+                                            <div className="h-8 w-8 bg-muted rounded-lg"></div>
+                                            <div className="h-8 w-8 bg-muted rounded-lg"></div>
+                                            <div className="h-8 w-8 bg-muted rounded-lg"></div>
+                                        </td>
                                     </tr>
                                 ))
                             ) : filteredBlogs.length > 0 ? (
