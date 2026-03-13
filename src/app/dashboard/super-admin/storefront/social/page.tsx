@@ -12,9 +12,9 @@ import {
     LuLoader,
     LuLink2,
     LuExternalLink,
-    LuCheckCircle,
-    LuXCircle,
-    LuEdit,
+    LuCheck,
+    LuX,
+    LuPencil,
     LuTrash2
 } from "react-icons/lu";
 
@@ -141,7 +141,7 @@ export default function SocialLinksPage() {
                 </div>
                 <button
                     onClick={openAddModal}
-                    className="bg-primary text-primary-foreground h-11 px-6 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-theme-md w-full md:w-auto"
+                    className="bg-primary text-primary-foreground h-11 px-6 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-theme-md w-full md:w-auto cursor-pointer"
                 >
                     <LuPlus size={18} /> Add New Link
                 </button>
@@ -197,7 +197,7 @@ export default function SocialLinksPage() {
                                                 className={`inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors
                                                   ${link.isActive ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
                                             >
-                                                {link.isActive ? <LuCheckCircle size={12} /> : <LuXCircle size={12} />}
+                                                {link.isActive ? <LuCheck size={12} /> : <LuX size={12} />}
                                                 {link.isActive ? "Active" : "Hidden"}
                                             </button>
                                         </td>
@@ -205,7 +205,7 @@ export default function SocialLinksPage() {
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button onClick={() => openEditModal(link)} className="p-2 bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors shrink-0">
-                                                    <LuEdit size={16} />
+                                                    <LuPencil size={16} />
                                                 </button>
                                                 <button onClick={() => handleDelete(link.id)} className="p-2 bg-muted rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0">
                                                     <LuTrash2 size={16} />
