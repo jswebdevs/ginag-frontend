@@ -1,31 +1,30 @@
 "use client";
 
 import { useState, MouseEvent, useRef, useEffect } from "react";
-import { ImageIcon, Film, Maximize } from "lucide-react";
+import Image from "next/image"; // 🔥 Imported Next.js Image
+import { LuImage, LuFilm, LuMaximize } from "react-icons/lu";
 
 interface ProductGalleryProps {
     featuredImage?: { originalUrl: string; thumbUrl?: string };
     images: { originalUrl: string; thumbUrl?: string }[];
     productName: string;
-    currentVariation?: any; // 🔥 NEW PROPTYPE
+    currentVariation?: any;
 }
 
-export default function ProductGallery({ featuredImage, images, productName, currentVariation }: ProductGalleryProps) {
-    // 1. Determine which set of images to use (Variation specific or Main Product fallback)
-    // Remember: variation images are just arrays of strings (URLs) based on your Prisma schema.
+type GalleryImage = { originalUrl: string; thumbUrl?: string };
 
+export default function ProductGallery({ featuredImage, images, productName, currentVariation }: ProductGalleryProps) {
     // Determine Featured Image
-    const displayFeatured = currentVariation?.featuredImage
+    const displayFeatured: GalleryImage | undefined = currentVariation?.featuredImage
         ? { originalUrl: currentVariation.featuredImage }
         : featuredImage;
 
     // Determine Gallery Array
-    const displayGallery = (currentVariation?.gallery && currentVariation.gallery.length > 0)
-        ? currentVariation.gallery.map((url: string) => ({ originalUrl: url })) // Format to match main images array
+    const displayGallery: GalleryImage[] = (currentVariation?.gallery && currentVariation.gallery.length > 0)
+        ? currentVariation.gallery.map((url: string) => ({ originalUrl: url }))
         : images;
 
-    // Combine them
-    const allImages = displayFeatured ? [displayFeatured, ...displayGallery] : displayGallery;
+    const allImages: GalleryImage[] = displayFeatured ? [displayFeatured, ...displayGallery] : displayGallery;
     const defaultImg = allImages[0]?.originalUrl || null;
 
     const [activeImage, setActiveImage] = useState<string | null>(defaultImg);
@@ -34,17 +33,14 @@ export default function ProductGallery({ featuredImage, images, productName, cur
 
     const videoRef = useRef<HTMLVideoElement>(null);
 
-    // 🔥 NEW: Whenever the variation changes, automatically switch the active image to the new variation's featured image!
     useEffect(() => {
         if (allImages.length > 0) {
             setActiveImage(allImages[0].originalUrl);
         }
     }, [currentVariation]);
 
-    // Helper to detect if the URL is a video
     const isVideo = (url?: string | null) => url ? /\.(mp4|webm|ogg|mov)$/i.test(url) : false;
 
-    // Mouse tracking for zoom effect
     const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
         if (isVideo(activeImage)) return;
 
@@ -90,15 +86,19 @@ export default function ProductGallery({ featuredImage, images, productName, cur
                                 className="absolute top-4 right-4 p-2.5 bg-black/60 text-white rounded-xl backdrop-blur-sm opacity-0 group-hover/video:opacity-100 hover:bg-primary transition-all shadow-lg"
                                 title="View Fullscreen"
                             >
-                                <Maximize className="w-5 h-5" />
+                                <LuMaximize className="w-5 h-5" />
                             </button>
                         </div>
                     ) : (
                         <>
-                            <img
+                            {/* 🔥 Replaced <img> with Next.js <Image> */}
+                            <Image
                                 src={activeImage}
                                 alt={productName}
-                                className={`w-full h-full object-cover transition-opacity duration-300 ${isHovering ? 'opacity-0' : 'opacity-100'}`}
+                                fill
+                                priority // High priority since it's the main LCP element usually
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                className={`object-cover transition-opacity duration-300 ${isHovering ? 'opacity-0' : 'opacity-100'}`}
                             />
                             <div
                                 className={`absolute inset-0 w-full h-full bg-no-repeat transition-opacity duration-300 pointer-events-none ${isHovering ? 'opacity-100' : 'opacity-0'}`}
@@ -111,7 +111,7 @@ export default function ProductGallery({ featuredImage, images, productName, cur
                         </>
                     )
                 ) : (
-                    <ImageIcon className="w-20 h-20 text-muted-foreground/30" />
+                    <LuImage className="w-20 h-20 text-muted-foreground/30" />
                 )}
             </div>
 
@@ -123,7 +123,7 @@ export default function ProductGallery({ featuredImage, images, productName, cur
 
                         return (
                             <button
-                                key={`${img.originalUrl}-${idx}`} // Use URL to force re-render if it changes
+                                key={`${img.originalUrl}-${idx}`}
                                 onClick={() => setActiveImage(img.originalUrl)}
                                 className={`relative w-20 h-20 flex-shrink-0 rounded-2xl overflow-hidden border-2 transition-all bg-muted ${activeImage === img.originalUrl
                                     ? 'border-primary ring-2 ring-primary/20 scale-105 shadow-sm'
@@ -133,13 +133,16 @@ export default function ProductGallery({ featuredImage, images, productName, cur
                                 {mediaIsVideo ? (
                                     <>
                                         <video src={img.originalUrl} preload="metadata" className="w-full h-full object-cover opacity-70" />
-                                        <Film className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-white drop-shadow-md" />
+                                        <LuFilm className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 text-white drop-shadow-md" />
                                     </>
                                 ) : (
-                                    <img
+                                    /* 🔥 Replaced thumbnail <img> with Next.js <Image> */
+                                    <Image
                                         src={img.thumbUrl || img.originalUrl}
-                                        className="w-full h-full object-cover"
                                         alt={`Thumbnail ${idx}`}
+                                        fill
+                                        sizes="80px"
+                                        className="object-cover"
                                     />
                                 )}
                             </button>
