@@ -1,47 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, Edit, Trash2, Folder, Image as ImageIcon, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import Swal from "sweetalert2";
 
-// --- REACT-ICONS MASSIVE IMPORT ---
-import * as AiIcons from "react-icons/ai";
-import * as BsIcons from "react-icons/bs";
-import * as BiIcons from "react-icons/bi";
-import * as CgIcons from "react-icons/cg";
-import * as DiIcons from "react-icons/di";
-import * as FiIcons from "react-icons/fi";
-import * as FcIcons from "react-icons/fc";
-import * as FaIcons from "react-icons/fa";
-import * as Fa6Icons from "react-icons/fa6";
-import * as GiIcons from "react-icons/gi";
-import * as GoIcons from "react-icons/go";
-import * as GrIcons from "react-icons/gr";
-import * as HiIcons from "react-icons/hi";
-import * as Hi2Icons from "react-icons/hi2";
-import * as ImIcons from "react-icons/im";
-import * as IoIcons from "react-icons/io";
-import * as Io5Icons from "react-icons/io5";
-import * as LuIcons from "react-icons/lu"; // Includes Lucide!
-import * as MdIcons from "react-icons/md";
-import * as PiIcons from "react-icons/pi";
-import * as RxIcons from "react-icons/rx";
-import * as RiIcons from "react-icons/ri";
-import * as SiIcons from "react-icons/si";
-import * as SlIcons from "react-icons/sl";
-import * as TbIcons from "react-icons/tb";
-import * as TfiIcons from "react-icons/tfi";
-import * as TiIcons from "react-icons/ti";
-import * as VscIcons from "react-icons/vsc";
-import * as WiIcons from "react-icons/wi";
+// 🔥 Use your centralized IconRenderer
+import IconRenderer from "@/components/shared/IconRenderer";
 
-// Combine all libraries into one lookup object
-const IconLibrary: Record<string, React.ElementType> = {
-  ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
-  ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons, ...Hi2Icons,
-  ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
-  ...RiIcons, ...SiIcons, ...SlIcons, ...TbIcons, ...TfiIcons, ...TiIcons, ...VscIcons, ...WiIcons
-};
+// 🔥 Import stable static UI icons from react-icons/lu
+import {
+  LuEye,
+  LuPencil,
+  LuTrash2,
+  LuFolder,
+  LuImage,
+  LuArrowUpDown,
+  LuArrowUp,
+  LuArrowDown
+} from "react-icons/lu";
 
 interface CategoryTableProps {
   categories: any[];
@@ -49,22 +24,6 @@ interface CategoryTableProps {
   onEdit: (cat: any) => void;
   onDelete: (id: string) => void;
 }
-
-const DynamicIcon = ({ iconName }: { iconName?: string }) => {
-  if (!iconName) return <Folder className="w-5 h-5 text-muted-foreground/50" />;
-
-  let IconComponent = IconLibrary[iconName];
-
-  // Backward Compatibility: If it's an old DB entry (e.g. "Monitor"), prefix it with "Lu" to use the react-icons Lucide version.
-  if (!IconComponent && IconLibrary[`Lu${iconName}`]) {
-    IconComponent = IconLibrary[`Lu${iconName}`];
-  }
-
-  // Fallback to Folder if the icon string is completely invalid
-  if (!IconComponent) return <Folder className="w-5 h-5 text-muted-foreground/50" />;
-
-  return <IconComponent className="w-5 h-5 text-foreground" />;
-};
 
 type SortKey = "name" | "parent" | "products" | null;
 
@@ -154,14 +113,14 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
   const paginatedCategories = sortedCategories.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const SortIcon = ({ columnKey }: { columnKey: SortKey }) => {
-    if (sortConfig?.key !== columnKey) return <ArrowUpDown className="w-3 h-3 opacity-30" />;
-    return sortConfig.direction === "asc" ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
+    if (sortConfig?.key !== columnKey) return <LuArrowUpDown className="w-3 h-3 opacity-30" />;
+    return sortConfig.direction === "asc" ? <LuArrowUp className="w-3 h-3" /> : <LuArrowDown className="w-3 h-3" />;
   };
 
   if (categories.length === 0) {
     return (
       <div className="p-20 text-center bg-card border border-dashed border-border rounded-3xl">
-        <Folder className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+        <LuFolder className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
         <p className="text-muted-foreground font-bold text-lg">No categories found.</p>
       </div>
     );
@@ -193,7 +152,7 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
             <option value="products-desc">Most Products</option>
             <option value="products-asc">Least Products</option>
           </select>
-          <ArrowUpDown className="absolute right-4 top-3.5 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <LuArrowUpDown className="absolute right-4 top-3.5 w-4 h-4 text-muted-foreground pointer-events-none" />
         </div>
       </div>
 
@@ -213,7 +172,7 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
                 {cat.featuredImage?.thumbUrl ? (
                   <img src={cat.featuredImage.thumbUrl} alt="Featured" className="w-full h-full object-cover rounded-lg" />
                 ) : (
-                  <ImageIcon className="w-5 h-5 text-muted-foreground/30" />
+                  <LuImage className="w-5 h-5 text-muted-foreground/30" />
                 )}
               </div>
               <div className="flex-1 min-w-0">
@@ -241,18 +200,19 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Icon: </span>
                 <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center border border-border/50 shadow-sm">
-                  <DynamicIcon iconName={cat.icon} />
+                  {/* 🔥 Updated to IconRenderer */}
+                  <IconRenderer name={cat.icon} className="w-4 h-4" />
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => onView(cat)} className="p-2 text-muted-foreground hover:text-primary bg-muted rounded-lg transition-colors" title="View Details">
-                  <Eye className="w-4 h-4" />
+                  <LuEye className="w-4 h-4" />
                 </button>
                 <button onClick={() => onEdit(cat)} className="p-2 text-muted-foreground hover:text-blue-500 bg-muted rounded-lg transition-colors" title="Edit Category">
-                  <Edit className="w-4 h-4" />
+                  <LuPencil className="w-4 h-4" />
                 </button>
                 <button onClick={() => confirmDelete(cat)} className="p-2 text-muted-foreground hover:text-red-500 bg-muted rounded-lg transition-colors" title="Delete Category">
-                  <Trash2 className="w-4 h-4" />
+                  <LuTrash2 className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -289,13 +249,14 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
                 <td className="p-4">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center border border-border/50 shadow-sm shrink-0">
-                      <DynamicIcon iconName={cat.icon} />
+                      {/* 🔥 Updated to IconRenderer */}
+                      <IconRenderer name={cat.icon} className="w-5 h-5 text-foreground" />
                     </div>
                     <div className="w-10 h-10 rounded-xl bg-background flex items-center justify-center border border-border/50 overflow-hidden shadow-sm shrink-0 p-0.5">
                       {cat.featuredImage?.thumbUrl ? (
                         <img src={cat.featuredImage.thumbUrl} alt="Featured" className="w-full h-full object-cover rounded-lg" />
                       ) : (
-                        <ImageIcon className="w-4 h-4 text-muted-foreground/20" />
+                        <LuImage className="w-4 h-4 text-muted-foreground/20" />
                       )}
                     </div>
                   </div>
@@ -313,13 +274,13 @@ export default function CategoryTable({ categories, onView, onEdit, onDelete }: 
                 <td className="p-4">
                   <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
                     <button onClick={() => onView(cat)} className="p-2 text-muted-foreground hover:text-primary bg-background rounded-xl border border-transparent hover:border-border hover:shadow-sm transition-all" title="View Details">
-                      <Eye className="w-4 h-4" />
+                      <LuEye className="w-4 h-4" />
                     </button>
                     <button onClick={() => onEdit(cat)} className="p-2 text-muted-foreground hover:text-blue-500 bg-background rounded-xl border border-transparent hover:border-border hover:shadow-sm transition-all" title="Edit Category">
-                      <Edit className="w-4 h-4" />
+                      <LuPencil className="w-4 h-4" />
                     </button>
                     <button onClick={() => confirmDelete(cat)} className="p-2 text-muted-foreground hover:text-red-500 bg-background rounded-xl border border-transparent hover:border-border hover:shadow-sm transition-all" title="Delete Category">
-                      <Trash2 className="w-4 h-4" />
+                      <LuTrash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </td>
