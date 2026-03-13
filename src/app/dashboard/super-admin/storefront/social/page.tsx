@@ -4,61 +4,21 @@ import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 
-// --- REACT-ICONS MASSIVE LOOKUP ---
-import * as AiIcons from "react-icons/ai";
-import * as BsIcons from "react-icons/bs";
-import * as BiIcons from "react-icons/bi";
-import * as CgIcons from "react-icons/cg";
-import * as DiIcons from "react-icons/di";
-import * as FiIcons from "react-icons/fi";
-import * as FcIcons from "react-icons/fc";
-import * as FaIcons from "react-icons/fa";
-import * as Fa6Icons from "react-icons/fa6";
-import * as GiIcons from "react-icons/gi";
-import * as GoIcons from "react-icons/go";
-import * as GrIcons from "react-icons/gr";
-import * as HiIcons from "react-icons/hi";
-import * as Hi2Icons from "react-icons/hi2";
-import * as ImIcons from "react-icons/im";
-import * as IoIcons from "react-icons/io";
-import * as Io5Icons from "react-icons/io5";
-import * as LuIcons from "react-icons/lu";
-import * as MdIcons from "react-icons/md";
-import * as PiIcons from "react-icons/pi";
-import * as RxIcons from "react-icons/rx";
-import * as RiIcons from "react-icons/ri";
-import * as SiIcons from "react-icons/si";
-import * as SlIcons from "react-icons/sl";
-import * as TbIcons from "react-icons/tb";
-import * as TfiIcons from "react-icons/tfi";
-import * as TiIcons from "react-icons/ti";
-import * as VscIcons from "react-icons/vsc";
-import * as WiIcons from "react-icons/wi";
+// 🔥 Import your central IconRenderer and specific static icons
+import IconRenderer from "@/components/shared/IconRenderer";
+import {
+    LuShare2,
+    LuPlus,
+    LuLoader,
+    LuLink2,
+    LuExternalLink,
+    LuCheckCircle,
+    LuXCircle,
+    LuEdit,
+    LuTrash2
+} from "react-icons/lu";
 
-// Master lookup object
-const IconLibrary: Record<string, any> = {
-    ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
-    ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons, ...Hi2Icons,
-    ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
-    ...RiIcons, ...SiIcons, ...SlIcons, ...TbIcons, ...TfiIcons, ...TiIcons, ...VscIcons, ...WiIcons
-};
-
-// Import your existing IconPicker
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
-
-// --- HYBRID DYNAMIC ICON RENDERER ---
-const DynamicIcon = ({ name, className }: { name: string; className?: string }) => {
-    // 1. Try React-Icons (Prefixed names like FaFacebook)
-    const ReactIconComponent = IconLibrary[name];
-    if (ReactIconComponent) return <ReactIconComponent className={className} />;
-
-    // 2. Try Legacy Lucide Names (Old entries like "Facebook")
-    const LucideIconComponent = (LucideIcons as any)[name];
-    if (LucideIconComponent) return <LucideIconComponent className={className} />;
-
-    // 3. Fallback
-    return <LucideIcons.Link2 className={className} />;
-};
 
 export default function SocialLinksPage() {
     const [links, setLinks] = useState<any[]>([]);
@@ -172,7 +132,7 @@ export default function SocialLinksPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-3xl border border-border shadow-theme-sm">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                        <Share2 size={24} />
+                        <LuShare2 size={24} />
                     </div>
                     <div>
                         <h1 className="text-2xl font-black text-foreground tracking-tight">Social Links</h1>
@@ -183,7 +143,7 @@ export default function SocialLinksPage() {
                     onClick={openAddModal}
                     className="bg-primary text-primary-foreground h-11 px-6 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-theme-md w-full md:w-auto"
                 >
-                    <Plus size={18} /> Add New Link
+                    <LuPlus size={18} /> Add New Link
                 </button>
             </div>
 
@@ -191,12 +151,12 @@ export default function SocialLinksPage() {
             <div className="bg-card border border-border rounded-3xl shadow-theme-sm overflow-hidden">
                 {isLoading ? (
                     <div className="flex flex-col h-64 items-center justify-center space-y-4">
-                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        <LuLoader className="w-8 h-8 animate-spin text-primary" />
                         <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading links...</p>
                     </div>
                 ) : links.length === 0 ? (
                     <div className="flex flex-col h-64 items-center justify-center text-muted-foreground">
-                        <LucideIcons.Link2 className="w-12 h-12 mb-4 opacity-20" />
+                        <LuLink2 className="w-12 h-12 mb-4 opacity-20" />
                         <p className="font-bold">No social links configured.</p>
                         <p className="text-sm">Click 'Add New Link' to create one.</p>
                     </div>
@@ -219,14 +179,15 @@ export default function SocialLinksPage() {
 
                                         <td className="p-4">
                                             <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center text-foreground shadow-sm">
-                                                <DynamicIcon name={link.icon} className="w-5 h-5" />
+                                                {/* 🔥 Using IconRenderer instead of local DynamicIcon */}
+                                                <IconRenderer name={link.icon} className="w-5 h-5" />
                                             </div>
                                         </td>
 
                                         <td className="p-4">
                                             <p className="font-bold text-foreground text-base">{link.name}</p>
                                             <a href={link.link} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 mt-0.5 truncate max-w-[300px]">
-                                                {link.link} <ExternalLink size={10} />
+                                                {link.link} <LuExternalLink size={10} />
                                             </a>
                                         </td>
 
@@ -234,9 +195,9 @@ export default function SocialLinksPage() {
                                             <button
                                                 onClick={() => toggleStatus(link.id, link.isActive)}
                                                 className={`inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider transition-colors
-                          ${link.isActive ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
+                                                  ${link.isActive ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' : 'bg-muted text-muted-foreground hover:bg-muted/80'}`}
                                             >
-                                                {link.isActive ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                                                {link.isActive ? <LuCheckCircle size={12} /> : <LuXCircle size={12} />}
                                                 {link.isActive ? "Active" : "Hidden"}
                                             </button>
                                         </td>
@@ -244,10 +205,10 @@ export default function SocialLinksPage() {
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2">
                                                 <button onClick={() => openEditModal(link)} className="p-2 bg-muted rounded-lg text-muted-foreground hover:text-primary transition-colors shrink-0">
-                                                    <Edit size={16} />
+                                                    <LuEdit size={16} />
                                                 </button>
                                                 <button onClick={() => handleDelete(link.id)} className="p-2 bg-muted rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0">
-                                                    <Trash2 size={16} />
+                                                    <LuTrash2 size={16} />
                                                 </button>
                                             </div>
                                         </td>
@@ -269,7 +230,7 @@ export default function SocialLinksPage() {
                                 {editingId ? "Edit Social Link" : "Add Social Link"}
                             </h2>
                             <button onClick={() => setIsModalOpen(false)} className="p-2 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl transition-colors">
-                                <XCircle size={18} />
+                                <LuXCircle size={18} />
                             </button>
                         </div>
 
@@ -280,7 +241,7 @@ export default function SocialLinksPage() {
                                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Display Icon <span className="text-destructive">*</span></label>
                                 <div className="flex items-center gap-4">
                                     <div className="w-14 h-14 rounded-2xl bg-muted border border-border flex items-center justify-center text-foreground shadow-sm shrink-0">
-                                        <DynamicIcon name={formData.icon} className="w-6 h-6" />
+                                        <IconRenderer name={formData.icon} className="w-6 h-6" />
                                     </div>
                                     <button
                                         type="button"
@@ -326,7 +287,7 @@ export default function SocialLinksPage() {
                             <div className="pt-4 border-t border-border flex justify-end gap-3">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-xl font-bold text-muted-foreground hover:bg-muted transition-colors">Cancel</button>
                                 <button type="submit" disabled={isSaving} className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-theme-sm disabled:opacity-50">
-                                    {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Share2 size={16} />}
+                                    {isSaving ? <LuLoader size={16} className="animate-spin" /> : <LuShare2 size={16} />}
                                     {editingId ? "Save Changes" : "Create Link"}
                                 </button>
                             </div>
