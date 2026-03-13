@@ -142,6 +142,7 @@ export default function SocialLinksPage() {
                 <button
                     onClick={openAddModal}
                     className="bg-primary text-primary-foreground h-11 px-6 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-theme-md w-full md:w-auto cursor-pointer"
+                    title="Add a new Link"
                 >
                     <LuPlus size={18} /> Add New Link
                 </button>
@@ -229,8 +230,8 @@ export default function SocialLinksPage() {
                             <h2 className="font-black text-foreground uppercase tracking-wider text-sm">
                                 {editingId ? "Edit Social Link" : "Add Social Link"}
                             </h2>
-                            <button onClick={() => setIsModalOpen(false)} className="p-2 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl transition-colors">
-                                <LuXCircle size={18} />
+                            <button onClick={() => setIsModalOpen(false)} className="p-2 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl transition-colors" title="Close">
+                                <LuX size={18} />
                             </button>
                         </div>
 
