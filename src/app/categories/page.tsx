@@ -4,62 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "@/lib/axios";
 
-
-// --- REACT-ICONS MASSIVE LOOKUP ---
-import * as AiIcons from "react-icons/ai";
-import * as BsIcons from "react-icons/bs";
-import * as BiIcons from "react-icons/bi";
-import * as CgIcons from "react-icons/cg";
-import * as DiIcons from "react-icons/di";
-import * as FiIcons from "react-icons/fi";
-import * as FcIcons from "react-icons/fc";
-import * as FaIcons from "react-icons/fa";
-import * as Fa6Icons from "react-icons/fa6";
-import * as GiIcons from "react-icons/gi";
-import * as GoIcons from "react-icons/go";
-import * as GrIcons from "react-icons/gr";
-import * as HiIcons from "react-icons/hi";
-import * as Hi2Icons from "react-icons/hi2";
-import * as ImIcons from "react-icons/im";
-import * as IoIcons from "react-icons/io";
-import * as Io5Icons from "react-icons/io5";
-import * as LuIcons from "react-icons/lu";
-import * as MdIcons from "react-icons/md";
-import * as PiIcons from "react-icons/pi";
-import * as RxIcons from "react-icons/rx";
-import * as RiIcons from "react-icons/ri";
-import * as SiIcons from "react-icons/si";
-import * as SlIcons from "react-icons/sl";
-import * as TbIcons from "react-icons/tb";
-import * as TfiIcons from "react-icons/tfi";
-import * as TiIcons from "react-icons/ti";
-import * as VscIcons from "react-icons/vsc";
-import * as WiIcons from "react-icons/wi";
-
-const IconLibrary: Record<string, any> = {
-  ...AiIcons, ...BsIcons, ...BiIcons, ...CgIcons, ...DiIcons, ...FiIcons, ...FcIcons,
-  ...FaIcons, ...Fa6Icons, ...GiIcons, ...GoIcons, ...GrIcons, ...HiIcons, ...Hi2Icons,
-  ...ImIcons, ...IoIcons, ...Io5Icons, ...LuIcons, ...MdIcons, ...PiIcons, ...RxIcons,
-  ...RiIcons, ...SiIcons, ...SlIcons, ...TbIcons, ...TfiIcons, ...TiIcons, ...VscIcons, ...WiIcons
-};
-
-// --- HYBRID DYNAMIC ICON RENDERER ---
-const DynamicCategoryIcon = ({ iconData, className }: { iconData: string, className?: string }) => {
-  if (!iconData) return <LucideIcons.Package className={className} />;
-
-  // 1. Handle Image URLs
-  if (iconData.startsWith('http') || iconData.startsWith('/')) {
-    return <img src={iconData} alt="Category Icon" className={`object-contain ${className}`} />;
-  }
-
-  // 2. Check React-Icons Library (The new names with prefixes like Fa, Md, etc.)
-  const ReactIconComponent = IconLibrary[iconData];
-  if (ReactIconComponent) return <ReactIconComponent className={className} />;
-
-  // 3. Fallback to Lucide-React (Legacy names like "Monitor" or "Watch")
-  const LucideIconComponent = (LucideIcons as any)[iconData] || LucideIcons.Package;
-  return <LucideIconComponent className={className} />;
-};
+// 🔥 Use the central IconRenderer and specific React Icons
+import IconRenderer from "@/components/shared/IconRenderer";
+import { LuLayoutGrid } from "react-icons/lu";
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -121,8 +68,9 @@ export default function CategoriesPage() {
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
                 <div className="w-16 h-16 md:w-20 md:h-20 bg-muted/50 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors duration-300 relative z-10">
-                  <DynamicCategoryIcon
-                    iconData={cat.icon}
+                  {/* 🔥 Replaced custom logic with IconRenderer */}
+                  <IconRenderer
+                    name={cat.icon}
                     className="w-8 h-8 md:w-10 md:h-10 text-muted-foreground group-hover:text-primary transition-colors duration-300 group-hover:scale-110"
                   />
                 </div>
@@ -136,7 +84,8 @@ export default function CategoriesPage() {
         ) : (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-6">
-              <LucideIcons.LayoutGrid className="w-10 h-10 text-muted-foreground opacity-50" />
+              {/* 🔥 Updated to React Icons Lu equivalent */}
+              <LuLayoutGrid className="w-10 h-10 text-muted-foreground opacity-50" />
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-2">No Categories Found</h2>
           </div>
