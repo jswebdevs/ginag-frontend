@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Calendar, User, Eye, Tag } from "lucide-react";
-import api from "@/lib/axios";
+import { LuArrowLeft, LuCalendar, LuUser, LuEye, LuTag } from "react-icons/lu";
+import api from "@/lib/axios"; // 🔥 Using your Axios instance correctly now!
 
 // Strict Turbopack / Next.js 15+ Type Definition
 type PageProps = {
@@ -11,22 +11,18 @@ type PageProps = {
 
 export default async function SingleBlogPage({ params }: PageProps) {
     // 1. Await the params
-    const resolvedParams = await params;
-    const slug = resolvedParams.slug;
+    const { slug } = await params;
 
     try {
-        // 2. Fetch the specific blog post from your backend
-        const res = await fetch(`${api}/blogs/${slug}`, {
-            cache: 'no-store' // Use 'no-store' during dev so edits show up instantly
+        // 2. Fetch the specific blog post strictly using Axios
+        // Since this is a server component, Axios will bypass the client-side interceptors safely.
+        const res = await api.get(`/blogs/${slug}`, {
+            headers: {
+                'Cache-Control': 'no-cache', // Ensure fresh data
+            }
         });
 
-        if (!res.ok) {
-            if (res.status === 404) return notFound();
-            throw new Error("Failed to fetch blog post");
-        }
-
-        const json = await res.json();
-        const blog = json.data;
+        const blog = res.data?.data;
 
         if (!blog) return notFound();
 
@@ -50,18 +46,18 @@ export default async function SingleBlogPage({ params }: PageProps) {
                             href="/blogs"
                             className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors"
                         >
-                            <ArrowLeft className="w-4 h-4" /> Back to Articles
+                            <LuArrowLeft className="w-4 h-4" /> Back to Articles
                         </Link>
                     </div>
                 </div>
 
-                <article className="max-w-4xl mx-auto px-4 py-8 md:py-12 space-y-12">
+                <article className="max-w-4xl mx-auto px-4 py-8 md:py-12 space-y-12 animate-in fade-in duration-500">
 
                     {/* 1. Article Header */}
                     <header className="space-y-6 text-center">
                         {blog.category && (
                             <Link
-                                href={`/blogs?category=${blog.category.slug}`}
+                                href={`/blogs?category=${blog.category.id}`}
                                 className="inline-block px-4 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-colors"
                             >
                                 {blog.category.name}
@@ -82,16 +78,16 @@ export default async function SingleBlogPage({ params }: PageProps) {
                         <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-bold text-muted-foreground pt-4">
                             {blog.author && (
                                 <div className="flex items-center gap-2">
-                                    <User className="w-4 h-4" />
+                                    <LuUser className="w-4 h-4" />
                                     <span>{blog.author.fullName || "DreamShop Team"}</span>
                                 </div>
                             )}
                             <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4" />
+                                <LuCalendar className="w-4 h-4" />
                                 <time>{formattedDate}</time>
                             </div>
                             <div className="flex items-center gap-2">
-                                <Eye className="w-4 h-4" />
+                                <LuEye className="w-4 h-4" />
                                 <span>{blog.views} Views</span>
                             </div>
                         </div>
@@ -104,15 +100,14 @@ export default async function SingleBlogPage({ params }: PageProps) {
                                 src={imageUrl}
                                 alt={blog.title}
                                 fill
-                                unoptimized // Bypasses Next.js optimization to prevent Supabase timeouts!
                                 priority
+                                sizes="(max-width: 768px) 100vw, 896px"
                                 className="object-cover"
                             />
                         </div>
                     )}
 
                     {/* 3. The Rich Text Content */}
-                    {/* We use the Tailwind Typography 'prose' plugin to make the raw HTML look gorgeous automatically */}
                     <div className="bg-card p-6 md:p-12 rounded-3xl border border-border shadow-sm">
                         <div
                             className="prose prose-lg dark:prose-invert max-w-none 
@@ -130,7 +125,7 @@ export default async function SingleBlogPage({ params }: PageProps) {
                     {blog.tags && blog.tags.length > 0 && (
                         <footer className="pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center gap-4">
                             <span className="flex items-center gap-2 text-sm font-black text-heading uppercase tracking-widest">
-                                <Tag className="w-4 h-4" /> Tags:
+                                <LuTag className="w-4 h-4" /> Tags:
                             </span>
                             <div className="flex flex-wrap gap-2">
                                 {blog.tags.map((tag: string) => (
