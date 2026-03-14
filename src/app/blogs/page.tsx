@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import api from "@/lib/axios"; // 🔥 Using your centralized Axios instance
 
 import { LuCalendar, LuChevronLeft, LuChevronRight, LuUser, LuHash } from "react-icons/lu";
 
@@ -10,25 +11,30 @@ type PageProps = {
 };
 
 async function getBlogs(page: number, category?: string) {
-    const query = new URLSearchParams({
-        page: page.toString(),
-        limit: "9",
-        isPublished: "true",
-    });
-    if (category) query.append("category", category);
-
-    const res = await fetch(`http://localhost:5000/api/v1/blogs?${query.toString()}`, {
-        cache: "no-store",
-    });
-    if (!res.ok) return null;
-    return res.json();
+    try {
+        const res = await api.get('/blogs', {
+            params: {
+                page: page.toString(),
+                limit: "9",
+                isPublished: "true",
+                ...(category && { category })
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.error("Failed to fetch blogs:", error);
+        return null;
+    }
 }
 
 async function getCategories() {
-    const res = await fetch("http://localhost:5000/api/v1/blog-categories", { cache: "no-store" });
-    if (!res.ok) return [];
-    const json = await res.json();
-    return json.data || [];
+    try {
+        const res = await api.get('/blog-categories');
+        return res.data?.data || [];
+    } catch (error) {
+        console.error("Failed to fetch blog categories:", error);
+        return [];
+    }
 }
 
 export default async function BlogIndexPage({ searchParams }: PageProps) {
@@ -99,7 +105,7 @@ export default async function BlogIndexPage({ searchParams }: PageProps) {
                                                 src={imageUrl}
                                                 alt={blog.title}
                                                 fill
-                                                unoptimized
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                 className="object-cover transition-transform duration-500 group-hover:scale-105"
                                             />
                                         ) : (

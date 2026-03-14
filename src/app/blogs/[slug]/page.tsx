@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, User, Eye, Tag } from "lucide-react";
+import api from "@/lib/axios";
 
 // Strict Turbopack / Next.js 15+ Type Definition
 type PageProps = {
@@ -15,7 +16,7 @@ export default async function SingleBlogPage({ params }: PageProps) {
 
     try {
         // 2. Fetch the specific blog post from your backend
-        const res = await fetch(`http://localhost:5000/api/v1/blogs/${slug}`, {
+        const res = await fetch(`${api}/blogs/${slug}`, {
             cache: 'no-store' // Use 'no-store' during dev so edits show up instantly
         });
 
