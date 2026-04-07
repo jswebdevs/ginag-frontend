@@ -87,7 +87,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                   <div key={cat.id} className="border-b border-border/50 last:border-0">
                     <div className="flex items-center justify-between group">
                       <Link
-                        href={`/category/${cat.slug}`}
+                        href={`/categories/${cat.slug}`}
                         onClick={onClose}
                         className="flex-1 flex items-center gap-4 px-5 py-3.5 text-foreground hover:bg-primary/5 transition-colors"
                       >
@@ -118,7 +118,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                           {cat.children.map((child: any) => (
                             <Link
                               key={child.id}
-                              href={`/category/${child.slug}`}
+                              href={`/categories/${child.slug}`}
                               onClick={onClose}
                               className="py-2.5 text-sm text-muted-foreground hover:text-primary font-bold transition-colors flex items-center gap-3 group"
                             >
