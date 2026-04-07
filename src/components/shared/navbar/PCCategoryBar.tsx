@@ -120,7 +120,7 @@ export default function PCCategoryBar() {
                   onMouseEnter={() => setActiveHover(cat.id)}
                 >
                   <Link
-                    href={`/category/${cat.slug}`}
+                    href={`/categories/${cat.slug}`}
                     className={`flex items-center gap-2 text-sm font-bold tracking-tight transition-colors whitespace-nowrap ${isHovered ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
                   >
                     <IconRenderer
@@ -159,7 +159,7 @@ export default function PCCategoryBar() {
               {activeCategoryData.children.map((child: any) => (
                 <Link
                   key={child.id}
-                  href={`/category/${child.slug}`}
+                  href={`/categories/${child.slug}`}
                   onClick={() => setActiveHover(null)}
                   className="flex items-center gap-3 group"
                 >
