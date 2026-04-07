@@ -159,7 +159,7 @@ export default function FeaturedCategories() {
                 return (
                   <SwiperSlide key={category.id}>
                     <Link
-                      href={`/category/${category.slug}`}
+                      href={`/categories/${category.slug}`}
                       className="bg-card border border-border rounded-3xl p-6 md:p-8 flex flex-col items-center text-center group hover:border-primary hover:shadow-theme-lg hover:-translate-y-2 transition-all duration-500 h-full"
                     >
                       <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl flex items-center justify-center mb-5 md:mb-6 transition-all duration-500 group-hover:rotate-12 shadow-sm relative overflow-hidden ${hasImage ? 'bg-muted' : colorClass}`}>
