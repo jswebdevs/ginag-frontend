@@ -27,7 +27,10 @@ import api from "@/lib/axios";
 import PageMediaAddin, { SelectedMediaData } from "./PageMediaAddin";
 import Swal from "sweetalert2";
 
-const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+const ReactQuill = dynamic(async () => {
+    const { default: RQ } = await import("react-quill-new");
+    return ({ forwardedRef, ...props }: any) => <RQ ref={forwardedRef} {...props} />;
+}, { ssr: false });
 import "react-quill-new/dist/quill.snow.css";
 
 interface PageFormProps {
@@ -350,7 +353,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                                                         >
                                                             <ReactQuill 
                                                                 theme="snow" 
-                                                                ref={(el) => quillRefs.current[block.id] = el}
+                                                                forwardedRef={(el: any) => quillRefs.current[block.id] = el}
                                                                 value={block.data.content} 
                                                                 onChange={(content) => updateBlockData(block.id, "content", content)} 
                                                                 modules={quillModules} 
