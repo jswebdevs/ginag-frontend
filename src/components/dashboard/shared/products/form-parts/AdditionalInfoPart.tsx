@@ -135,5 +135,3 @@ export default function AdditionalInfoPart({ product, update }: any) {
         </div>
     );
 }
-
-}

@@ -234,6 +234,4 @@ export default function BlogForm({ initialData }: BlogFormProps) {
             </div>
         </form>
     );
-}
-
-}
+}

@@ -110,6 +110,4 @@ export default function BlogCategoryForm({ initialData }: BlogCategoryFormProps)
             </div>
         </form>
     );
-}
-
-}
+}
