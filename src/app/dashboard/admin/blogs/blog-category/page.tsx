@@ -9,7 +9,7 @@ export default function BlogCategoryDashboard() {
                 <div>
                     <h1 className="text-2xl md:text-3xl font-black text-heading uppercase tracking-tight">Blog <span className="text-primary italic">Categories</span></h1>
                 </div>
-                <Link href="/dashboard/super-admin/blogs/blog-category/create" className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-theme-md w-full sm:w-auto justify-center">
+                <Link href="/dashboard/admin/blogs/blog-category/create" className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-theme-md w-full sm:w-auto justify-center">
                     <Plus className="w-4 h-4" /> Add Category
                 </Link>
             </div>

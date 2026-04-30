@@ -11,7 +11,7 @@ export default function AdminMessagesPage() {
                     <MessageSquareText className="text-primary" /> Inbox & Support
                 </h1>
                 <p className="text-sm text-muted-foreground font-medium mt-1">
-                    Manage AI conversations, reply to customers, and handle support tickets.
+                    Manage conversations, reply to customers, and handle support tickets.
                 </p>
             </div>
 

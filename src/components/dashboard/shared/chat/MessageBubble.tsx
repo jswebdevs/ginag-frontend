@@ -39,7 +39,7 @@ export default function MessageBubble({ message }: { message: any }) {
                 {/* Meta Info (Timestamp & Sender Type) */}
                 <div className="flex items-center gap-2 mt-1 px-1">
                     <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">
-                        {isUser ? "Customer" : isBot ? "DreamBot AI" : "You (Agent)"}
+                        {isUser ? "Customer" : isBot ? "Auto Reply" : "You (Agent)"}
                     </span>
                     <span className="text-[10px] text-muted-foreground/60 font-semibold">
                         {format(new Date(message.createdAt), "h:mm a")}

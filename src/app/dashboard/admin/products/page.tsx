@@ -81,7 +81,7 @@ export default function ProductsManagementPage() {
         </div>
 
         <Link
-          href="/dashboard/super-admin/products/create"
+          href="/dashboard/admin/products/create"
           className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:shadow-theme-md hover:scale-105 transition-all shadow-theme-sm"
         >
           <Plus className="w-5 h-5" />

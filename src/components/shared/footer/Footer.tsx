@@ -1,22 +1,34 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, CreditCard, Store } from "lucide-react";
+import { Mail, Phone, MapPin, CreditCard, Store } from "lucide-react";
 import { getGlobalSettings } from "@/lib/getSettings";
+import FooterSocials from "./FooterSocials";
+
+async function getPublicSocialLinks() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/social/public`, {
+      next: { revalidate: 300 }
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    return json.data || [];
+  } catch {
+    return [];
+  }
+}
 
 export default async function Footer() {
-  // Fetch settings dynamically on the server
-  const settings = await getGlobalSettings();
+  const [settings, socialLinks] = await Promise.all([
+    getGlobalSettings(),
+    getPublicSocialLinks()
+  ]);
 
-  // Map database values with strict fallbacks
   const storeName = settings?.storeName || "Dream Shop";
   const tagline = settings?.tagline || "The best place to find everything you need with fast delivery. Premium e-commerce experience right at your fingertips.";
-  const address = settings?.address || "Rajshahi, Bangladesh";
-  const phone = settings?.supportPhone || "+880 1700 000000";
-  const email = settings?.supportEmail || "support@jswebdevs.com";
+  const address = settings?.contactAddress || settings?.address || "Rajshahi, Bangladesh";
+  const phone = settings?.contactPhone || settings?.supportPhone || "+880 1700 000000";
+  const email = settings?.contactEmail || settings?.supportEmail || "support@jswebdevs.com";
   const logoUrl = settings?.logo?.originalUrl || null;
-
-  // Social Links extraction
-  const socials = settings?.socialLinks || {};
 
   return (
     <footer className="bg-gradient-theme border-t border-border mt-auto pt-16 pb-24 md:pb-8">
@@ -50,29 +62,7 @@ export default async function Footer() {
               {tagline}
             </p>
 
-            {/* DYNAMIC SOCIAL LINKS */}
-            <div className="flex flex-wrap gap-3 pt-2">
-              {socials.facebook && (
-                <a href={socials.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-sm" aria-label="Facebook">
-                  <Facebook className="w-5 h-5" />
-                </a>
-              )}
-              {socials.twitter && (
-                <a href={socials.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-sm" aria-label="Twitter">
-                  <Twitter className="w-5 h-5" />
-                </a>
-              )}
-              {socials.instagram && (
-                <a href={socials.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-sm" aria-label="Instagram">
-                  <Instagram className="w-5 h-5" />
-                </a>
-              )}
-              {socials.youtube && (
-                <a href={socials.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors shadow-sm" aria-label="YouTube">
-                  <Youtube className="w-5 h-5" />
-                </a>
-              )}
-            </div>
+            <FooterSocials links={socialLinks} />
           </div>
 
           {/* QUICK LINKS */}

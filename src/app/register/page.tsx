@@ -32,7 +32,7 @@ export default function RegisterPage() {
     lastName: "",
     username: "",
     email: "",
-    phoneNumber: "",
+    phone: "",
     password: "",
   });
 
@@ -135,21 +135,23 @@ export default function RegisterPage() {
             <div className="space-y-1">
               <label className="text-sm font-medium text-foreground">Email</label>
               <div className="relative">
-                <input 
+                <input
                   type="email" name="email" required value={formData.email} onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring outline-none transition-all text-foreground" 
-                  placeholder="john@example.com" 
+                  className="w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring outline-none transition-all text-foreground"
+                  placeholder="john@example.com"
                 />
                 <Mail className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
               </div>
             </div>
             <div className="space-y-1">
-              <label className="text-sm font-medium text-foreground">Phone Number</label>
+              <label className="text-sm font-medium text-foreground">
+                Phone Number <span className="text-muted-foreground text-xs">(Optional — required at checkout)</span>
+              </label>
               <div className="relative">
-                <input 
-                  type="tel" name="phoneNumber" required value={formData.phoneNumber} onChange={handleChange}
-                  className="w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring outline-none transition-all text-foreground" 
-                  placeholder="017XXXXXXXX" 
+                <input
+                  type="tel" name="phone" value={formData.phone} onChange={handleChange}
+                  className="w-full pl-10 pr-4 py-2.5 bg-input border border-border rounded-lg focus:ring-2 focus:ring-ring outline-none transition-all text-foreground"
+                  placeholder="017XXXXXXXX"
                 />
                 <Phone className="absolute left-3 top-3 text-muted-foreground w-4 h-4" />
               </div>

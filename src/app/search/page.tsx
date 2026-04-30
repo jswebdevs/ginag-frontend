@@ -9,7 +9,7 @@ import { Loader2, PackageSearch, ArrowDownUp, Folder, Tag, Image as ImageIcon } 
 function SearchContent() {
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
-  
+
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState("newest");
@@ -20,12 +20,12 @@ function SearchContent() {
         setLoading(false);
         return;
       }
-      
+
       setLoading(true);
       try {
         // Hits the new dedicated global search backend endpoint
-        const res = await api.get(`/search?q=${encodeURIComponent(query)}&limit=50`); 
-        
+        const res = await api.get(`/search?q=${encodeURIComponent(query)}&limit=50`);
+
         const data = res.data.data || res.data.results || res.data || [];
         setResults(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -60,7 +60,7 @@ function SearchContent() {
 
   return (
     <div className="container mx-auto px-4 py-8 md:py-12 animate-in fade-in duration-500">
-      
+
       {/* Header & Controls */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 border-b border-border pb-6">
         <div>
@@ -74,7 +74,7 @@ function SearchContent() {
         {products.length > 0 && (
           <div className="flex items-center gap-3">
             <ArrowDownUp className="w-4 h-4 text-muted-foreground" />
-            <select 
+            <select
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
               className="bg-card border border-border text-foreground text-sm rounded-lg focus:ring-2 focus:ring-primary focus:border-primary p-2.5 outline-none cursor-pointer transition-colors shadow-sm"
@@ -89,7 +89,7 @@ function SearchContent() {
 
       {results.length > 0 ? (
         <div className="space-y-10">
-          
+
           {/* SECTION 1: RELATED CATEGORIES & BRANDS (Pills) */}
           {otherResults.length > 0 && (
             <div>
@@ -98,12 +98,12 @@ function SearchContent() {
                 {otherResults.map((item, idx) => {
                   const itemSlug = item.slug || item.id;
                   // Route dynamically based on type
-                  const link = item.type === 'category' ? `/category/${itemSlug}` : `/brand/${itemSlug}`;
+                  const link = item.type === 'category' ? `/categories/${itemSlug}` : `/brand/${itemSlug}`;
                   const Icon = item.type === 'category' ? Folder : Tag;
 
                   return (
-                    <Link 
-                      key={item.id || idx} 
+                    <Link
+                      key={item.id || idx}
                       href={link}
                       className="flex items-center gap-2 bg-card border border-border hover:border-primary px-4 py-2 rounded-full text-sm font-semibold text-foreground hover:text-primary transition-all shadow-sm hover:shadow-theme-sm group"
                     >
@@ -128,18 +128,18 @@ function SearchContent() {
                   const price = product.basePrice ? `৳${Number(product.basePrice).toLocaleString()}` : 'N/A';
 
                   return (
-                    <Link 
-                      key={product.id || idx} 
+                    <Link
+                      key={product.id || idx}
                       href={`/products/${product.slug || product.id}`}
                       className="group flex flex-col bg-card border border-border rounded-2xl overflow-hidden hover:border-primary transition-all duration-300 shadow-sm hover:shadow-theme-md"
                     >
                       {/* Image Area */}
                       <div className="aspect-square bg-muted/30 relative flex items-center justify-center overflow-hidden border-b border-border/50 p-4">
                         {imageSrc ? (
-                          <img 
-                            src={imageSrc} 
-                            alt={product.name} 
-                            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply dark:mix-blend-normal" 
+                          <img
+                            src={imageSrc}
+                            alt={product.name}
+                            className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-500 mix-blend-multiply dark:mix-blend-normal"
                           />
                         ) : (
                           <div className="w-16 h-16 rounded-full bg-background flex items-center justify-center shadow-sm">
@@ -175,8 +175,8 @@ function SearchContent() {
           <p className="text-muted-foreground max-w-md">
             We couldn't find anything matching <span className="font-semibold text-foreground">"{query}"</span>. Try checking your spelling or using more general terms.
           </p>
-          <Link 
-            href="/categories" 
+          <Link
+            href="/categories"
             className="mt-8 bg-primary text-primary-foreground px-6 py-3 rounded-full font-bold hover:scale-105 transition-transform shadow-theme-md"
           >
             Browse Categories

@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 5173",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "upload": "git add . && git commit -m \"Uploading to Vercel\" && git push"
   },
   "dependencies": {
-    "@google/genai": "^1.45.0",
     "@hookform/resolvers": "^5.2.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
@@ -28,6 +27,7 @@
     "react-quill-new": "^3.8.3",
     "recharts": "^3.7.0",
     "socket.io-client": "^4.8.3",
+    "sonner": "^2.0.7",
     "sweetalert2": "^11.26.21",
     "swiper": "^12.1.2",
     "three": "^0.183.2",

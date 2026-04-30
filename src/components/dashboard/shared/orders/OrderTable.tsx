@@ -2,17 +2,67 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Eye, ArrowUpDown, ArrowUp, ArrowDown, Trash2, Loader2 } from "lucide-react";
+import { useUserStore } from "@/store/useUserStore";
+import api from "@/lib/axios";
+import Swal from "sweetalert2";
 
 interface OrderTableProps {
   orders: any[];
+  onDeleteSuccess?: () => void;
 }
 
 type SortKey = "orderNumber" | "customer" | "total" | "date" | null;
 
-export default function OrderTable({ orders }: OrderTableProps) {
+export default function OrderTable({ orders, onDeleteSuccess }: OrderTableProps) {
+  const { user } = useUserStore();
+  const isSuperAdmin = user?.roles?.includes('SUPER_ADMIN');
+
   // Default to newest first
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: "asc" | "desc" } | null>({ key: "date", direction: "desc" });
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string, orderNumber: string) => {
+    const result = await Swal.fire({
+      title: "Delete Order?",
+      text: `Are you sure you want to delete order ${orderNumber}? This action is permanent and will restore stock if necessary.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Yes, delete it!",
+      background: 'hsl(var(--card))',
+      color: 'hsl(var(--foreground))',
+    });
+
+    if (result.isConfirmed) {
+      setDeletingId(id);
+      try {
+        await api.delete(`/orders/${id}`);
+        Swal.fire({
+          title: "Deleted!",
+          text: "Order has been deleted.",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+          background: 'hsl(var(--card))',
+          color: 'hsl(var(--foreground))',
+        });
+        if (onDeleteSuccess) onDeleteSuccess();
+      } catch (error: any) {
+        console.error("Delete failed:", error);
+        Swal.fire({
+          title: "Error",
+          text: error.response?.data?.message || "Failed to delete order.",
+          icon: "error",
+          background: 'hsl(var(--card))',
+          color: 'hsl(var(--foreground))',
+        });
+      } finally {
+        setDeletingId(null);
+      }
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -121,12 +171,23 @@ export default function OrderTable({ orders }: OrderTableProps) {
                     {new Date(order.createdAt).toLocaleString()}
                   </p>
                 </div>
-                <Link
-                  href={`/dashboard/super-admin/orders/${order.id}`}
-                  className="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl transition-colors"
-                >
-                  <Eye size={18} />
-                </Link>
+                <div className="flex gap-2">
+                  {isSuperAdmin && (
+                    <button
+                      onClick={() => handleDelete(order.id, order.orderNumber)}
+                      disabled={deletingId === order.id}
+                      className="p-2 bg-destructive/10 text-destructive hover:bg-destructive hover:text-white rounded-xl transition-colors disabled:opacity-50"
+                    >
+                      {deletingId === order.id ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                    </button>
+                  )}
+                  <Link
+                    href={`/dashboard/super-admin/orders/${order.id}`}
+                    className="p-2 bg-primary/10 text-primary hover:bg-primary hover:text-white rounded-xl transition-colors"
+                  >
+                    <Eye size={18} />
+                  </Link>
+                </div>
               </div>
 
               {/* Body: Customer & Pricing */}
@@ -210,13 +271,25 @@ export default function OrderTable({ orders }: OrderTableProps) {
                     </span>
                   </td>
                   <td className="p-4 text-center">
-                    <Link
-                      href={`/dashboard/super-admin/orders/${order.id}`}
-                      className="inline-flex p-2 bg-background border border-border rounded-lg text-muted-foreground hover:text-primary hover:border-primary transition-colors shadow-sm"
-                      title="Manage Order"
-                    >
-                      <Eye size={16} />
-                    </Link>
+                    <div className="flex items-center justify-center gap-2">
+                      <Link
+                        href={`/dashboard/super-admin/orders/${order.id}`}
+                        className="p-2 bg-background border border-border rounded-lg text-muted-foreground hover:text-primary hover:border-primary transition-colors shadow-sm"
+                        title="Manage Order"
+                      >
+                        <Eye size={16} />
+                      </Link>
+                      {isSuperAdmin && (
+                        <button
+                          onClick={() => handleDelete(order.id, order.orderNumber)}
+                          disabled={deletingId === order.id}
+                          className="p-2 bg-background border border-border rounded-lg text-muted-foreground hover:text-destructive hover:border-destructive transition-colors shadow-sm disabled:opacity-50"
+                          title="Delete Order"
+                        >
+                          {deletingId === order.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

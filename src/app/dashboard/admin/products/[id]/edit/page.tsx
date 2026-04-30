@@ -41,7 +41,7 @@ export default function EditProductPage() {
     <div className="p-4 md:p-6 max-w-400 mx-auto animate-in fade-in duration-500 pb-24">
       <div className="flex items-center gap-4 mb-6">
         <Link 
-          href="/dashboard/super-admin/products"
+          href="/dashboard/admin/products"
           className="p-2 bg-background border border-border rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
           title="Back to Products"
         >

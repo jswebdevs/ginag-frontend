@@ -3,18 +3,13 @@
 import { useState, useRef, useEffect } from "react";
 import api from "@/lib/axios";
 import Image from "next/image";
-import Swal from "sweetalert2";
-import { generateAIContent } from "@/services/ai.service";
-
-// 🔥 Use stable static icons from React Icons
 import {
   LuX,
   LuLoader,
   LuSave,
   LuChevronDown,
   LuImage,
-  LuSearch,
-  LuSparkles
+  LuSearch
 } from "react-icons/lu";
 
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
@@ -41,7 +36,6 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
   });
 
   const [loading, setLoading] = useState(false);
-  const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
   const [error, setError] = useState("");
 
   // --- UI States ---
@@ -69,28 +63,6 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // --- AI GENERATION: DESCRIPTION ---
-  const generateDescription = async () => {
-    if (!formData.name) {
-      return Swal.fire("Name Required", "Please enter a category name first.", "warning");
-    }
-
-    setIsGeneratingDesc(true);
-    const prompt = `Write a professional, catchy 2-sentence description for an e-commerce category named "${formData.name}". Return ONLY the description text.`;
-
-    try {
-      const aiResponse = await generateAIContent(prompt, "You are a professional e-commerce merchandiser and copywriter.");
-      if (aiResponse) {
-        setFormData(prev => ({ ...prev, description: aiResponse.trim() }));
-      }
-    } catch (err: any) {
-      console.error("AI Description Error:", err);
-      Swal.fire("Generation Failed", "Could not generate description.", "error");
-    } finally {
-      setIsGeneratingDesc(false);
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -258,19 +230,10 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
 
               </div>
 
-              {/* Description with AI Button */}
+              {/* Description */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="block text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Description</label>
-                  <button
-                    type="button"
-                    onClick={generateDescription}
-                    disabled={isGeneratingDesc}
-                    className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase tracking-widest hover:opacity-70 disabled:opacity-50 transition-all"
-                  >
-                    {isGeneratingDesc ? <LuLoader className="w-3 h-3 animate-spin" /> : <LuSparkles className="w-3 h-3" />}
-                    AI Description
-                  </button>
                 </div>
                 <textarea
                   name="description" rows={3}
@@ -335,4 +298,4 @@ export default function CategoryForm({ initialData, categories, onClose, onSucce
       />
     </>
   );
-}
+}

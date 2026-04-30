@@ -1,6 +1,6 @@
-import SuperAdminSidebar from "@/components/dashboard/sidebars/SuperAdminSidebar"; // Adjust path if needed
+import ProductManagerSidebar from "@/components/dashboard/sidebars/ProductManagerSidebar";
 
-export default function SuperadminLayout({
+export default function ProductManagerLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -10,7 +10,7 @@ export default function SuperadminLayout({
     // 2. min-h-screen allows the content to push the footer down naturally.
     <div className="flex min-h-screen bg-background w-full">
       
-      <SuperAdminSidebar />
+      <ProductManagerSidebar />
       
       {/* 3. Removed overflow-hidden so the window scrolls normally */}
       <div className="flex-1 flex flex-col min-w-0">

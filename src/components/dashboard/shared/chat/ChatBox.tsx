@@ -60,22 +60,6 @@ export default function ChatBox({ sessionId, onBack, socket }: { sessionId: stri
         }
     };
 
-    // 🔥 NEW: Toggle between AI Bot and Human Agent
-    const handleModeToggle = async (newMode: "BOT_ACTIVE" | "AGENT_ACTIVE") => {
-        if (sessionStatus === newMode) return;
-
-        try {
-            await api.patch(`/chat/sessions/${sessionId}/status`, { status: newMode });
-            setSessionStatus(newMode);
-            Swal.fire({
-                toast: true, position: 'top-end', icon: 'success',
-                title: newMode === 'BOT_ACTIVE' ? 'Handed over to AI' : 'Human took control',
-                showConfirmButton: false, timer: 1500
-            });
-        } catch (error) {
-            Swal.fire("Error", "Failed to change chat mode", "error");
-        }
-    };
 
     const handleSendMessage = async (attachmentUrl: string | null = null) => {
         if (!input.trim() && !attachmentUrl) return;
@@ -134,21 +118,6 @@ export default function ChatBox({ sessionId, onBack, socket }: { sessionId: stri
                     </div>
                 </div>
 
-                {/* 🔥 NEW: Reply Mode Toggle */}
-                <div className="flex bg-muted p-1 rounded-xl border border-border">
-                    <button
-                        onClick={() => handleModeToggle("BOT_ACTIVE")}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${sessionStatus === 'BOT_ACTIVE' ? 'bg-background shadow-sm text-blue-600' : 'text-muted-foreground hover:text-foreground'}`}
-                    >
-                        <Bot size={14} /> AI Bot
-                    </button>
-                    <button
-                        onClick={() => handleModeToggle("AGENT_ACTIVE")}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-black transition-all ${sessionStatus === 'AGENT_ACTIVE' ? 'bg-background shadow-sm text-red-600' : 'text-muted-foreground hover:text-foreground'}`}
-                    >
-                        <Headset size={14} /> Human
-                    </button>
-                </div>
             </div>
 
             {/* Messages Scroll Area */}
@@ -169,7 +138,7 @@ export default function ChatBox({ sessionId, onBack, socket }: { sessionId: stri
                     <textarea
                         value={input} onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-                        placeholder={sessionStatus === 'BOT_ACTIVE' ? "Type to take over from AI..." : "Type your reply... (Press Enter to send)"}
+                        placeholder="Type your reply... (Press Enter to send)"
                         rows={1} className="flex-1 min-h-[48px] max-h-32 bg-background border border-border rounded-2xl px-4 py-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none custom-scrollbar"
                     />
                     <button onClick={() => handleSendMessage()} disabled={(!input.trim() && !uploading) || uploading} className="w-12 h-12 shrink-0 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-50 disabled:hover:scale-100 shadow-theme-sm">

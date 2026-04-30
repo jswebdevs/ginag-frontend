@@ -118,7 +118,7 @@ export default function OrdersPage() {
                         <p className="text-muted-foreground font-bold">No orders found.</p>
                     </div>
                 ) : (
-                    <OrderTable orders={filteredOrders} />
+                    <OrderTable orders={filteredOrders} onDeleteSuccess={() => fetchOrders(activeTab)} />
                 )}
             </div>
         </div>

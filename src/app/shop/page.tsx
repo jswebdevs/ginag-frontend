@@ -40,7 +40,7 @@ export default function ShopPage() {
   // Filter States
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
-  const [brand, setBrand] = useState("");
+
   const [origin, setOrigin] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -54,7 +54,7 @@ export default function ShopPage() {
         params: {
           search: search || undefined,
           category: category || undefined,
-          brand: brand || undefined,
+
           origin: origin || undefined,
           minPrice: minPrice || undefined,
           maxPrice: maxPrice || undefined,
@@ -167,7 +167,7 @@ export default function ShopPage() {
   const handleResetFilters = () => {
     setSearch("");
     setCategory("");
-    setBrand("");
+
     setOrigin("");
     setMinPrice("");
     setMaxPrice("");

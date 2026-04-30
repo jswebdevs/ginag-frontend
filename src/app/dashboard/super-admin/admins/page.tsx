@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import Link from "next/link";
 import { Plus, Search, Loader2 } from "lucide-react";
-import AdminTable from "./_components/AdminTable";
+import UserTable from "../_components/UserTable";
 import Swal from "sweetalert2";
 
 export default function AdminsPage() {
@@ -14,7 +14,6 @@ export default function AdminsPage() {
 
     const fetchAdmins = async () => {
         try {
-            // Create this route in your express router!
             const res = await api.get('users/admins');
             setAdmins(res.data.data || []);
         } catch (error) {
@@ -40,9 +39,9 @@ export default function AdminsPage() {
 
         if (result.isConfirmed) {
             try {
-                await api.delete(`/users/${id}`); // Using your existing delete route
+                await api.delete(`/users/${id}`);
                 Swal.fire('Deleted!', 'Admin account has been removed.', 'success');
-                fetchAdmins(); // Refresh
+                fetchAdmins();
             } catch (error: any) {
                 Swal.fire('Error', error.response?.data?.message || 'Delete failed', 'error');
             }
@@ -56,7 +55,7 @@ export default function AdminsPage() {
     );
 
     return (
-        <div className="p-4 md:p-6 max-w-400 mx-auto animate-in fade-in duration-500 pb-24">
+        <div className="p-4 md:p-6 max-w-7xl mx-auto animate-in fade-in duration-500 pb-24">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">Admin Management</h1>
@@ -74,7 +73,7 @@ export default function AdminsPage() {
                     </div>
                     <Link
                         href="/dashboard/super-admin/admins/create"
-                        className="w-full md:w-auto flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:shadow-theme-md hover:scale-105 transition-all text-sm whitespace-nowrap"
+                        className="w-full md:w-auto flex items-center justify-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold hover:shadow-theme-md transition-all text-sm whitespace-nowrap"
                     >
                         <Plus size={18} /> Add Staff
                     </Link>
@@ -87,9 +86,9 @@ export default function AdminsPage() {
                         <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
                     </div>
                 ) : (
-                    <AdminTable admins={filteredAdmins} onDelete={handleDelete} />
+                    <UserTable users={filteredAdmins} onDelete={handleDelete} basePath="/dashboard/super-admin/admins" />
                 )}
             </div>
         </div>
     );
-}
+}

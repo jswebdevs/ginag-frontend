@@ -112,7 +112,7 @@ export default function ChatLogin({ onLoginSuccess }: { onLoginSuccess: (token: 
                     <LogIn className="w-6 h-6" />
                 </div>
                 <h3 className="text-xl font-black uppercase tracking-tight text-foreground">Sign In to Chat</h3>
-                <p className="text-sm text-muted-foreground mt-1 font-medium">Please log in to speak with DreamBot.</p>
+                <p className="text-sm text-muted-foreground mt-1 font-medium">Please log in to speak with our support team.</p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">

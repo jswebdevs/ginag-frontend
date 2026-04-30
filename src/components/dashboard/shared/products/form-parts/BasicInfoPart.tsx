@@ -2,32 +2,15 @@
 
 import { useEffect, useState, useRef } from "react";
 import api from "@/lib/axios";
-import { ChevronDown, Search, Check, AlignLeft, List, Plus, Trash2, Wand2, Sparkles, Loader2 } from "lucide-react";
+import { ChevronDown, Search, Check, AlignLeft, List, Plus, Trash2, Wand2 } from "lucide-react";
 import Swal from "sweetalert2";
-import { generateAIContent } from "@/services/ai.service";
 
 export default function BasicInfoPart({ product, update }: any) {
-  const [brands, setBrands] = useState<any[]>([]);
-  const [isBrandOpen, setIsBrandOpen] = useState(false);
-  const [brandSearch, setBrandSearch] = useState("");
   const [descType, setDescType] = useState<"paragraph" | "list">("paragraph");
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // AI States
-  const [generatingField, setGeneratingField] = useState<string | null>(null);
-  const [generatedFields, setGeneratedFields] = useState<string[]>([]);
-
   useEffect(() => {
-    api.get('/brands').then(res => setBrands(res.data.data || []));
     if (product.shortDesc?.includes('\n')) setDescType("list");
-
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as any)) {
-        setIsBrandOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [product.shortDesc]);
 
   const handleNameChange = (val: string) => {
@@ -44,71 +27,6 @@ export default function BasicInfoPart({ product, update }: any) {
     update({ productCode: `${prefix}-${randomNum}` });
   };
 
-  // --- AI GENERATION HANDLER ---
-  const handleAIGenerate = async (field: string) => {
-    if (!product.name) {
-      return Swal.fire({
-        icon: 'warning',
-        title: 'Missing Product Name',
-        text: 'Please enter a product name first so the AI knows what to generate!',
-        confirmButtonColor: '#0ea5e9'
-      });
-    }
-
-    setGeneratingField(field);
-
-    let prompt = "";
-    const baseContext = `You are an e-commerce assistant for a store in Bangladesh. The product name is "${product.name}".`;
-
-    switch (field) {
-      case "origin":
-        prompt = `${baseContext} Guess the most likely country of origin/manufacture for this product. Return ONLY the country name (e.g., Bangladesh, China, Italy).`;
-        break;
-      case "slug":
-        prompt = `${baseContext} Generate a short, highly SEO-optimized URL slug. Return ONLY the slug, using lowercase letters and hyphens.`;
-        break;
-      case "basePrice":
-        prompt = `${baseContext} Suggest a realistic premium retail base price in BDT (Bangladeshi Taka). Return ONLY the number (e.g., 2500). Do not include commas or currency symbols.`;
-        break;
-      case "salePrice":
-        prompt = `${baseContext} Suggest a realistic discounted sale price in BDT for this product, assuming it's currently on sale. Return ONLY the number. Do not include commas or currency symbols.`;
-        break;
-      case "shortDesc":
-        if (descType === "paragraph") {
-          prompt = `${baseContext} Write a cohesive 2-3 sentence engaging summary for this product. Return ONLY the raw text. Do not use markdown.`;
-        } else {
-          prompt = `${baseContext} Write between 3 and 10 short, punchy feature points for this product. 
-          Return ONLY the points, each on a new line. 
-          CRITICAL: Do NOT use dashes, bullet points, asterisks, or numbers at the start of the lines. Just provide the raw text for each line.`;
-        }
-        break;
-    }
-
-    try {
-      let aiResponse = await generateAIContent(prompt);
-
-      // Clean up the response based on the field type
-      if (field === "basePrice" || field === "salePrice") {
-        aiResponse = aiResponse.replace(/[^0-9]/g, ''); // Ensure only numbers
-      } else if (field === "shortDesc" && descType === "list") {
-        // Strip any accidental bullets/dashes the AI might have added despite instructions
-        aiResponse = aiResponse.split('\n')
-          .map(line => line.replace(/^[-*•\d.\s]+/, '').trim())
-          .filter(Boolean)
-          .join('\n');
-      }
-
-      update({ [field]: aiResponse });
-      setGeneratedFields(prev => [...prev, field]); // Hide the button after successful generation
-
-    } catch (error: any) {
-      console.error(`AI Error (${field}):`, error);
-      Swal.fire("Generation Failed", error.message || "Failed to generate content.", "error");
-    } finally {
-      setGeneratingField(null);
-    }
-  };
-
   // --- List Mode Helpers ---
   const listItems = product.shortDesc ? product.shortDesc.split("\n") : [""];
   const updateListItem = (index: number, value: string) => {
@@ -120,27 +38,6 @@ export default function BasicInfoPart({ product, update }: any) {
   const removeListItem = (index: number) => {
     const newList = listItems.filter((_: string, i: number) => i !== index);
     update({ shortDesc: newList.join("\n") });
-  };
-
-  const selectedBrand = brands.find(b => b.id === product.brandId);
-  const filteredBrands = brands.filter(b => b.name.toLowerCase().includes(brandSearch.toLowerCase()));
-
-  // Reusable AI Button Component
-  const AIGenerateButton = ({ field }: { field: string }) => {
-    if (generatedFields.includes(field)) return null;
-
-    return (
-      <button
-        type="button"
-        onClick={() => handleAIGenerate(field)}
-        disabled={generatingField !== null}
-        className="flex items-center gap-1 px-2 py-0.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded text-[10px] font-black uppercase tracking-wider transition-all disabled:opacity-50 ml-2"
-        title={`Auto-generate ${field}`}
-      >
-        {generatingField === field ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-        AI
-      </button>
-    );
   };
 
   return (
@@ -174,12 +71,11 @@ export default function BasicInfoPart({ product, update }: any) {
         </div>
       </div>
 
-      {/* r2: Origin, Brand, Slug */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* r2: Origin & Slug */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <div className="flex items-center mb-2">
             <label className="text-xs font-bold text-muted-foreground">Origin</label>
-            <AIGenerateButton field="origin" />
           </div>
           <input
             type="text" value={product.origin} onChange={(e) => update({ origin: e.target.value })}
@@ -188,46 +84,9 @@ export default function BasicInfoPart({ product, update }: any) {
           />
         </div>
 
-        <div className="relative" ref={dropdownRef}>
-          <label className="block text-xs font-bold text-muted-foreground mb-2">Brand</label>
-          <div
-            onClick={() => setIsBrandOpen(!isBrandOpen)}
-            className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm flex items-center justify-between cursor-pointer hover:border-primary transition-all"
-          >
-            <span className={selectedBrand ? "text-foreground font-bold" : "text-muted-foreground"}>{selectedBrand ? selectedBrand.name : "Select Brand"}</span>
-            <ChevronDown size={16} className={`transition-transform duration-200 ${isBrandOpen ? "rotate-180" : ""}`} />
-          </div>
-
-          {isBrandOpen && (
-            <div className="absolute top-full left-0 w-full mt-2 bg-card border border-border rounded-2xl shadow-theme-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
-              <div className="p-2 border-b border-border bg-muted/20">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-2 text-muted-foreground" size={14} />
-                  <input
-                    type="text" autoFocus placeholder="Search brands..."
-                    value={brandSearch} onChange={(e) => setBrandSearch(e.target.value)}
-                    className="w-full bg-background border border-border rounded-lg pl-8 pr-2 py-1.5 text-xs outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
-              <div className="max-h-[200px] overflow-y-auto custom-scrollbar p-1">
-                <div onClick={() => { update({ brandId: "" }); setIsBrandOpen(false); }} className="px-3 py-2 text-xs font-bold text-muted-foreground hover:bg-muted rounded-lg cursor-pointer flex items-center justify-between">
-                  No Brand {product.brandId === "" && <Check size={14} className="text-primary" />}
-                </div>
-                {filteredBrands.map(b => (
-                  <div key={b.id} onClick={() => { update({ brandId: b.id }); setIsBrandOpen(false); }} className="px-3 py-2 text-xs font-bold text-foreground hover:bg-muted rounded-lg cursor-pointer flex items-center justify-between">
-                    {b.name} {product.brandId === b.id && <Check size={14} className="text-primary" />}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
         <div>
           <div className="flex items-center mb-2">
             <label className="text-xs font-bold text-muted-foreground">Slug</label>
-            <AIGenerateButton field="slug" />
           </div>
           <input
             type="text" value={product.slug} onChange={(e) => update({ slug: e.target.value })}
@@ -241,7 +100,6 @@ export default function BasicInfoPart({ product, update }: any) {
         <div>
           <div className="flex items-center mb-2">
             <label className="text-[10px] font-black text-primary uppercase tracking-widest">Global Base Price (৳)</label>
-            <AIGenerateButton field="basePrice" />
           </div>
           <input
             type="number" value={product.basePrice} onChange={(e) => update({ basePrice: e.target.value })}
@@ -251,7 +109,6 @@ export default function BasicInfoPart({ product, update }: any) {
         <div>
           <div className="flex items-center mb-2">
             <label className="text-[10px] font-black text-primary uppercase tracking-widest">Global Sale Price (৳)</label>
-            <AIGenerateButton field="salePrice" />
           </div>
           <input
             type="number" value={product.salePrice} onChange={(e) => update({ salePrice: e.target.value })}
@@ -265,7 +122,6 @@ export default function BasicInfoPart({ product, update }: any) {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center">
             <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Short Description</label>
-            <AIGenerateButton field="shortDesc" />
           </div>
           <div className="flex bg-muted p-1 rounded-xl self-start sm:self-auto">
             <button type="button" onClick={() => setDescType("paragraph")} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${descType === 'paragraph' ? 'bg-background text-primary shadow-sm' : 'text-muted-foreground'}`}>

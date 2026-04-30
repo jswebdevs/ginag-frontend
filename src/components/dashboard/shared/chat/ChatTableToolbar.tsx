@@ -26,10 +26,10 @@ export default function ChatTableToolbar({
                     value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
                     className="bg-background border border-border rounded-xl px-4 py-2 text-sm outline-none focus:border-primary cursor-pointer font-medium"
                 >
-                    <option value="">All Active Chats</option>
-                    <option value="AGENT_ACTIVE">Human Needed</option>
-                    <option value="BOT_ACTIVE">Handled by AI</option>
-                    <option value="DONE">Done</option>
+                    <option value="">All Active</option>
+                    <option value="AGENT_ACTIVE">Open Chats</option>
+                    <option value="PENDING">New/Pending</option>
+                    <option value="DONE">Resolved</option>
                     <option value="SPAM">Spam</option>
                     <option value="ARCHIVED">Archived</option>
                 </select>

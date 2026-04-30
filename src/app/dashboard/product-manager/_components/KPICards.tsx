@@ -1,48 +1,34 @@
 "use client";
 
 import React from 'react';
-import { DollarSign, ShoppingCart, Users, AlertCircle } from 'lucide-react';
+import { Package, Layers, Store } from 'lucide-react';
 
 interface KPIData {
-  totalRevenue: number;
-  totalOrders: number;
-  pendingOrders: number;
-  totalCustomers: number;
+  totalProducts: number;
+  totalCategories: number;
 }
 
 export default function KPICards({ kpis }: { kpis: KPIData }) {
   if (!kpis) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
 
       <StatCard
-        title="Exact Revenue"
-        value={`৳${kpis.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-        icon={<DollarSign className="w-6 h-6" />}
-        colorClass="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+        title="Total Products"
+        value={kpis.totalProducts.toLocaleString()}
+        icon={<Package className="w-6 h-6" />}
+        colorClass="bg-primary/10 text-primary"
       />
 
       <StatCard
-        title="Total Orders"
-        value={kpis.totalOrders.toLocaleString()}
-        icon={<ShoppingCart className="w-6 h-6" />}
-        colorClass="bg-blue-500/10 text-blue-600 dark:text-blue-400"
-      />
-
-      <StatCard
-        title="Pending Orders"
-        value={kpis.pendingOrders.toLocaleString()}
-        icon={<AlertCircle className="w-6 h-6" />}
-        colorClass="bg-orange-500/10 text-orange-600 dark:text-orange-400"
-      />
-
-      <StatCard
-        title="Total Customers"
-        value={kpis.totalCustomers.toLocaleString()}
-        icon={<Users className="w-6 h-6" />}
+        title="Total Categories"
+        value={kpis.totalCategories.toLocaleString()}
+        icon={<Layers className="w-6 h-6" />}
         colorClass="bg-purple-500/10 text-purple-600 dark:text-purple-400"
       />
+
+
 
     </div>
   );

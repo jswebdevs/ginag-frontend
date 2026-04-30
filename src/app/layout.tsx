@@ -5,9 +5,10 @@ import Navbar from "@/components/shared/navbar/Navbar";
 import { AuthProvider } from "@/context/AuthContext";
 import TanstackProvider from "@/lib/tanstack";
 import Footer from "@/components/shared/footer/Footer";
+import { Toaster } from "sonner";
 
 // 1. Settings and Guard Imports
-import { getGlobalSettings } from "@/lib/getSettings";
+import { getGlobalSettings, getActiveTheme } from "@/lib/getSettings";
 import MaintenanceGuard from "@/components/shared/MaintenanceGuard";
 
 // 🔥 Import the Global Floating Components
@@ -20,31 +21,55 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const storeName = settings?.storeName || "Dream Shop";
   const tagline = settings?.tagline || "The best place to find everything you need with fast delivery.";
-  const faviconUrl = settings?.favicon?.thumbUrl || settings?.favicon?.originalUrl || "/dreamecommerce.svg";
+  const faviconUrl = settings?.favicon?.originalUrl || settings?.favicon?.thumbUrl || "/dreamecommerce.svg";
   const ogImageUrl = settings?.ogImage?.originalUrl || "https://yourdreamshop.com/default-og.jpg";
 
   return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_CLIENT_URL || "https://yourdreamshop.com"),
     title: {
-      default: `${storeName} | Premium E-commerce`,
+      default: `${storeName} | ${tagline}`,
       template: `%s | ${storeName}`,
     },
     description: tagline,
-    keywords: ["ecommerce", "shopping", "bangladesh", "online store"],
-    authors: [{ name: "JS Web Devs" }],
+    keywords: ["ecommerce", "shopping", "bangladesh", "online store", storeName.toLowerCase()],
+    authors: [{ name: storeName }],
+    creator: storeName,
+    publisher: storeName,
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
+    },
     icons: {
       icon: [
         { url: faviconUrl },
-        { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' }
+        { url: faviconUrl, sizes: '32x32', type: 'image/png' },
+        { url: faviconUrl, sizes: '16x16', type: 'image/png' },
       ],
+      shortcut: faviconUrl,
       apple: [
         { url: faviconUrl },
-        { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' }
-      ]
+        { url: faviconUrl, sizes: '180x180', type: 'image/png' },
+      ],
+      other: [
+        {
+          rel: 'apple-touch-icon-precomposed',
+          url: faviconUrl,
+        },
+      ],
     },
+    manifest: '/manifest.json',
+    alternates: {
+      canonical: '/',
+    },
+    themeColor: [
+      { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+      { media: '(prefers-color-scheme: dark)', color: '#000000' },
+    ],
     openGraph: {
       type: "website",
       locale: "en_IE",
-      url: "https://yourdreamshop.com",
+      url: "/",
       siteName: storeName,
       title: storeName,
       description: tagline,
@@ -62,7 +87,18 @@ export async function generateMetadata(): Promise<Metadata> {
       title: storeName,
       description: tagline,
       images: [ogImageUrl],
-    }
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   };
 }
 
@@ -72,17 +108,32 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const settings = await getGlobalSettings();
+  const [settings, activeTheme] = await Promise.all([
+    getGlobalSettings(),
+    getActiveTheme(),
+  ]);
 
   const isMaintenanceMode = settings?.maintenanceMode ?? false;
   const maintenanceMessage = settings?.maintenanceMessage || "Our store is currently undergoing maintenance. We'll be back shortly!";
 
   return (
     <html lang="en" suppressHydrationWarning>
+      {/* Apply dark class before paint to prevent flash of wrong theme */}
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            try {
+              var s = localStorage.getItem('dreamshop-theme-storage');
+              var isDark = s ? JSON.parse(s)?.state?.isDark : true;
+              if (isDark !== false) document.documentElement.classList.add('dark');
+            } catch(e) { document.documentElement.classList.add('dark'); }
+          })();
+        `}} />
+      </head>
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
         <TanstackProvider>
           <AuthProvider>
-            <ThemeProvider>
+            <ThemeProvider initialTheme={activeTheme}>
 
               <MaintenanceGuard
                 isMaintenanceMode={isMaintenanceMode}
@@ -102,6 +153,8 @@ export default async function RootLayout({
                   <ToTopButton />
                 </>
               )}
+
+              <Toaster richColors position="top-right" />
 
             </ThemeProvider>
           </AuthProvider>

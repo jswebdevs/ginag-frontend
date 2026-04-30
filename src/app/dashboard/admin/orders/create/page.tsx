@@ -8,7 +8,7 @@ export default function CreateOrderPage() {
   return (
     <div className="p-4 md:p-6 max-w-400 mx-auto animate-in fade-in duration-500 pb-24">
       <div className="flex items-center gap-4 mb-8">
-        <Link href="/dashboard/super-admin/orders" className="p-2 bg-card border border-border rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Back to Orders">
+        <Link href="/dashboard/admin/orders" className="p-2 bg-card border border-border rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground" title="Back to Orders">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>

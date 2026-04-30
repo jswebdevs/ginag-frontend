@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { Send, Loader2, Bot, User } from "lucide-react";
+import { Send, Loader2, Headset, User } from "lucide-react";
 
 export default function CustomerChatBox({ token }: { token: string }) {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -71,8 +71,8 @@ export default function CustomerChatBox({ token }: { token: string }) {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/10">
                 {messages.length === 0 && (
                     <div className="text-center text-muted-foreground text-sm mt-10">
-                        <Bot size={32} className="mx-auto mb-2 text-primary" />
-                        <p className="font-medium">Hi! I am DreamBot. How can I help you today?</p>
+                        <Headset size={32} className="mx-auto mb-2 text-primary" />
+                        <p className="font-medium">Hi! How can we help you today?</p>
                     </div>
                 )}
 
@@ -95,7 +95,7 @@ export default function CustomerChatBox({ token }: { token: string }) {
 
                             </div>
                             <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mt-1">
-                                {isUser ? "You" : msg.senderType === 'BOT' ? "DreamBot AI" : "Support"}
+                                {isUser ? "You" : msg.senderType === 'BOT' ? "Auto Reply" : "Support"}
                             </span>
                         </div>
                     );

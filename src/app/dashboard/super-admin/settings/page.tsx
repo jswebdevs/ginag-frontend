@@ -2,29 +2,43 @@
 
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 import {
     Save, Store, Globe, ShieldAlert, Loader2,
-    Image as ImageIcon, Plus, X
+    Plus, X, Phone, Mail, MapPin
 } from "lucide-react";
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
 
 export default function GeneralSettingsPage() {
-    const [activeTab, setActiveTab] = useState<"IDENTITY" | "REGIONAL" | "RULES">("IDENTITY");
+    const [activeTab, setActiveTab] = useState<"IDENTITY" | "CONTACT" | "REGIONAL" | "RULES">("IDENTITY");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
-    // Tracks which image field is currently opening the Media Manager
     const [pickerMode, setPickerMode] = useState<"logo" | "favicon" | "ogImage" | null>(null);
 
     const [formData, setFormData] = useState({
-        storeName: "", tagline: "", supportEmail: "", supportPhone: "",
-        currencyCode: "BDT", currencySymbol: "৳", timezone: "Asia/Dhaka", address: "",
-        enableGuestCheckout: true, orderPrefix: "DRM-", maintenanceMode: false, maintenanceMessage: "",
-        // IDs for the database
-        logoId: null as string | null, faviconId: null as string | null, ogImageId: null as string | null,
-        // URLs for the UI Preview
-        logoUrl: null as string | null, faviconUrl: null as string | null, ogImageUrl: null as string | null,
+        storeName: "",
+        tagline: "",
+        companySlogan: "",
+        supportEmail: "",
+        supportPhone: "",
+        contactEmail: "",
+        contactPhone: "",
+        contactAddress: "",
+        currencyCode: "BDT",
+        currencySymbol: "৳",
+        timezone: "Asia/Dhaka",
+        address: "",
+        enableGuestCheckout: true,
+        orderPrefix: "DRM-",
+        maintenanceMode: false,
+        maintenanceMessage: "",
+        logoId: null as string | null,
+        faviconId: null as string | null,
+        ogImageId: null as string | null,
+        logoUrl: null as string | null,
+        faviconUrl: null as string | null,
+        ogImageUrl: null as string | null,
     });
 
     useEffect(() => {
@@ -37,15 +51,22 @@ export default function GeneralSettingsPage() {
             if (res.data.data) {
                 const d = res.data.data;
                 setFormData({
-                    storeName: d.storeName || "", tagline: d.tagline || "",
-                    supportEmail: d.supportEmail || "", supportPhone: d.supportPhone || "",
-                    currencyCode: d.currencyCode || "BDT", currencySymbol: d.currencySymbol || "৳",
-                    timezone: d.timezone || "Asia/Dhaka", address: d.address || "",
+                    storeName: d.storeName || "",
+                    tagline: d.tagline || "",
+                    companySlogan: d.companySlogan || "",
+                    supportEmail: d.supportEmail || "",
+                    supportPhone: d.supportPhone || "",
+                    contactEmail: d.contactEmail || "",
+                    contactPhone: d.contactPhone || "",
+                    contactAddress: d.contactAddress || "",
+                    currencyCode: d.currencyCode || "BDT",
+                    currencySymbol: d.currencySymbol || "৳",
+                    timezone: d.timezone || "Asia/Dhaka",
+                    address: d.address || "",
                     enableGuestCheckout: d.enableGuestCheckout ?? true,
                     orderPrefix: d.orderPrefix || "DRM-",
                     maintenanceMode: d.maintenanceMode ?? false,
                     maintenanceMessage: d.maintenanceMessage || "",
-
                     logoId: d.logoId,
                     logoUrl: d.logo?.thumbUrl || d.logo?.originalUrl || null,
                     faviconId: d.faviconId,
@@ -56,7 +77,7 @@ export default function GeneralSettingsPage() {
             }
         } catch (error) {
             console.error("Failed to load settings", error);
-            Swal.fire({ title: "Error", text: "Could not load settings.", icon: "error" });
+            toast.error("Could not load settings.");
         } finally {
             setIsLoading(false);
         }
@@ -65,18 +86,12 @@ export default function GeneralSettingsPage() {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            // Send the payload (excluding the preview URLs)
             const { logoUrl, faviconUrl, ogImageUrl, ...payload } = formData;
             await api.patch('/settings', payload);
-
-            Swal.fire({
-                icon: "success", title: "Settings Saved!", toast: true,
-                position: 'top-end', timer: 2000, showConfirmButton: false,
-                background: "hsl(var(--card))", color: "hsl(var(--foreground))"
-            });
+            toast.success("Settings saved successfully!");
         } catch (error) {
             console.error(error);
-            Swal.fire({ title: "Error", text: "Failed to save settings.", icon: "error" });
+            toast.error("Failed to save settings.");
         } finally {
             setIsSaving(false);
         }
@@ -99,7 +114,6 @@ export default function GeneralSettingsPage() {
         if (type === "ogImage") setFormData({ ...formData, ogImageId: null, ogImageUrl: null });
     };
 
-    // Reusable Image Upload Box Component
     const ImageUploadBox = ({ title, type, url }: { title: string, type: "logo" | "favicon" | "ogImage", url: string | null }) => (
         <div className="space-y-3">
             <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">{title}</label>
@@ -151,8 +165,11 @@ export default function GeneralSettingsPage() {
                     <button onClick={() => setActiveTab("IDENTITY")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "IDENTITY" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
                         <Store size={18} /> Store Identity
                     </button>
+                    <button onClick={() => setActiveTab("CONTACT")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "CONTACT" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
+                        <Phone size={18} /> Contact Info
+                    </button>
                     <button onClick={() => setActiveTab("REGIONAL")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "REGIONAL" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
-                        <Globe size={18} /> Regional & Info
+                        <Globe size={18} /> Region & Currency
                     </button>
                     <button onClick={() => setActiveTab("RULES")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "RULES" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
                         <ShieldAlert size={18} /> Checkout & Status
@@ -167,24 +184,81 @@ export default function GeneralSettingsPage() {
                         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Store Name</label>
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Shop / Store Name</label>
                                     <input type="text" value={formData.storeName} onChange={e => setFormData({ ...formData, storeName: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Tagline</label>
                                     <input type="text" value={formData.tagline} onChange={e => setFormData({ ...formData, tagline: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="e.g. Your dream products" />
                                 </div>
+                                <div className="md:col-span-2">
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Company Slogan</label>
+                                    <input type="text" value={formData.companySlogan} onChange={e => setFormData({ ...formData, companySlogan: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" placeholder="e.g. Quality you can trust, prices you'll love" />
+                                </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-border">
-                                <ImageUploadBox title="Store Logo" type="logo" url={formData.logoUrl} />
+                                <ImageUploadBox title="Store Logo / Shop Logo" type="logo" url={formData.logoUrl} />
                                 <ImageUploadBox title="Favicon (Icon)" type="favicon" url={formData.faviconUrl} />
-                                <ImageUploadBox title="SEO / Social Image" type="ogImage" url={formData.ogImageUrl} />
+                                <ImageUploadBox title="Social Image (OG)" type="ogImage" url={formData.ogImageUrl} />
                             </div>
                         </div>
                     )}
 
-                    {/* --- TAB 2: REGIONAL --- */}
+                    {/* --- TAB 2: CONTACT INFO --- */}
+                    {activeTab === "CONTACT" && (
+                        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
+                            <div>
+                                <h3 className="text-sm font-black text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <Mail size={16} className="text-primary" /> Support Channels
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Support Email</label>
+                                        <input type="email" value={formData.supportEmail} onChange={e => setFormData({ ...formData, supportEmail: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="support@yourstore.com" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Support Phone Number</label>
+                                        <input type="text" value={formData.supportPhone} onChange={e => setFormData({ ...formData, supportPhone: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="017XXXXXXXX" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-border">
+                                <h3 className="text-sm font-black text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <Phone size={16} className="text-primary" /> General Contact
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Contact Email</label>
+                                        <input type="email" value={formData.contactEmail} onChange={e => setFormData({ ...formData, contactEmail: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="info@yourstore.com" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Contact Phone</label>
+                                        <input type="text" value={formData.contactPhone} onChange={e => setFormData({ ...formData, contactPhone: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="018XXXXXXXX" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-border">
+                                <h3 className="text-sm font-black text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+                                    <MapPin size={16} className="text-primary" /> Addresses
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Physical Address (Headquarters)</label>
+                                        <textarea value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} rows={3} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none resize-none" placeholder="Company headquarters address" />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Contact Address (Public)</label>
+                                        <textarea value={formData.contactAddress} onChange={e => setFormData({ ...formData, contactAddress: e.target.value })} rows={3} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none resize-none" placeholder="Address shown to customers on contact pages" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- TAB 3: REGIONAL --- */}
                     {activeTab === "REGIONAL" && (
                         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -197,23 +271,14 @@ export default function GeneralSettingsPage() {
                                     <input type="text" value={formData.currencySymbol} onChange={e => setFormData({ ...formData, currencySymbol: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="e.g. ৳" />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Support Email</label>
-                                    <input type="email" value={formData.supportEmail} onChange={e => setFormData({ ...formData, supportEmail: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" />
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Timezone</label>
+                                    <input type="text" value={formData.timezone} onChange={e => setFormData({ ...formData, timezone: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="e.g. Asia/Dhaka" />
                                 </div>
-                                <div>
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Support Phone</label>
-                                    <input type="text" value={formData.supportPhone} onChange={e => setFormData({ ...formData, supportPhone: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" />
-                                </div>
-                            </div>
-
-                            <div className="pt-4 border-t border-border">
-                                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Headquarters / Physical Address</label>
-                                <textarea value={formData.address} onChange={e => setFormData({ ...formData, address: e.target.value })} rows={3} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none resize-none" placeholder="Visible on invoices and contact pages" />
                             </div>
                         </div>
                     )}
 
-                    {/* --- TAB 3: RULES & STATUS --- */}
+                    {/* --- TAB 4: RULES & STATUS --- */}
                     {activeTab === "RULES" && (
                         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
 
@@ -264,7 +329,7 @@ export default function GeneralSettingsPage() {
                     <div className="bg-card border border-border rounded-3xl w-full max-w-6xl h-full max-h-[85vh] flex flex-col overflow-hidden shadow-theme-2xl animate-in zoom-in-95">
                         <div className="p-4 border-b border-border flex justify-between items-center bg-muted/10">
                             <h3 className="font-black text-foreground uppercase tracking-wider text-sm">
-                                Select {pickerMode === 'logo' ? 'Logo' : pickerMode === 'favicon' ? 'Favicon' : 'SEO Image'}
+                                Select {pickerMode === 'logo' ? 'Store Logo / Shop Logo' : pickerMode === 'favicon' ? 'Favicon' : 'Social Image (OG)'}
                             </h3>
                             <button onClick={() => setPickerMode(null)} className="p-2 bg-background border border-border hover:bg-destructive hover:text-white rounded-xl transition-colors">
                                 <X size={18} />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Sparkles, TrendingUp, Search } from "lucide-react";
+import { Loader2, TrendingUp, Search } from "lucide-react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 
@@ -15,7 +15,6 @@ export default function AdminWishlistAnalytics() {
 
     const fetchAllWishlists = async () => {
         try {
-            // NOTE: Ensure you create an admin backend route for this!
             const res = await api.get('/wishlist/all');
             setWishlists(res.data.data || []);
         } catch (error) {
@@ -25,20 +24,41 @@ export default function AdminWishlistAnalytics() {
         }
     };
 
-    const handleAIAnalysis = () => {
-        if (wishlists.length === 0) return;
+    const handleExportReport = () => {
+        if (wishlists.length === 0) {
+            return Swal.fire("No Data", "There is no wishlist data to export.", "info");
+        }
 
-        // Flatten the data to extract the most commonly wished-for items
-        const allItems = wishlists.flatMap(w => w.items.map((i: any) => i.variation.product.name));
+        const headers = ["User ID", "Total Items", "Items List"];
+        const rows = wishlists.map(w => [
+            w.userId,
+            w.items.length,
+            w.items.map((i: any) => i.variation?.product?.name).join(" | ")
+        ]);
 
-        const prompt = `Act as an e-commerce data analyst. Here is a raw array of items currently sitting in user wishlists across our platform: ${JSON.stringify(allItems)}. Identify the top 3 trends and suggest marketing strategies to convert these wishlists into sales.`;
+        const csvContent = [
+            headers.join(","),
+            ...rows.map(r => r.map(cell => `"${cell}"`).join(","))
+        ].join("\n");
 
-        navigator.clipboard.writeText(prompt);
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `wishlist_trends_${new Date().toISOString().split('T')[0]}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
         Swal.fire({
             icon: 'success',
-            title: 'Data Packaged!',
-            text: 'The wishlist analytics payload has been copied to your clipboard. Open your Admin Chatbox to DreamBot and paste it to generate the report.',
-            confirmButtonText: 'Understood'
+            title: 'Report Generated',
+            text: 'Your wishlist trend report has been downloaded as a CSV file.',
+            timer: 2000,
+            showConfirmButton: false,
+            background: 'hsl(var(--card))',
+            color: 'hsl(var(--foreground))',
         });
     };
 
@@ -52,11 +72,11 @@ export default function AdminWishlistAnalytics() {
                     <p className="text-sm text-muted-foreground mt-1">Monitor what your customers want to buy.</p>
                 </div>
                 <button
-                    onClick={handleAIAnalysis}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-colors shadow-theme-sm"
+                    onClick={handleExportReport}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-theme-sm active:scale-95"
                 >
-                    <Sparkles className="w-4 h-4" />
-                    Generate AI Trend Report
+                    <TrendingUp className="w-4 h-4" />
+                    Export Trend Report
                 </button>
             </div>
 
@@ -68,7 +88,6 @@ export default function AdminWishlistAnalytics() {
                     </div>
                     <p className="text-3xl font-black">{wishlists.length}</p>
                 </div>
-                {/* You can add more metric cards here based on the data */}
             </div>
 
             <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-theme-sm">

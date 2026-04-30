@@ -18,7 +18,7 @@ export default function BlogDashboard() {
                 </div>
 
                 <Link
-                    href="/dashboard/super-admin/blogs/blog/create"
+                    href="/dashboard/admin/blogs/blog/create"
                     className="bg-primary text-primary-foreground px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-theme-md w-full sm:w-auto"
                 >
                     <Plus className="w-4 h-4" /> Add New Blog

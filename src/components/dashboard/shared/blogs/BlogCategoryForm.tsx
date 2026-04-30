@@ -4,10 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
-import { generateAIContent } from "@/services/ai.service";
 
 // 🔥 Use stable static icons from React Icons
-import { LuSave, LuArrowLeft, LuLoader, LuSparkles } from "react-icons/lu";
+import { LuSave, LuArrowLeft, LuLoader } from "react-icons/lu";
 
 interface BlogCategoryFormProps {
     initialData?: any;
@@ -16,7 +15,6 @@ interface BlogCategoryFormProps {
 export default function BlogCategoryForm({ initialData }: BlogCategoryFormProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [isGeneratingDesc, setIsGeneratingDesc] = useState(false);
 
     const [name, setName] = useState(initialData?.name || "");
     const [slug, setSlug] = useState(initialData?.slug || "");
@@ -24,40 +22,6 @@ export default function BlogCategoryForm({ initialData }: BlogCategoryFormProps)
 
     const generateSlug = (text: string) => {
         return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-    };
-
-    // --- AI GENERATION: DESCRIPTION ---
-    const generateDescription = async () => {
-        if (!name) {
-            return Swal.fire({
-                icon: "warning",
-                title: "Name Required",
-                text: "Please enter a category name first.",
-                background: 'hsl(var(--card))',
-                color: 'hsl(var(--foreground))'
-            });
-        }
-
-        setIsGeneratingDesc(true);
-        const prompt = `Write a professional, SEO-friendly 2-sentence description for a blog category named "${name}". Return ONLY the description text.`;
-
-        try {
-            const aiResponse = await generateAIContent(prompt, "You are an expert blog copywriter and SEO specialist.");
-            if (aiResponse) {
-                setDescription(aiResponse.trim());
-            }
-        } catch (err: any) {
-            console.error("AI Description Error:", err);
-            Swal.fire({
-                icon: "error",
-                title: "Generation Failed",
-                text: "Could not generate description at this time.",
-                background: 'hsl(var(--card))',
-                color: 'hsl(var(--foreground))'
-            });
-        } finally {
-            setIsGeneratingDesc(false);
-        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -133,15 +97,6 @@ export default function BlogCategoryForm({ initialData }: BlogCategoryFormProps)
                 <div className="space-y-2">
                     <div className="flex items-center justify-between ml-1">
                         <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">Description</label>
-                        <button
-                            type="button"
-                            onClick={generateDescription}
-                            disabled={isGeneratingDesc}
-                            className="flex items-center gap-1.5 text-[10px] font-black text-primary uppercase tracking-widest hover:opacity-70 disabled:opacity-50 transition-all"
-                        >
-                            {isGeneratingDesc ? <LuLoader className="w-3 h-3 animate-spin" /> : <LuSparkles className="w-3 h-3" />}
-                            AI Description
-                        </button>
                     </div>
                     <textarea
                         value={description}
@@ -155,4 +110,6 @@ export default function BlogCategoryForm({ initialData }: BlogCategoryFormProps)
             </div>
         </form>
     );
+}
+
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Trash2, ShoppingCart, Sparkles, Loader2, HeartCrack } from "lucide-react";
+import { Trash2, ShoppingCart, Loader2, HeartCrack } from "lucide-react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 import { useUserStore } from "@/store/useUserStore";
@@ -45,22 +45,7 @@ export default function WishlistPage() {
         }
     };
 
-    const handleAskAI = () => {
-        if (!wishlist || wishlist.items.length === 0) return;
 
-        // Format the wishlist data to send to the AI
-        const itemNames = wishlist.items.map((i: any) => `${i.variation.product.name} (${i.variation.name || 'Default'})`).join(", ");
-        const prompt = `Here is my current wishlist: ${itemNames}. Based on these items, what other products would you recommend I buy?`;
-
-        // Copy to clipboard and instruct user (Since the Chat widget is floating/global)
-        navigator.clipboard.writeText(prompt);
-        Swal.fire({
-            icon: 'info',
-            title: 'Prompt Copied!',
-            text: 'Open the DreamBot chat at the bottom right and paste the prompt to get personalized recommendations!',
-            confirmButtonText: 'Got it!'
-        });
-    };
 
     if (!isAuthenticated) {
         return (
@@ -87,15 +72,8 @@ export default function WishlistPage() {
                     </p>
                 </div>
 
-                {wishlist?.items?.length > 0 && (
-                    <button
-                        onClick={handleAskAI}
-                        className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-5 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 hover:opacity-90 transition-opacity shadow-md"
-                    >
-                        <Sparkles className="w-4 h-4" />
-                        Analyze with DreamBot
-                    </button>
-                )}
+                {/* Wishlist item list... */}
+
             </div>
 
             {!wishlist || wishlist.items.length === 0 ? (

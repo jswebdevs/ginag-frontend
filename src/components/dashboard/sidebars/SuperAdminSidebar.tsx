@@ -89,7 +89,6 @@ export default function SuperAdminSidebar() {
       name: "Catalog",
       icon: PackageSearch,
       subItems: [
-        { name: "Brands", href: "/dashboard/super-admin/brands" },
         { name: "Categories", href: "/dashboard/super-admin/categories" },
         { name: "Products", href: "/dashboard/super-admin/products" },
         { name: "Media", href: "/dashboard/super-admin/media" }
@@ -121,7 +120,6 @@ export default function SuperAdminSidebar() {
       icon: ShieldCheck,
       subItems: [
         { name: "General Settings", href: "/dashboard/super-admin/settings" },
-        { name: "System Health", href: "/dashboard/super-admin/system-health" },
         { name: "Audit Logs", href: "/dashboard/super-admin/audit-logs" },
       ]
     },

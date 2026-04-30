@@ -72,7 +72,7 @@ export default function ChatTable({ sessions, loading, selectedIds, setSelectedI
                                     {/* Last Message Preview */}
                                     <td className="p-4">
                                         <p className={`text-sm truncate max-w-xs ${isUnread ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
-                                            {session.messages[0]?.senderType === 'BOT' ? '🤖 ' : session.messages[0]?.senderType === 'AGENT' ? '🎧 ' : ''}
+                                            {session.messages[0]?.senderType === 'AGENT' ? '🎧 ' : ''}
                                             {lastMsg}
                                         </p>
                                     </td>
@@ -80,7 +80,6 @@ export default function ChatTable({ sessions, loading, selectedIds, setSelectedI
                                     {/* Status Badge */}
                                     <td className="p-4 text-center">
                                         <span className={`px-3 py-1 rounded-xl text-[10px] font-black uppercase tracking-widest border ${session.status === 'AGENT_ACTIVE' ? 'bg-red-500/10 text-red-600 border-red-500/20 animate-pulse' :
-                                                session.status === 'BOT_ACTIVE' ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' :
                                                     'bg-muted text-muted-foreground border-border'
                                             }`}>
                                             {session.status.replace('_', ' ')}

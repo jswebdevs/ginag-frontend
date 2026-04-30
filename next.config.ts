@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         hostname: 'images.unsplash.com', // Added Unsplash for the BrandStory placeholder!
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

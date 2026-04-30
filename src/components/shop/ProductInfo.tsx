@@ -42,12 +42,7 @@ export default function ProductInfo({
 
     return (
         <div className="flex flex-col">
-            {/* Brand & Title */}
-            {product.brand && (
-                <Link href={`/products?brand=${product.brand.id}`} className="text-primary font-bold text-xs sm:text-sm uppercase tracking-wider mb-2 hover:underline">
-                    {product.brand.name}
-                </Link>
-            )}
+
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-heading leading-[1.1] mb-4 tracking-tight uppercase">
                 {product.name}
             </h1>

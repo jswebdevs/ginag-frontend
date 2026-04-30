@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import api from "@/lib/axios";
-import { Wand2, Trash2, Tag, Box, Plus, X, Settings2, Sparkles, Loader2, Film, Image as ImageIcon } from "lucide-react";
+import { Wand2, Trash2, Tag, Box, Plus, X, Settings2, Film } from "lucide-react";
 import Swal from "sweetalert2";
-import { generateAIContent } from "@/services/ai.service";
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
 
 export default function VariationManager({ product, update }: any) {
   const [inputValue, setInputValue] = useState<{ [key: number]: string }>({});
-  const [isGenerating, setIsGenerating] = useState(false);
 
   // --- MEDIA MODAL STATE ---
   const [activeMediaVar, setActiveMediaVar] = useState<{ index: number, type: 'featured' | 'gallery' } | null>(null);
@@ -51,40 +49,6 @@ export default function VariationManager({ product, update }: any) {
     const newAttrs = [...product.attributes];
     newAttrs[attrIndex].values.splice(valIndex, 1);
     update({ attributes: newAttrs });
-  };
-
-  // --- AI SUGGEST ATTRIBUTES HANDLER ---
-  const handleSuggestAttributes = async () => {
-    if (!product.name) {
-      return Swal.fire("Missing Name", "Please enter a Product Title in Part 1 so the AI knows what to suggest!", "warning");
-    }
-
-    setIsGenerating(true);
-
-    const systemInstruction = "You are an expert e-commerce catalog manager.";
-    const prompt = `
-      Based on the product name "${product.name}", suggest 1 to 2 logical variation attributes (like Size, Color, Material, etc.) and common standard values for them.
-      CRITICAL RULE: Return ONLY a valid JSON array of objects. Do not use markdown like \`\`\`json.
-      Example format: [{"name": "Color", "values": ["Black", "White"]}, {"name": "Size", "values": ["S", "M", "L", "XL"]}]
-    `;
-
-    try {
-      const aiResponse = await generateAIContent(prompt, systemInstruction);
-      const cleanJson = aiResponse.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const suggestedAttributes = JSON.parse(cleanJson);
-
-      if (Array.isArray(suggestedAttributes) && suggestedAttributes.length > 0) {
-        update({ attributes: [...(product.attributes || []), ...suggestedAttributes] });
-        Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Attributes suggested!', showConfirmButton: false, timer: 2000 });
-      } else {
-        throw new Error("Invalid format returned");
-      }
-    } catch (error: any) {
-      console.error("AI Attribute Suggestion Error:", error);
-      Swal.fire("Suggestion Failed", "The AI couldn't determine attributes for this product.", "error");
-    } finally {
-      setIsGenerating(false);
-    }
   };
 
   // --- VARIATION MATRIX GENERATOR ---
@@ -219,17 +183,6 @@ export default function VariationManager({ product, update }: any) {
             <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">1. Define Attributes</label>
 
             <div className="flex items-center gap-4">
-              <button
-                type="button"
-                onClick={handleSuggestAttributes}
-                disabled={isGenerating}
-                className="text-[10px] font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1 disabled:opacity-50 transition-colors"
-                title="Auto-suggest attributes based on product name"
-              >
-                {isGenerating ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
-                AI Suggest
-              </button>
-
               <button type="button" onClick={addAttribute} className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1">
                 <Plus size={12} /> Add Attribute
               </button>
@@ -410,4 +363,4 @@ export default function VariationManager({ product, update }: any) {
       )}
     </>
   );
-}
+}

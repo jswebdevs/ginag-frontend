@@ -12,8 +12,8 @@ interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set, get) => ({
-      isDark: false,
-      userTheme: null, 
+      isDark: true,
+      userTheme: null,
       
       setTheme: (theme) => set({ userTheme: theme }),
 

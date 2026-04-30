@@ -100,7 +100,7 @@ export default function ProfilePage() {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
-            // Instantly update the UI with the new URL from Supabase/Backend
+            // Instantly update the UI with the new URL from Cloudinary/Backend
             setAvatarUrl(res.data.data.avatar);
             if (fetchUser) fetchUser();
 
@@ -234,7 +234,11 @@ export default function ProfilePage() {
             </div>
 
             {/* --- SECTION 2: FORMS --- */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6" autoComplete="off">
+                {/* Fake inputs to prevent autofill */}
+                <input type="text" name="fake-username" style={{ display: 'none' }} tabIndex={-1} />
+                <input type="password" name="fake-password" style={{ display: 'none' }} tabIndex={-1} />
+
 
                 {/* Personal Details Card */}
                 <div className="bg-card border border-border rounded-3xl p-6 sm:p-8 shadow-sm">
@@ -357,6 +361,7 @@ export default function ProfilePage() {
                                 value={passwords.newPassword}
                                 onChange={handlePasswordChange}
                                 placeholder="Enter new password"
+                                autoComplete="new-password"
                                 className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-foreground transition-colors"
                             />
                         </div>
@@ -369,6 +374,7 @@ export default function ProfilePage() {
                                 value={passwords.confirmPassword}
                                 onChange={handlePasswordChange}
                                 placeholder="Confirm new password"
+                                autoComplete="new-password"
                                 className="w-full px-4 py-2.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-foreground transition-colors"
                             />
                         </div>

@@ -46,7 +46,7 @@ export default function EditCouponPage() {
         return (
             <div className="p-8 text-center">
                 <p className="font-bold text-muted-foreground">Coupon not found or has been deleted.</p>
-                <Link href="/dashboard/super-admin/coupons" className="text-primary hover:underline mt-4 inline-block">
+                <Link href="/dashboard/admin/coupons" className="text-primary hover:underline mt-4 inline-block">
                     Return to Coupons
                 </Link>
             </div>
@@ -56,7 +56,7 @@ export default function EditCouponPage() {
     return (
         <div className="p-4 md:p-6 max-w-400 mx-auto animate-in fade-in duration-500 pb-24">
             <div className="mb-8">
-                <Link href="/dashboard/super-admin/coupons" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors mb-4">
+                <Link href="/dashboard/admin/coupons" className="inline-flex items-center gap-2 text-sm font-bold text-muted-foreground hover:text-primary transition-colors mb-4">
                     <ArrowLeft size={16} /> Back to Coupons
                 </Link>
                 <h1 className="text-2xl md:text-3xl font-black text-foreground tracking-tight">Edit: {initialData.code}</h1>

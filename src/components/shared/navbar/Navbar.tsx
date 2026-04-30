@@ -18,8 +18,6 @@ import CustomerChatBox from "@/components/shared/chatbox/CustomerChatBox";
 import {
   LuMoon,
   LuSun,
-  LuChevronDown,
-  LuCheck,
   LuMenu,
   LuStore,
   LuHeart,
@@ -35,12 +33,10 @@ import {
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { userTheme, setTheme, isDark, toggleDark } = useThemeStore();
-  const [availableThemes, setAvailableThemes] = useState<any[]>([]);
+  const { isDark, toggleDark } = useThemeStore();
   const { user, isAuthenticated } = useUserStore();
 
   const [mounted, setMounted] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
@@ -53,6 +49,7 @@ export default function Navbar() {
 
   // --- DYNAMIC SETTINGS STATE ---
   const [storeName, setStoreName] = useState("DreamShop");
+  const [storeTagline, setStoreTagline] = useState("");
   const [storeLogo, setStoreLogo] = useState<string | null>(null);
 
   // States for Real-Time Search
@@ -61,7 +58,6 @@ export default function Navbar() {
   const [isSearching, setIsSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,6 +71,7 @@ export default function Navbar() {
         const res = await api.get('/settings');
         if (res.data?.data) {
           setStoreName(res.data.data.storeName || "DreamShop");
+          setStoreTagline(res.data.data.tagline || "");
           setStoreLogo(
             res.data.data.logo?.thumbUrl ||
             res.data.data.logo?.originalUrl ||
@@ -85,15 +82,6 @@ export default function Navbar() {
         console.error("Failed to load navbar settings", error);
       }
     };
-    const fetchThemes = async () => {
-      try {
-        const res = await api.get('/themes/list');
-        setAvailableThemes(res.data.data || []);
-      } catch (error) {
-        console.error("Failed to load themes", error);
-      }
-    };
-    fetchThemes();
     fetchSettings();
   }, []);
 
@@ -107,9 +95,6 @@ export default function Navbar() {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowResults(false);
       }
@@ -191,49 +176,15 @@ export default function Navbar() {
   };
 
   const ThemeSwitcherUI = () => {
-    if (!mounted) return <div className="w-20 h-8 bg-muted animate-pulse rounded-full" />;
-    const activePreviewColor = userTheme?.lightVariables?.primary
-      ? `hsl(${userTheme.lightVariables.primary})`
-      : 'var(--color-primary)';
-
+    if (!mounted) return <div className="w-9 h-9 bg-muted animate-pulse rounded-full" />;
     return (
-      <div className="flex items-center gap-1 md:gap-2 p-1 border border-border rounded-full bg-background/50 backdrop-blur-sm transition-colors">
-        <button onClick={toggleDark} className="p-1 md:p-1.5 text-muted-foreground hover:text-foreground hover:bg-muted rounded-full transition-colors">
-          {isDark ? <LuMoon className="w-3.5 h-3.5 md:w-4 md:h-4" /> : <LuSun className="w-3.5 h-3.5 md:w-4 md:h-4" />}
-        </button>
-        <div className="h-4 w-px bg-border" />
-        <div className="relative" ref={dropdownRef}>
-          <button onClick={() => setIsDropdownOpen(!isDropdownOpen)} className="flex items-center gap-1 md:gap-2 p-1 md:p-1.5 pl-2 pr-1 text-sm font-medium rounded-full hover:bg-muted transition-colors">
-            <div className="w-3 h-3 md:w-4 md:h-4 rounded-full border border-black/10" style={{ backgroundColor: activePreviewColor }} />
-            <LuChevronDown className="w-3 h-3 opacity-50" />
-          </button>
-          {isDropdownOpen && availableThemes.length > 0 && (
-            <div className="absolute right-0 mt-3 w-56 py-3 bg-popover border border-border rounded-2xl shadow-theme-xl z-50 animate-in fade-in zoom-in-95 duration-200">
-              <p className="px-4 pb-2 text-10px font-black uppercase tracking-widest text-muted-foreground">Select Mood</p>
-              <div className="grid grid-cols-4 gap-3 px-4">
-                {availableThemes.map((t) => (
-                  <button
-                    key={t.id}
-                    title={t.name}
-                    onClick={() => { setTheme(t); setIsDropdownOpen(false); }}
-                    className={`group relative flex justify-center w-9 h-9 rounded-xl border transition-all ${userTheme?.id === t.id ? 'border-primary bg-primary/10' : 'border-transparent hover:bg-muted'}`}
-                  >
-                    <div
-                      className="w-6 h-6 rounded-lg border border-black/5 shadow-sm m-auto transition-transform group-hover:scale-110"
-                      style={{ backgroundColor: `hsl(${t.lightVariables.primary})` }}
-                    />
-                    {userTheme?.id === t.id && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full border-2 border-background flex items-center justify-center">
-                        <LuCheck className="text-white w-2 h-2" strokeWidth={4} />
-                      </div>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      <button
+        onClick={toggleDark}
+        className="p-2 border border-border rounded-full bg-background/50 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+      >
+        {isDark ? <LuMoon className="w-4 h-4" /> : <LuSun className="w-4 h-4" />}
+      </button>
     );
   };
 
@@ -266,13 +217,125 @@ export default function Navbar() {
               ) : (
                 <div className="flex items-center gap-2 text-primary">
                   <LuStore size={28} />
-                  <span className="font-black text-xl tracking-tight hidden sm:block">{storeName}</span>
+                  <div className="flex flex-col">
+                    <span className="font-black text-xl tracking-tight hidden sm:block leading-none">{storeName}</span>
+                    {storeTagline && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest hidden lg:block mt-0.5">{storeTagline}</span>}
+                  </div>
                 </div>
               )}
             </Link>
           </div>
 
-          {/* Desktop Search Area could go here... */}
+          {/* Desktop Search Bar */}
+          <div ref={searchRef} className="hidden md:flex flex-1 max-w-xl relative mx-4">
+            <form onSubmit={handleSearchSubmit} className="w-full">
+              <div className="relative">
+                <LuSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Search products, categories, tags..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.length > 2 && setShowResults(true)}
+                  className="w-full pl-9 pr-10 py-2.5 border border-border rounded-xl bg-background text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => { setSearchQuery(""); setShowResults(false); }}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <LuX className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </form>
+
+            {/* Dropdown Results */}
+            {showResults && (
+              <div className="absolute top-full mt-2 left-0 right-0 bg-card border border-border rounded-xl shadow-theme-lg z-50 overflow-hidden max-h-96 overflow-y-auto">
+                {isSearching ? (
+                  <div className="flex items-center justify-center gap-2 py-6 text-muted-foreground">
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm">Searching...</span>
+                  </div>
+                ) : searchResults.length > 0 ? (
+                  <>
+                    {/* Products */}
+                    {searchResults.filter(r => r.type === 'product' || r.basePrice).length > 0 && (
+                      <div>
+                        <div className="px-4 py-2 bg-muted/50 border-b border-border">
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Products</span>
+                        </div>
+                        {searchResults.filter(r => r.type === 'product' || r.basePrice).map((item, idx) => {
+                          const imgSrc = item.featuredImage?.thumbUrl || item.featuredImage?.originalUrl;
+                          return (
+                            <Link
+                              key={item.id || idx}
+                              href={`/products/${item.slug || item.id}`}
+                              onClick={() => { setShowResults(false); setSearchQuery(""); }}
+                              className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-b border-border/50 last:border-0"
+                            >
+                              <div className="w-10 h-10 rounded-lg bg-muted border border-border flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {imgSrc ? (
+                                  <img src={imgSrc} alt={item.name} className="w-full h-full object-contain" />
+                                ) : (
+                                  <LuSearch className="w-4 h-4 text-muted-foreground/50" />
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
+                                {item.basePrice && (
+                                  <p className="text-xs font-bold text-primary">৳{Number(item.basePrice).toLocaleString()}</p>
+                                )}
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Categories */}
+                    {searchResults.filter(r => r.type === 'category' && !r.basePrice).length > 0 && (
+                      <div>
+                        <div className="px-4 py-2 bg-muted/50 border-b border-border">
+                          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Categories</span>
+                        </div>
+                        {searchResults.filter(r => r.type === 'category' && !r.basePrice).map((item, idx) => (
+                          <Link
+                            key={item.id || idx}
+                            href={`/categories/${item.slug || item.id}`}
+                            onClick={() => { setShowResults(false); setSearchQuery(""); }}
+                            className="flex items-center gap-3 px-4 py-3 hover:bg-muted transition-colors border-b border-border/50 last:border-0"
+                          >
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                              <LuSearch className="w-4 h-4 text-primary/70" />
+                            </div>
+                            <p className="text-sm font-semibold text-foreground">{item.name}</p>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* View all results */}
+                    <button
+                      onClick={() => {
+                        setShowResults(false);
+                        router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+                      }}
+                      className="w-full px-4 py-3 text-sm font-bold text-primary hover:bg-primary/5 transition-colors border-t border-border text-center"
+                    >
+                      View all results for "{searchQuery}"
+                    </button>
+                  </>
+                ) : (
+                  <div className="py-8 text-center">
+                    <p className="text-sm text-muted-foreground">No results found for "{searchQuery}"</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center gap-3 md:gap-5">
             <ThemeSwitcherUI />

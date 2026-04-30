@@ -53,10 +53,10 @@ export default function WelcomeCard3D() {
       {/* --- Left Side: Text Content --- */}
       <div className="absolute z-10 p-8 flex flex-col justify-center h-full max-w-[60%] pointer-events-none">
         <h2 className="text-2xl sm:text-3xl font-black text-primary-foreground mb-3 drop-shadow-md">
-          Welcome back, {user?.firstName || "Super Admin"}! ✨
+          Welcome back, {user?.firstName || "Product Manager"}! ✨
         </h2>
         <p className="text-primary-foreground/90 text-sm sm:text-base font-medium max-w-md drop-shadow">
-          Here is what is happening in DreamShop today. Check your pending vendors, recent sales, and store growth.
+          Here is what is happening in DreamShop today. Check your products, stock levels, and recent product sales.
         </p>
       </div>
 

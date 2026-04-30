@@ -124,7 +124,7 @@ export default function SingleCategoryPage() {
               {subcategories.map((subcat) => (
                 <Link
                   key={subcat.id}
-                  href={`/category/${subcat.slug}`}
+                  href={`/categories/${subcat.slug}`}
                   className="group relative bg-card border border-border rounded-2xl p-5 flex flex-col items-center justify-center text-center transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-theme-md overflow-hidden"
                 >
                   <div className="w-12 h-12 bg-muted/50 rounded-xl flex items-center justify-center mb-3 group-hover:bg-primary/10 transition-colors duration-300">
