@@ -44,7 +44,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
 
     // Media Modal State
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-    const [activeMediaBlock, setActiveMediaBlock] = useState<{ id: string, target: 'block' | 'quill' } | null>(null);
+    const [activeMediaBlock, setActiveMediaBlock] = useState<{ id: string, target: 'block' | 'quill' | 'featured' } | null>(null);
     const quillRefs = useRef<any>({});
 
     const [title, setTitle] = useState(initialData?.title || "");
