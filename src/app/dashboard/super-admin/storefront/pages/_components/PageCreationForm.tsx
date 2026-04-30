@@ -355,7 +355,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                                                                 theme="snow" 
                                                                 forwardedRef={(el: any) => quillRefs.current[block.id] = el}
                                                                 value={block.data.content} 
-                                                                onChange={(content) => updateBlockData(block.id, "content", content)} 
+                                                                onChange={(content: string) => updateBlockData(block.id, "content", content)} 
                                                                 modules={quillModules} 
                                                                 formats={quillFormats} 
                                                             />
