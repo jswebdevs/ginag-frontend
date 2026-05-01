@@ -20,8 +20,8 @@ interface ProductState {
 
   fetchProducts: (params?: any) => Promise<void>;
   fetchFilterOptions: () => Promise<void>;
-  setFilter: (key: string, value: string) => void;
-  removeFilter: (key: string, value: string) => void;
+  setFilter: (key: 'category' | 'material', value: string) => void;
+  removeFilter: (key: 'category' | 'material', value: string) => void;
   setPriceRange: (min: string | null, max: string | null) => void;
   clearFilters: () => void;
 }
@@ -83,7 +83,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
     set((state) => ({
       activeFilters: {
         ...state.activeFilters,
-        [key]: key === 'category' ? [value] : [...(state.activeFilters[key] || []), value],
+        [key]: key === 'category' ? [value] : [...((state.activeFilters[key] as string[]) || []), value],
       },
     }));
     get().fetchProducts();
@@ -93,7 +93,7 @@ export const useProductStore = create<ProductState>((set, get) => ({
     set((state) => ({
       activeFilters: {
         ...state.activeFilters,
-        [key]: (state.activeFilters[key] || []).filter((v) => v !== value),
+        [key]: ((state.activeFilters[key] as string[]) || []).filter((v) => v !== value),
       },
     }));
     get().fetchProducts();
