@@ -62,10 +62,7 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: '/',
     },
-    themeColor: [
-      { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-      { media: '(prefers-color-scheme: dark)', color: '#000000' },
-    ],
+
     openGraph: {
       type: "website",
       locale: "en_IE",
@@ -102,6 +99,16 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+export function generateViewport() {
+  return {
+    themeColor: [
+      { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+      { media: '(prefers-color-scheme: dark)', color: '#000000' },
+    ],
+  };
+}
+
+
 // 3. Updated Async Root Layout
 export default async function RootLayout({
   children,
@@ -120,7 +127,8 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       {/* Apply dark class before paint to prevent flash of wrong theme */}
       <head>
-        <script dangerouslySetInnerHTML={{ __html: `
+        <script dangerouslySetInnerHTML={{
+          __html: `
           (function(){
             try {
               var s = localStorage.getItem('dreamshop-theme-storage');

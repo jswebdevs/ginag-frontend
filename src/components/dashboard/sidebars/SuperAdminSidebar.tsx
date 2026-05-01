@@ -109,6 +109,7 @@ export default function SuperAdminSidebar() {
       name: "Storefront",
       icon: Store,
       subItems: [
+        { name: "Hero Section", href: "/dashboard/super-admin/storefront/hero" },
         { name: "Pages", href: "/dashboard/super-admin/storefront/pages" },
         { name: "Social", href: "/dashboard/super-admin/storefront/social"},
         { name: "Reviews", href: "/dashboard/super-admin/storefront/reviews"},

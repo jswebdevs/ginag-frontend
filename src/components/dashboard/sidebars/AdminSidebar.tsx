@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
     LayoutDashboard, CircleDollarSign,
-    Users, PackageSearch, Megaphone,
+    Users, PackageSearch, Megaphone, Store,
     Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
@@ -87,6 +87,13 @@ export default function AdminSidebar() {
             name: "Customers",
             icon: Users,
             href: "/dashboard/admin/customers"
+        },
+        {
+            name: "Storefront",
+            icon: Store,
+            subItems: [
+                { name: "Hero Section", href: "/dashboard/admin/storefront/hero" },
+            ]
         }
     ];
 
