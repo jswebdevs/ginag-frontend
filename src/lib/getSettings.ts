@@ -1,7 +1,7 @@
 export async function getGlobalSettings() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings`, {
-      next: { revalidate: 0 }
+      next: { revalidate: 1 }
     });
     if (!res.ok) return null;
     const json = await res.json();
@@ -15,7 +15,7 @@ export async function getGlobalSettings() {
 export async function getActiveTheme() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/themes/active`, {
-      next: { revalidate: 0 }
+      next: { revalidate: 1 }
     });
     if (!res.ok) return null;
     const json = await res.json();

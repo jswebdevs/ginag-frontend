@@ -15,6 +15,8 @@ import MaintenanceGuard from "@/components/shared/MaintenanceGuard";
 import FloatingWidget from "@/components/shared/chatbox/FloatingWidget";
 import ToTopButton from "@/components/shared/totop/ToTopButton";
 
+export const dynamic = 'force-dynamic';
+
 // 2. Dynamic Metadata Generation
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getGlobalSettings();
