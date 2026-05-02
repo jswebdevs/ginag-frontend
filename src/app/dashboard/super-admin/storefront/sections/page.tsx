@@ -342,7 +342,7 @@ function FeatureList({ title, features, onChange, simple }: any) {
                   onClick={() => setShowIconPicker(idx)}
                   className="w-12 h-12 bg-card border border-border rounded-xl flex items-center justify-center hover:border-primary transition-all shadow-theme-sm"
                 >
-                  <IconRenderer icon={feature.icon} className="w-5 h-5 text-primary" />
+                  <IconRenderer name={feature.icon} className="w-5 h-5 text-primary" />
                 </button>
               </div>
 
@@ -431,7 +431,7 @@ function SpecList({ specs, onChange }: any) {
                 onClick={() => setShowIconPicker(idx)}
                 className="w-8 h-8 bg-card border border-border rounded-lg flex items-center justify-center hover:border-primary transition-all"
               >
-                <IconRenderer icon={spec.icon} className="w-4 h-4 text-primary" />
+                <IconRenderer name={spec.icon} className="w-4 h-4 text-primary" />
               </button>
               <input 
                 type="text"
