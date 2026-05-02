@@ -3,24 +3,24 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Save, 
-  Loader2, 
-  Sparkles, 
-  Shield, 
-  Gift, 
-  Plus, 
-  Trash2, 
-  ChevronDown,
-  ChevronUp,
+  Save as SaveIcon, 
+  Loader2 as LoaderIcon, 
+  Sparkles as SparklesIcon, 
+  Shield as ShieldIcon, 
+  Gift as GiftIcon, 
+  Plus as PlusIcon, 
+  Trash2 as TrashIcon, 
+  ChevronDown as ChevronDownIcon,
+  ChevronUp as ChevronUpIcon,
   Image as ImageIcon,
-  Type,
-  Layout,
-  MousePointer2
+  Type as TypeIcon,
+  Layout as LayoutIcon,
+  MousePointer2 as MousePointerIcon
 } from "lucide-react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import IconRenderer from "@/components/shared/IconRenderer";
-import IconPickerModal from "@/components/dashboard/shared/IconPickerModal";
+import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
 
 export default function HomepageSectionsPage() {
   const [loading, setLoading] = useState(true);
@@ -103,7 +103,7 @@ export default function HomepageSectionsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <LoaderIcon className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -122,7 +122,7 @@ export default function HomepageSectionsPage() {
           disabled={saving}
           className="relative z-10 flex items-center justify-center gap-2 bg-primary text-primary-foreground px-8 py-3 rounded-xl font-bold uppercase tracking-tight hover:opacity-90 transition-all disabled:opacity-50 shadow-lg shadow-primary/25 group"
         >
-          {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5 group-hover:scale-110 transition-transform" />}
+          {saving ? <LoaderIcon className="w-5 h-5 animate-spin" /> : <SaveIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />}
           {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
@@ -130,9 +130,9 @@ export default function HomepageSectionsPage() {
       {/* Tabs */}
       <div className="flex flex-wrap gap-2 p-1.5 bg-muted/50 rounded-2xl w-fit border border-border">
         {[
-          { id: "material", label: "Material Tech", icon: Sparkles },
-          { id: "technical", label: "Technical", icon: Shield },
-          { id: "gift", label: "Gift Curation", icon: Gift },
+          { id: "material", label: "Material Tech", icon: SparklesIcon },
+          { id: "technical", label: "Technical", icon: ShieldIcon },
+          { id: "gift", label: "Gift Curation", icon: GiftIcon },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -163,7 +163,7 @@ export default function HomepageSectionsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div className="space-y-6">
                   <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
-                    <Type className="w-5 h-5 text-primary" />
+                    <TypeIcon className="w-5 h-5 text-primary" />
                     Text Content
                   </h3>
                   <div className="space-y-4">
@@ -205,7 +205,7 @@ export default function HomepageSectionsPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div className="space-y-6">
                   <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
-                    <Type className="w-5 h-5 text-primary" />
+                    <TypeIcon className="w-5 h-5 text-primary" />
                     Main Heading
                   </h3>
                   <div className="space-y-4">
@@ -216,7 +216,7 @@ export default function HomepageSectionsPage() {
 
                 <div className="space-y-6">
                   <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
-                    <Layout className="w-5 h-5 text-primary" />
+                    <LayoutIcon className="w-5 h-5 text-primary" />
                     Technical Box (Right)
                   </h3>
                   <div className="space-y-4">
@@ -243,7 +243,7 @@ export default function HomepageSectionsPage() {
             >
               <div className="max-w-2xl space-y-6">
                 <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-2">
-                  <Type className="w-5 h-5 text-primary" />
+                  <TypeIcon className="w-5 h-5 text-primary" />
                   Gifting Content
                 </h3>
                 <div className="space-y-4">
@@ -321,7 +321,7 @@ function FeatureList({ title, features, onChange, simple }: any) {
           onClick={addFeature}
           className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary hover:opacity-80 transition-opacity"
         >
-          <Plus className="w-4 h-4" /> Add Item
+          <PlusIcon className="w-4 h-4" /> Add Item
         </button>
       </div>
 
@@ -332,7 +332,7 @@ function FeatureList({ title, features, onChange, simple }: any) {
               onClick={() => removeFeature(idx)}
               className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
             >
-              <Trash2 className="w-4 h-4" />
+              <TrashIcon className="w-4 h-4" />
             </button>
 
             <div className="flex gap-6">
@@ -412,7 +412,7 @@ function SpecList({ specs, onChange }: any) {
           onClick={addSpec}
           className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-primary hover:opacity-80 transition-opacity"
         >
-          <Plus className="w-4 h-4" /> Add Spec
+          <PlusIcon className="w-4 h-4" /> Add Spec
         </button>
       </div>
 
@@ -423,7 +423,7 @@ function SpecList({ specs, onChange }: any) {
               onClick={() => removeSpec(idx)}
               className="absolute top-2 right-2 p-1.5 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
             >
-              <Trash2 className="w-3.5 h-3.5" />
+              <TrashIcon className="w-3.5 h-3.5" />
             </button>
 
             <div className="flex items-center gap-3 mb-3">

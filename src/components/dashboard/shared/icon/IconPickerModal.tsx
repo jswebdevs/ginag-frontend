@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { LuX, LuSearch } from "react-icons/lu";
+import { X as LuX, Search as LuSearch } from "lucide-react";
 import IconRenderer, { allIconNames } from "@/components/shared/IconRenderer";
 
 interface IconPickerModalProps {
