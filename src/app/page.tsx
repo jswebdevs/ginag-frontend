@@ -6,18 +6,22 @@ import PersonalizationBlueprint from "@/components/home/sections/Personalization
 import TechnicalIntegrity from "@/components/home/sections/TechnicalIntegrity";
 import AestheticLifestyle from "@/components/home/sections/AestheticLifestyle";
 import GiftCuration from "@/components/home/sections/GiftCuration";
+import { getGlobalSettings } from "@/lib/getSettings";
 
-export default function Home() {
+export default async function Home() {
+  const settings = await getGlobalSettings();
+  const homepageConfig = (settings?.homepageConfig as any) || {};
+
   return (
     <main className="min-h-screen">
       <SingleCategoryAuthorityHero />
       <IndustrialProcess />
       <ProductShowcase />
-      <MaterialTechnology />
+      <MaterialTechnology data={homepageConfig.materialTechnology} />
       <PersonalizationBlueprint />
-      <TechnicalIntegrity />
+      <TechnicalIntegrity data={homepageConfig.technicalIntegrity} />
       <AestheticLifestyle />
-      <GiftCuration />
+      <GiftCuration data={homepageConfig.giftCuration} />
     </main>
   );
 }

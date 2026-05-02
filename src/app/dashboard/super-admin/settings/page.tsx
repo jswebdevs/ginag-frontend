@@ -271,11 +271,11 @@ export default function GeneralSettingsPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Currency Code</label>
-                                    <input type="text" value={formData.currencyCode} onChange={e => setFormData({ ...formData, currencyCode: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="e.g. BDT" />
+                                    <input type="text" value={formData.currencyCode} onChange={e => setFormData({ ...formData, currencyCode: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="e.g. USD" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Currency Symbol</label>
-                                    <input type="text" value={formData.currencySymbol} onChange={e => setFormData({ ...formData, currencySymbol: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="e.g. ৳" />
+                                    <input type="text" value={formData.currencySymbol} onChange={e => setFormData({ ...formData, currencySymbol: e.target.value })} className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="e.g. USD" />
                                 </div>
                                 <div>
                                     <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Timezone</label>

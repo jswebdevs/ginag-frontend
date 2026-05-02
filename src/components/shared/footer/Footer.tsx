@@ -6,7 +6,7 @@ import FooterSocials from "./FooterSocials";
 
 async function getPublicSocialLinks() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/social/public`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/social`, {
       next: { revalidate: 300 }
     });
     if (!res.ok) return [];

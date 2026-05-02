@@ -4,21 +4,21 @@ import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import { 
-  LuLayoutDashboard, 
-  LuPlus, 
-  LuTrash2, 
-  LuSave, 
-  LuLoader, 
-  LuLink, 
-  LuInfo, 
-  LuPhone, 
-  LuMail, 
-  LuMapPin, 
-  LuStore,
-  LuExternalLink,
-  LuChevronUp,
-  LuChevronDown
-} from "react-icons/lu";
+  LayoutDashboard, 
+  Plus, 
+  Trash2, 
+  Save, 
+  Loader2, 
+  Link as LinkIcon, 
+  Info, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Store,
+  ExternalLink,
+  ChevronUp,
+  ChevronDown
+} from "lucide-react";
 import IconRenderer from "@/components/shared/IconRenderer";
 import IconPickerModal from "@/components/dashboard/shared/icon/IconPickerModal";
 
@@ -206,7 +206,7 @@ export default function FooterManagementPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col h-64 items-center justify-center space-y-4">
-        <LuLoader className="w-8 h-8 animate-spin text-primary" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
         <p className="text-sm font-bold text-muted-foreground animate-pulse">Loading footer configuration...</p>
       </div>
     );
@@ -218,7 +218,7 @@ export default function FooterManagementPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-card p-6 rounded-3xl border border-border shadow-theme-sm">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shrink-0">
-            <LuLayoutDashboard size={24} />
+            <LayoutDashboard size={24} />
           </div>
           <div>
             <h1 className="text-2xl font-black text-foreground tracking-tight">Footer Management</h1>
@@ -230,7 +230,7 @@ export default function FooterManagementPage() {
           disabled={isSaving}
           className="bg-primary text-primary-foreground h-11 px-6 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-theme-md w-full md:w-auto cursor-pointer disabled:opacity-50"
         >
-          {isSaving ? <LuLoader className="animate-spin" size={18} /> : <LuSave size={18} />}
+          {isSaving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
           Save Changes
         </button>
       </div>
@@ -249,9 +249,9 @@ export default function FooterManagementPage() {
               }`}
             >
               <div className={`p-1.5 rounded-lg ${activeTab === tab ? "bg-white/20" : "bg-muted"}`}>
-                {tab === "col1" && <LuInfo size={16} />}
-                {(tab === "col2" || tab === "col3") && <LuLink size={16} />}
-                {tab === "col4" && <LuPhone size={16} />}
+                {tab === "col1" && <Info size={16} />}
+                {(tab === "col2" || tab === "col3") && <LinkIcon size={16} />}
+                {tab === "col4" && <Phone size={16} />}
               </div>
               {tab === "col1" ? "Column 1: Branding" : 
                tab === "col2" ? "Column 2: Quick Links" : 
@@ -334,7 +334,7 @@ export default function FooterManagementPage() {
                       onClick={() => addLink(activeTab)}
                       className="text-[10px] font-black uppercase bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all flex items-center gap-1.5"
                     >
-                      <LuPlus size={12} /> Add Link
+                      <Plus size={12} /> Add Link
                     </button>
                   </div>
                   
@@ -342,8 +342,8 @@ export default function FooterManagementPage() {
                     {config[activeTab].links.map((link, i) => (
                       <div key={i} className="flex gap-3 group animate-in slide-in-from-left-2 duration-200">
                         <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => moveItem(activeTab, i, 'up')} disabled={i === 0} className="p-1 hover:text-primary disabled:opacity-30"><LuChevronUp size={14}/></button>
-                          <button onClick={() => moveItem(activeTab, i, 'down')} disabled={i === config[activeTab].links.length - 1} className="p-1 hover:text-primary disabled:opacity-30"><LuChevronDown size={14}/></button>
+                          <button onClick={() => moveItem(activeTab, i, 'up')} disabled={i === 0} className="p-1 hover:text-primary disabled:opacity-30"><ChevronUp size={14}/></button>
+                          <button onClick={() => moveItem(activeTab, i, 'down')} disabled={i === config[activeTab].links.length - 1} className="p-1 hover:text-primary disabled:opacity-30"><ChevronDown size={14}/></button>
                         </div>
                         <input 
                           type="text" 
@@ -363,7 +363,7 @@ export default function FooterManagementPage() {
                           onClick={() => removeLink(activeTab, i)}
                           className="p-3 bg-muted rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                         >
-                          <LuTrash2 size={18} />
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     ))}
@@ -392,7 +392,7 @@ export default function FooterManagementPage() {
                       onClick={addContact}
                       className="text-[10px] font-black uppercase bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all flex items-center gap-1.5"
                     >
-                      <LuPlus size={12} /> Add Contact
+                      <Plus size={12} /> Add Contact
                     </button>
                   </div>
                   
@@ -400,8 +400,8 @@ export default function FooterManagementPage() {
                     {config.col4.contacts.map((contact, i) => (
                       <div key={i} className="flex gap-4 items-start group p-4 border border-border rounded-2xl bg-muted/10 animate-in slide-in-from-left-2 duration-200">
                         <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity self-center">
-                          <button onClick={() => moveItem('col4', i, 'up')} disabled={i === 0} className="p-1 hover:text-primary disabled:opacity-30"><LuChevronUp size={14}/></button>
-                          <button onClick={() => moveItem('col4', i, 'down')} disabled={i === config.col4.contacts.length - 1} className="p-1 hover:text-primary disabled:opacity-30"><LuChevronDown size={14}/></button>
+                          <button onClick={() => moveItem('col4', i, 'up')} disabled={i === 0} className="p-1 hover:text-primary disabled:opacity-30"><ChevronUp size={14}/></button>
+                          <button onClick={() => moveItem('col4', i, 'down')} disabled={i === config.col4.contacts.length - 1} className="p-1 hover:text-primary disabled:opacity-30"><ChevronDown size={14}/></button>
                         </div>
                         
                         <div className="flex flex-col gap-3">
@@ -421,7 +421,7 @@ export default function FooterManagementPage() {
                             className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-primary outline-none font-bold"
                           />
                           <div className="flex items-center gap-2">
-                            <LuExternalLink size={14} className="text-muted-foreground" />
+                            <ExternalLink size={14} className="text-muted-foreground" />
                             <input 
                               type="text" 
                               placeholder="Optional Link (tel:, mailto:, or URL)"
@@ -436,7 +436,7 @@ export default function FooterManagementPage() {
                           onClick={() => removeContact(i)}
                           className="p-3 bg-muted rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors self-center"
                         >
-                          <LuTrash2 size={18} />
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     ))}
