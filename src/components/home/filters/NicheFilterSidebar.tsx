@@ -65,12 +65,12 @@ const AccordionSection = ({ title, icon: Icon, children, defaultOpen = false }: 
 export default function NicheFilterSidebar() {
   const { filters, activeFilters, setFilter, removeFilter, clearFilters, setPriceRange } = useProductStore();
 
-  const toggleFilter = (key: string, value: string) => {
-    const currentFilters = (activeFilters as any)[key] || [];
+  const toggleFilter = (key: 'category' | 'material', value: string) => {
+    const currentFilters = activeFilters[key] as string[];
     if (currentFilters.includes(value)) {
-      removeFilter(key, value);
+      (removeFilter as any)(key, value);
     } else {
-      setFilter(key, value);
+      (setFilter as any)(key, value);
     }
   };
 

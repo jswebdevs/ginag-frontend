@@ -131,7 +131,7 @@ export default function SingleCategoryAuthorityHero() {
             className="relative perspective-1000 hidden lg:block"
           >
             {/* Main Product Display Card */}
-            <div className="relative z-10 w-full aspect-square max-w-lg mx-auto bg-white/5 backdrop-blur-2xl rounded-[3rem] border border-white/10 shadow-2xl overflow-hidden group">
+            <div className="relative z-10 w-full aspect-square max-w-lg mx-auto bg-muted/10 backdrop-blur-2xl rounded-[3rem] border border-border/50 shadow-2xl overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent" />
               
               <Image
@@ -142,10 +142,10 @@ export default function SingleCategoryAuthorityHero() {
               />
 
               {/* Float Badge */}
-              <div className="absolute bottom-8 left-8 right-8 p-6 bg-black/60 backdrop-blur-xl rounded-3xl border border-white/10 flex items-center justify-between">
+              <div className="absolute bottom-8 left-8 right-8 p-6 bg-background/80 backdrop-blur-xl rounded-3xl border border-border/50 flex items-center justify-between">
                 <div>
                   <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">{hero.badgeLabel}</p>
-                  <p className="text-sm font-bold text-white">{hero.badgeText}</p>
+                  <p className="text-sm font-bold text-foreground">{hero.badgeText}</p>
                 </div>
                 <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg">
                   <ShieldCheck size={24} />

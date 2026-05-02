@@ -119,7 +119,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <div className="flex flex-col">
             <div className="flex items-baseline gap-2">
               <span className="text-2xl font-black text-white">
-                ৳{minPrice.toLocaleString()} {hasRange && `- ৳${maxPrice.toLocaleString()}`}
+                ${minPrice.toLocaleString()} {hasRange && `- $${maxPrice.toLocaleString()}`}
               </span>
             </div>
             <span className="text-[9px] text-white/40 uppercase tracking-widest font-medium">

@@ -22,32 +22,32 @@ export default function ProductShowcase() {
   }, [fetchProducts]);
 
   return (
-    <section className="py-24 bg-[#0A0A0A] relative overflow-hidden">
+    <section className="py-24 bg-background text-foreground relative overflow-hidden transition-colors duration-500">
       {/* Background Aesthetic */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden opacity-20">
         <div className="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-white/5 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-muted/20 rounded-full blur-[100px]" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header Section */}
         <div className="flex flex-col items-center text-center mb-16 space-y-6">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 border border-white/10 rounded-full"
+            className="inline-flex items-center gap-2 px-4 py-1.5 bg-muted border border-border rounded-full"
           >
             <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            <span className="text-[10px] font-black text-white/60 uppercase tracking-[0.4em]">
+            <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.4em]">
               Premium Collections
             </span>
           </motion.div>
-          
+
           <div className="space-y-4">
-            <h2 className="text-5xl md:text-8xl font-black text-white tracking-tighter leading-[0.85] uppercase">
+            <h2 className="text-5xl md:text-8xl font-black text-foreground tracking-tighter leading-[0.85] uppercase">
               Curated <span className="text-primary">Artifacts.</span>
             </h2>
-            <p className="text-white/40 text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
+            <p className="text-muted-foreground text-lg md:text-xl font-medium max-w-2xl mx-auto leading-relaxed">
               Precision-engineered objects for the modern collector. Each piece is a testament to technical excellence and industrial purity.
             </p>
           </div>
@@ -56,22 +56,22 @@ export default function ProductShowcase() {
         {/* Slider Section */}
         <div className="relative group">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="aspect-[4/5] bg-white/5 rounded-[3rem] animate-pulse border border-white/10" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {[1, 2].map(i => (
+                <div key={i} className="aspect-[4/5] bg-muted/50 rounded-[3rem] animate-pulse border border-border" />
               ))}
             </div>
           ) : error ? (
-            <div className="flex flex-col items-center justify-center py-32 text-center bg-white/5 rounded-[3rem] border border-white/5">
-               <AlertCircle className="w-16 h-16 text-primary mb-6" />
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter">System Disruption</h3>
-              <p className="text-white/40 mt-2 max-w-sm">{error}</p>
+            <div className="flex flex-col items-center justify-center py-32 text-center bg-muted/50 rounded-[3rem] border border-border">
+              <AlertCircle className="w-16 h-16 text-primary mb-6" />
+              <h3 className="text-2xl font-bold text-foreground uppercase tracking-tighter">System Disruption</h3>
+              <p className="text-muted-foreground mt-2 max-w-sm">{error}</p>
             </div>
           ) : products.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-32 text-center bg-white/5 rounded-[3rem] border border-white/5">
-               <Search className="w-16 h-16 text-white/10 mb-6" />
-              <h3 className="text-2xl font-bold text-white uppercase tracking-tighter">No Artifacts Available</h3>
-              <p className="text-white/40 mt-2">The inventory is currently being replenished.</p>
+            <div className="flex flex-col items-center justify-center py-32 text-center bg-muted/50 rounded-[3rem] border border-border">
+              <Search className="w-16 h-16 text-muted-foreground/30 mb-6" />
+              <h3 className="text-2xl font-bold text-foreground uppercase tracking-tighter">No Artifacts Available</h3>
+              <p className="text-muted-foreground mt-2">The inventory is currently being replenished.</p>
             </div>
           ) : (
             <>
@@ -86,8 +86,8 @@ export default function ProductShowcase() {
                 pagination={{ clickable: true }}
                 autoplay={{ delay: 5000 }}
                 breakpoints={{
-                  640: { slidesPerView: 2 },
-                  1024: { slidesPerView: 3 },
+                  640: { slidesPerView: 1 },
+                  1024: { slidesPerView: 2 },
                 }}
                 className="product-swiper !pb-16"
               >
@@ -99,10 +99,10 @@ export default function ProductShowcase() {
               </Swiper>
 
               {/* Custom Navigation */}
-              <button className="swiper-button-prev-custom absolute left-[-20px] top-[45%] z-20 w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-all opacity-0 group-hover:opacity-100 hidden xl:flex">
+              <button className="swiper-button-prev-custom absolute left-[-20px] top-[45%] z-20 w-14 h-14 rounded-full bg-muted border border-border flex items-center justify-center text-foreground hover:bg-primary hover:text-white transition-all opacity-0 group-hover:opacity-100 hidden xl:flex">
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <button className="swiper-button-next-custom absolute right-[-20px] top-[45%] z-20 w-14 h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-primary transition-all opacity-0 group-hover:opacity-100 hidden xl:flex">
+              <button className="swiper-button-next-custom absolute right-[-20px] top-[45%] z-20 w-14 h-14 rounded-full bg-muted border border-border flex items-center justify-center text-foreground hover:bg-primary hover:text-white transition-all opacity-0 group-hover:opacity-100 hidden xl:flex">
                 <ChevronRight className="w-6 h-6" />
               </button>
             </>
@@ -111,10 +111,10 @@ export default function ProductShowcase() {
 
         {/* Footer CTA */}
         <div className="mt-16 flex flex-col items-center gap-8">
-          <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-          <Link 
+          <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-border to-transparent" />
+          <Link
             href="/shop"
-            className="group relative inline-flex items-center gap-4 px-12 py-5 bg-white text-black rounded-full font-black text-sm uppercase tracking-widest overflow-hidden hover:text-white transition-colors duration-500"
+            className="group relative inline-flex items-center gap-4 px-12 py-5 bg-foreground text-background rounded-full font-black text-sm uppercase tracking-widest overflow-hidden hover:text-white transition-colors duration-500"
           >
             <span className="relative z-10 flex items-center gap-3">
               Explore Full Archive
@@ -125,17 +125,6 @@ export default function ProductShowcase() {
         </div>
       </div>
 
-      <style jsx global>{`
-        .product-swiper .swiper-pagination-bullet {
-          background: rgba(255, 255, 255, 0.2);
-          opacity: 1;
-        }
-        .product-swiper .swiper-pagination-bullet-active {
-          background: var(--color-primary, #C8A232);
-          width: 24px;
-          border-radius: 4px;
-        }
-      `}</style>
     </section>
   );
 }

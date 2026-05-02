@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, Heart } from "lucide-react";
 import api from "@/lib/axios";
+import { toast } from "sonner";
 import { useCartStore } from "@/store/useCartStore";
 import { useUserStore } from "@/store/useUserStore"; // Added User Store for Auth
-import Swal from "sweetalert2";
 
 // Import our newly split components
 import ProductGallery from "@/components/shop/ProductGallery";
@@ -88,23 +88,9 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
   // 4. Handle Wishlist Action (Independent of child components)
   const handleWishlistToggle = async () => {
     if (!isAuthenticated) {
-      const result = await Swal.fire({
-        title: "Login Required",
-        text: "Please log in to save items to your wishlist.",
-        icon: "info",
-        showCancelButton: true,
-        confirmButtonText: "Go to Login",
-        cancelButtonText: "Cancel",
-        background: "hsl(var(--card))",
-        color: "hsl(var(--foreground))",
-        customClass: {
-          popup: 'border border-border rounded-2xl shadow-theme-lg',
-          htmlContainer: 'text-muted-foreground',
-          confirmButton: 'bg-primary text-primary-foreground font-bold rounded-lg px-4 py-2',
-        }
+      toast("Login required to save to wishlist.", {
+        action: { label: "Log In", onClick: () => router.push("/login") },
       });
-
-      if (result.isConfirmed) router.push("/login");
       return;
     }
 
@@ -113,22 +99,23 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
     const targetVarId = currentVariation.id;
     const currentlyWished = wishlistVarIds.has(targetVarId);
 
-    // Optimistic UI Updates (Update UI instantly, revert if API fails)
     if (currentlyWished) {
       setWishlistVarIds(prev => { const next = new Set(prev); next.delete(targetVarId); return next; });
       try {
         await api.delete(`/wishlist/${targetVarId}`);
+        toast.success("Removed from wishlist.");
       } catch (error) {
         setWishlistVarIds(prev => { const next = new Set(prev); next.add(targetVarId); return next; });
-        Swal.fire({ toast: true, position: 'bottom-end', icon: 'error', title: 'Failed to remove from wishlist', showConfirmButton: false, timer: 3000 });
+        toast.error("Failed to remove from wishlist.");
       }
     } else {
       setWishlistVarIds(prev => { const next = new Set(prev); next.add(targetVarId); return next; });
       try {
         await api.post('/wishlist', { variationId: targetVarId });
+        toast.success("Saved to wishlist!");
       } catch (error) {
         setWishlistVarIds(prev => { const next = new Set(prev); next.delete(targetVarId); return next; });
-        Swal.fire({ toast: true, position: 'bottom-end', icon: 'error', title: 'Failed to add to wishlist', showConfirmButton: false, timer: 3000 });
+        toast.error("Failed to add to wishlist.");
       }
     }
   };
@@ -138,40 +125,18 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ slug:
     setIsAdding(true);
     try {
       await addToCart(currentVariation.id, quantity);
-      Swal.fire({
-        title: "Added to Cart!",
-        icon: "success",
-        showCancelButton: true,
-        confirmButtonColor: "#0ea5e9",
-        cancelButtonColor: "#64748b",
-        confirmButtonText: "Go to Cart",
-        cancelButtonText: "Keep Shopping",
-        reverseButtons: true,
-        background: "hsl(var(--card))",
-        color: "hsl(var(--foreground))",
-        customClass: {
-          popup: 'border border-border rounded-2xl shadow-theme-lg',
-          htmlContainer: 'text-muted-foreground',
-          confirmButton: 'bg-primary text-primary-foreground font-bold rounded-lg px-4 py-2',
-        }
-      }).then((result) => {
-        if (result.isConfirmed) router.push("/cart");
+      toast.success("Added to Cart!", {
+        description: `${product.name} — ${currentVariation.name}`,
+        action: { label: "Go to Cart", onClick: () => router.push("/cart") },
+        duration: 5000,
       });
     } catch (error: any) {
       if (error.response?.status === 401 || error.response?.status === 403) {
-        Swal.fire({
-          title: "Login Required",
-          text: "You need to log in to add items to your cart.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonText: "Go to Login",
-          background: "hsl(var(--card))",
-          color: "hsl(var(--foreground))",
-        }).then((result) => {
-          if (result.isConfirmed) router.push("/login");
+        toast("Login required to add items to cart.", {
+          action: { label: "Log In", onClick: () => router.push("/login") },
         });
       } else {
-        Swal.fire("Error", "Failed to add to cart.", "error");
+        toast.error("Failed to add to cart. Please try again.");
       }
     } finally {
       setIsAdding(false);

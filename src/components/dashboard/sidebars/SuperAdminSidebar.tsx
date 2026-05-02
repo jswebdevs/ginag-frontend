@@ -112,6 +112,7 @@ export default function SuperAdminSidebar() {
         { name: "Hero Section", href: "/dashboard/super-admin/storefront/hero" },
         { name: "Pages", href: "/dashboard/super-admin/storefront/pages" },
         { name: "Social", href: "/dashboard/super-admin/storefront/social"},
+        { name: "Footer", href: "/dashboard/super-admin/storefront/footer"},
         { name: "Reviews", href: "/dashboard/super-admin/storefront/reviews"},
         { name: "Themes", href: "/dashboard/super-admin/storefront/themes"}
       ]

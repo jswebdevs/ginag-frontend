@@ -3,7 +3,7 @@
 import { useState } from "react";
 import api from "@/lib/axios";
 import { Wand2, Trash2, Tag, Box, Plus, X, Settings2, Film } from "lucide-react";
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
 
 export default function VariationManager({ product, update }: any) {
@@ -52,45 +52,38 @@ export default function VariationManager({ product, update }: any) {
   };
 
   // --- VARIATION MATRIX GENERATOR ---
-  const generateMatrix = async () => {
+  const generateMatrix = () => {
     const validAttrs = (product.attributes || []).filter((a: any) => a.name && a.values.length > 0);
-    if (validAttrs.length === 0) return Swal.fire("Missing Data", "Please add at least one attribute with values first.", "warning");
+    if (validAttrs.length === 0) {
+      toast.error("Please add at least one attribute with values first.");
+      return;
+    }
 
-    const result = await Swal.fire({
-      title: 'Generate Variations?',
-      text: "This will append new variations to your list. Make sure you generated a Product Code first!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Generate Now',
-      confirmButtonColor: '#2563eb'
+    const cartesian = (arrays: string[][]): string[][] =>
+      arrays.reduce((acc: string[][], curr: string[]) => acc.flatMap(d => curr.map(e => [d, e].flat())), [[]] as string[][]);
+
+    const names: string[] = validAttrs.map((a: any) => a.name);
+    const values: string[][] = validAttrs.map((a: any) => a.values);
+    const combinations = cartesian(values);
+
+    const newVars = combinations.map((combo: string[], idx: number) => {
+      const options: Record<string, string> = {};
+      names.forEach((name: string, i: number) => (options[name] = combo[i]));
+      return {
+        name: combo.join(" / "),
+        sku: `${product.productCode || 'SKU'}-${combo.map((c: string) => c.substring(0, 3).toUpperCase()).join('-')}`,
+        options,
+        basePrice: product.basePrice || 0,
+        salePrice: product.salePrice || null,
+        stock: 99999,
+        featuredImage: null,
+        gallery: [],
+        isDefault: idx === 0 && (!product.variations || product.variations.length === 0),
+      };
     });
 
-    if (result.isConfirmed) {
-      const cartesian = (arrays: string[][]): string[][] => arrays.reduce((acc: string[][], curr: string[]) => acc.flatMap(d => curr.map(e => [d, e].flat())), [[]] as string[][]);
-
-      const names: string[] = validAttrs.map((a: any) => a.name);
-      const values: string[][] = validAttrs.map((a: any) => a.values);
-      const combinations = cartesian(values);
-
-      const newVars = combinations.map((combo: string[], idx: number) => {
-        const options: Record<string, string> = {};
-        names.forEach((name: string, i: number) => options[name] = combo[i]);
-
-        return {
-          name: combo.join(" / "),
-          sku: `${product.productCode || 'SKU'}-${combo.map((c: string) => c.substring(0, 3).toUpperCase()).join('-')}`,
-          options,
-          basePrice: product.basePrice || 0,
-          salePrice: product.salePrice || 0,
-          stock: 0,
-          featuredImage: null,
-          gallery: [],
-          isDefault: idx === 0 && (!product.variations || product.variations.length === 0)
-        };
-      });
-
-      update({ variations: [...(product.variations || []), ...newVars] });
-    }
+    update({ variations: [...(product.variations || []), ...newVars] });
+    toast.success(`${newVars.length} variation${newVars.length > 1 ? 's' : ''} generated.`);
   };
 
   const updateVar = (index: number, field: string, val: any) => {
@@ -103,25 +96,14 @@ export default function VariationManager({ product, update }: any) {
     const v = product.variations[index];
 
     if (v.id) {
-      const confirm = await Swal.fire({
-        title: 'Delete from Database?',
-        text: 'This variation is saved. Deleting it here will remove it from the system permanently.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        confirmButtonText: 'Yes, delete it'
-      });
-
-      if (confirm.isConfirmed) {
-        try {
-          await api.delete(`/variations/${v.id}`);
-          const nv = [...product.variations];
-          nv.splice(index, 1);
-          update({ variations: nv });
-          Swal.fire('Deleted!', 'Variation removed from database.', 'success');
-        } catch (err) {
-          Swal.fire('Error', 'Failed to delete variation. It might be linked to an order.', 'error');
-        }
+      try {
+        await api.delete(`/variations/${v.id}`);
+        const nv = [...product.variations];
+        nv.splice(index, 1);
+        update({ variations: nv });
+        toast.success("Variation removed.");
+      } catch {
+        toast.error("Failed to delete variation. It may be linked to an existing order.");
       }
     } else {
       const nv = [...product.variations];

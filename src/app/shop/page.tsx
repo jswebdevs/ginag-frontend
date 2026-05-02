@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { ShoppingCart, Star, Filter, SlidersHorizontal, X, ImageIcon, Search, Heart } from "lucide-react";
 import api from "@/lib/axios";
 import { useUserStore } from "@/store/useUserStore"; // Assuming this is your store path
-import Swal from "sweetalert2";
+import { toast } from "sonner";
 
 export interface ProductVariation {
   id: string;
@@ -97,42 +97,15 @@ export default function ShopPage() {
     e.preventDefault(); // Prevent navigating to product details
     e.stopPropagation();
 
-    // 1. Auth Check with SweetAlert
     if (!isAuthenticated) {
-      const result = await Swal.fire({
-        title: "Login Required",
-        text: "Please log in to save items to your wishlist.",
-        icon: "info",
-        showCancelButton: true,
-        confirmButtonText: "Go to Login",
-        cancelButtonText: "Cancel",
-        confirmButtonColor: "var(--primary)",
-        background: "hsl(var(--card))",
-        color: "hsl(var(--foreground))",
-        customClass: {
-          popup: 'border border-border rounded-2xl shadow-theme-lg',
-          htmlContainer: 'text-muted-foreground'
-        }
+      toast("Login required to save to wishlist.", {
+        action: { label: "Log In", onClick: () => router.push("/login") },
       });
-
-      if (result.isConfirmed) {
-        router.push("/login");
-      }
       return;
     }
 
-    // 2. Identify the target variation (Default or First available)
     if (!product.variations || product.variations.length === 0) {
-      Swal.fire({
-        toast: true,
-        position: 'bottom-end',
-        icon: 'error',
-        title: 'Product unavailable',
-        showConfirmButton: false,
-        timer: 3000,
-        background: "hsl(var(--card))",
-        color: "hsl(var(--foreground))",
-      });
+      toast.error("Product has no available variations.");
       return;
     }
 
@@ -233,7 +206,7 @@ export default function ShopPage() {
 
               {/* Price Range */}
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-heading">Price Range (৳)</label>
+                <label className="text-sm font-semibold text-heading">Price Range ($)</label>
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
@@ -307,10 +280,16 @@ export default function ShopPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {products.map((product) => {
-              const totalStock = product.variations?.reduce((sum, v) => sum + (Number(v.stock) || 0), 0) || 0;
-              const currentPrice = Number(product.salePrice || product.basePrice || 0);
-              const originalPrice = product.salePrice ? Number(product.basePrice) : null;
+              const totalStock = product.variations?.reduce((sum, v) => sum + (Number(v.stock) || 0), 0) ?? 0;
               const imageUrl = product.featuredImage?.originalUrl;
+
+              // Build price range from variations; fall back to product-level prices
+              const prices = product.variations?.length > 0
+                ? product.variations.map((v: any) => Number(v.salePrice || v.basePrice || 0)).filter(Boolean)
+                : [Number(product.salePrice || product.basePrice || 0)];
+              const minPrice = Math.min(...prices);
+              const maxPrice = Math.max(...prices);
+              const hasRange = minPrice !== maxPrice;
 
               // Check if the product's default/first variation is in the wishlist
               const targetVar = product.variations?.find(v => v.isDefault) || product.variations?.[0];
@@ -352,8 +331,9 @@ export default function ShopPage() {
                     </Link>
                     <div className="mt-auto pt-4 flex items-center justify-between">
                       <div className="flex flex-col">
-                        <span className="font-black text-lg text-primary">৳{currentPrice.toLocaleString()}</span>
-                        {originalPrice && <span className="text-xs text-muted-foreground line-through">৳{originalPrice.toLocaleString()}</span>}
+                        <span className="font-black text-lg text-primary">
+                          ${minPrice.toFixed(2)}{hasRange && ` – $${maxPrice.toFixed(2)}`}
+                        </span>
                       </div>
                       <button disabled={totalStock === 0} className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors disabled:opacity-50">
                         <ShoppingCart className="w-4 h-4" />

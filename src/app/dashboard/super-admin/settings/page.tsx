@@ -5,12 +5,12 @@ import api from "@/lib/axios";
 import { toast } from "sonner";
 import {
     Save, Store, Globe, ShieldAlert, Loader2,
-    Plus, X, Phone, Mail, MapPin
+    Plus, X, Phone, Mail, MapPin, CreditCard
 } from "lucide-react";
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
 
 export default function GeneralSettingsPage() {
-    const [activeTab, setActiveTab] = useState<"IDENTITY" | "CONTACT" | "REGIONAL" | "RULES">("IDENTITY");
+    const [activeTab, setActiveTab] = useState<"IDENTITY" | "CONTACT" | "REGIONAL" | "RULES" | "PAYMENTS">("IDENTITY");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -33,6 +33,8 @@ export default function GeneralSettingsPage() {
         orderPrefix: "DRM-",
         maintenanceMode: false,
         maintenanceMessage: "",
+        stripePublishableKey: "",
+        paypalClientId: "",
         logoId: null as string | null,
         faviconId: null as string | null,
         ogImageId: null as string | null,
@@ -67,6 +69,8 @@ export default function GeneralSettingsPage() {
                     orderPrefix: d.orderPrefix || "DRM-",
                     maintenanceMode: d.maintenanceMode ?? false,
                     maintenanceMessage: d.maintenanceMessage || "",
+                    stripePublishableKey: d.stripePublishableKey || "",
+                    paypalClientId: d.paypalClientId || "",
                     logoId: d.logoId,
                     logoUrl: d.logo?.thumbUrl || d.logo?.originalUrl || null,
                     faviconId: d.faviconId,
@@ -173,6 +177,9 @@ export default function GeneralSettingsPage() {
                     </button>
                     <button onClick={() => setActiveTab("RULES")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "RULES" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
                         <ShieldAlert size={18} /> Checkout & Status
+                    </button>
+                    <button onClick={() => setActiveTab("PAYMENTS")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "PAYMENTS" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
+                        <CreditCard size={18} /> Payment Keys
                     </button>
                 </div>
 
@@ -318,6 +325,40 @@ export default function GeneralSettingsPage() {
                                 )}
                             </div>
 
+                        </div>
+                    )}
+
+                    {/* --- TAB 5: PAYMENT KEYS --- */}
+                    {activeTab === "PAYMENTS" && (
+                        <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
+                            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-sm text-amber-700 dark:text-amber-300">
+                                <p className="font-bold mb-1">ℹ️ Public keys only</p>
+                                <p className="text-xs opacity-80">Enter your Stripe <strong>Publishable Key</strong> (pk_live_... or pk_test_...) and your PayPal <strong>Client ID</strong>. These are safe to store here. Your Stripe Secret Key must be set in the server environment variables — never enter it here.</p>
+                            </div>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Stripe Publishable Key</label>
+                                    <input
+                                        type="text"
+                                        value={formData.stripePublishableKey}
+                                        onChange={e => setFormData({ ...formData, stripePublishableKey: e.target.value })}
+                                        className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono"
+                                        placeholder="pk_live_... or pk_test_..."
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">PayPal Client ID</label>
+                                    <input
+                                        type="text"
+                                        value={formData.paypalClientId}
+                                        onChange={e => setFormData({ ...formData, paypalClientId: e.target.value })}
+                                        className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono"
+                                        placeholder="Your PayPal Client ID..."
+                                    />
+                                </div>
+                            </div>
                         </div>
                     )}
                 </div>

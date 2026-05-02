@@ -61,9 +61,9 @@ export default function ProductInfo({
 
             {/* Price & SKU */}
             <div className="flex flex-wrap items-end gap-3 sm:gap-4 mb-6 bg-muted/20 p-4 rounded-2xl border border-border">
-                <span className="text-4xl font-black text-primary tracking-tighter">৳{currentPrice.toLocaleString()}</span>
+                <span className="text-4xl font-black text-primary tracking-tighter">${currentPrice.toLocaleString()}</span>
                 {originalPrice && (
-                    <span className="text-xl font-bold text-muted-foreground line-through mb-1">৳{originalPrice.toLocaleString()}</span>
+                    <span className="text-xl font-bold text-muted-foreground line-through mb-1">${originalPrice.toLocaleString()}</span>
                 )}
                 {currentVariation?.sku && (
                     <span className="text-xs font-black text-muted-foreground bg-background border border-border px-3 py-1 rounded-lg w-full sm:w-auto sm:ml-auto mb-1 font-mono uppercase tracking-widest">
@@ -103,11 +103,11 @@ export default function ProductInfo({
                 </div>
             )}
 
-            {/* Stock Status */}
+            {/* Stock Status — count intentionally hidden from customers */}
             <div className="mb-6">
                 {currentStock > 0 ? (
                     <span className="inline-flex items-center gap-2 text-green-600 bg-green-500/10 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest">
-                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> In Stock ({currentStock})
+                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> In Stock
                     </span>
                 ) : (
                     <span className="inline-flex items-center gap-2 text-destructive bg-destructive/10 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest">
@@ -123,7 +123,7 @@ export default function ProductInfo({
                         <Minus className="w-4 h-4" />
                     </button>
                     <span className="w-12 text-center font-black text-lg">{quantity}</span>
-                    <button onClick={() => setQuantity((q: number) => Math.min(currentStock, q + 1))} disabled={quantity >= currentStock} className="w-12 h-full flex items-center justify-center hover:bg-muted rounded-xl transition-colors disabled:opacity-30">
+                    <button onClick={() => setQuantity((q: number) => q + 1)} className="w-12 h-full flex items-center justify-center hover:bg-muted rounded-xl transition-colors">
                         <Plus className="w-4 h-4" />
                     </button>
                 </div>

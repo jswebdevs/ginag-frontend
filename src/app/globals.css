@@ -29,6 +29,9 @@
   --radius-lg: var(--radius);
   --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+
+  /* Custom Animations */
+  --animate-spin-slow: spin 12s linear infinite;
 }
 
 @layer base {
@@ -107,4 +110,15 @@
 }
 .dark .custom-quill-editor .ql-picker {
   color: hsl(var(--foreground)) !important;
+}
+
+/* Swiper pagination overrides */
+.product-swiper .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 1;
+}
+.product-swiper .swiper-pagination-bullet-active {
+  background: var(--color-primary, #C8A232);
+  width: 24px;
+  border-radius: 4px;
 }
