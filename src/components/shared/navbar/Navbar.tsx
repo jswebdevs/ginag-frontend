@@ -47,7 +47,7 @@ export default function Navbar() {
   const [wishlistCount, setWishlistCount] = useState(0);
 
   // --- DYNAMIC SETTINGS STATE ---
-  const [storeName, setStoreName] = useState("DreamShop");
+  const [storeName, setStoreName] = useState("");
   const [storeTagline, setStoreTagline] = useState("");
   const [storeLogo, setStoreLogo] = useState<string | null>(null);
 
@@ -69,7 +69,7 @@ export default function Navbar() {
       try {
         const res = await api.get('/settings');
         if (res.data?.data) {
-          setStoreName(res.data.data.storeName || "DreamShop");
+          setStoreName(res.data.data.storeName || "");
           setStoreTagline(res.data.data.tagline || "");
           setStoreLogo(
             res.data.data.logo?.thumbUrl ||
