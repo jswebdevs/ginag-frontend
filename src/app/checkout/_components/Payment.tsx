@@ -60,15 +60,15 @@ export default function Payment({ paymentMethod, setPaymentMethod, mfsInfo, setM
                 <ol className="list-decimal pl-4 space-y-1 text-muted-foreground">
                   <li>Open your Mobile Banking app.</li>
                   <li>Select <strong>Send Money</strong>.</li>
-                  <li>Send exactly <strong className="text-foreground">BDT {totalPayable.toFixed(2)}</strong> to <strong className="text-primary font-bold text-base tracking-wider ml-1">01881176704</strong>.</li>
+                  <li>Send exactly <strong className="text-foreground">USD {totalPayable.toFixed(2)}</strong> to <strong className="text-primary font-bold text-base tracking-wider ml-1">01881176704</strong>.</li>
                   <li>Enter the Transaction ID (TrxID) and your phone number below.</li>
                 </ol>
               </div>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <select 
+                <select
                   value={mfsInfo.provider}
-                  onChange={(e) => setMfsInfo({...mfsInfo, provider: e.target.value})}
+                  onChange={(e) => setMfsInfo({ ...mfsInfo, provider: e.target.value })}
                   className="px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-foreground font-medium"
                 >
                   <option value="bKash">bKash</option>
@@ -76,20 +76,20 @@ export default function Payment({ paymentMethod, setPaymentMethod, mfsInfo, setM
                   <option value="Rocket">Rocket</option>
                   <option value="Upay">Upay</option>
                 </select>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required={paymentMethod === 'MFS'}
-                  placeholder="Sender Number (e.g. 018...)" 
+                  placeholder="Sender Number (e.g. 018...)"
                   value={mfsInfo.senderNumber}
-                  onChange={(e) => setMfsInfo({...mfsInfo, senderNumber: e.target.value})}
+                  onChange={(e) => setMfsInfo({ ...mfsInfo, senderNumber: e.target.value })}
                   className="px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-foreground"
                 />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   required={paymentMethod === 'MFS'}
-                  placeholder="Transaction ID (TrxID)" 
+                  placeholder="Transaction ID (TrxID)"
                   value={mfsInfo.transactionId}
-                  onChange={(e) => setMfsInfo({...mfsInfo, transactionId: e.target.value})}
+                  onChange={(e) => setMfsInfo({ ...mfsInfo, transactionId: e.target.value })}
                   className="sm:col-span-2 px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 outline-none text-foreground uppercase placeholder:normal-case"
                 />
               </div>
