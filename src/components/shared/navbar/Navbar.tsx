@@ -7,8 +7,7 @@ import { useUserStore } from "@/store/useUserStore";
 import { useEffect, useState, useRef } from "react";
 import MobileCategoryDrawer from "./MobileCategoryDrawer";
 import api from "@/lib/axios";
-import Image from "next/image";
-import fallbackLogo from "./logo.png";
+
 
 // 🔥 Import Chat Components for Mobile Overlay
 import ChatLogin from "@/components/shared/chatbox/ChatLogin";
@@ -204,15 +203,6 @@ export default function Navbar() {
                   src={storeLogo}
                   alt={`${storeName} Logo`}
                   className="h-8 md:h-10 w-auto max-w-40 object-contain"
-                />
-              ) : fallbackLogo ? (
-                <Image
-                  src={fallbackLogo}
-                  alt={`${storeName} Logo`}
-                  width={160}
-                  height={40}
-                  priority
-                  className="object-contain"
                 />
               ) : (
                 <div className="flex items-center gap-2 text-primary">
