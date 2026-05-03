@@ -38,7 +38,9 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
           <div className="flex flex-col space-y-6 md:space-y-8 order-2 lg:order-1">
             <div className="inline-flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-full w-fit">
               <Sparkles className="w-4 h-4 text-primary" aria-hidden="true" />
-              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">GinaG Purse Charms</span>
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary">
+                {heroConfig?.storeName || "Handmade Collection"}
+              </span>
             </div>
 
             {/* LCP element — rendered immediately, no animation opacity */}
