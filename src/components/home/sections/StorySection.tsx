@@ -10,6 +10,7 @@ export default function StorySection({ data: initialData }: { data?: any }) {
   const [loading, setLoading] = useState(!initialData);
 
   useEffect(() => {
+    // Only fetch if initialData is not provided (SSR fallback)
     if (!initialData) {
       setLoading(true);
       api.get("/settings/homepage")
@@ -21,7 +22,8 @@ export default function StorySection({ data: initialData }: { data?: any }) {
     }
   }, [initialData]);
 
-  if (loading || !data) {
+  // If we are loading AND have no data (neither SSR nor fetched yet), show skeleton
+  if (loading && !data) {
     return (
       <section className="py-24 bg-background relative overflow-hidden">
         <div className="container mx-auto px-4">
@@ -37,10 +39,12 @@ export default function StorySection({ data: initialData }: { data?: any }) {
     );
   }
 
+  // If still no data after loading attempt, return null or empty section
+  if (!data) return null;
+
   const content = data;
   const IconMap: Record<string, any> = { Heart, Star, Sparkles };
 
-  // Double check title and paragraphs exist
   const title = content.title || "Our Story";
   const paragraphs = content.paragraphs || [];
   const highlights = content.highlights || [];

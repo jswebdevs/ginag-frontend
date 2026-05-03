@@ -152,7 +152,7 @@ export default async function RootLayout({
                 isMaintenanceMode={isMaintenanceMode}
                 message={maintenanceMessage}
               >
-                <Navbar />
+                <Navbar initialSettings={settings} />
                 <main className="flex-1">
                   {children}
                 </main>

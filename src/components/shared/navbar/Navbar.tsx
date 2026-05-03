@@ -29,7 +29,11 @@ import {
   LuMessageSquare
 } from "react-icons/lu";
 
-export default function Navbar() {
+interface NavbarProps {
+  initialSettings?: any;
+}
+
+export default function Navbar({ initialSettings }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { isDark, toggleDark } = useThemeStore();
@@ -47,9 +51,14 @@ export default function Navbar() {
   const [wishlistCount, setWishlistCount] = useState(0);
 
   // --- DYNAMIC SETTINGS STATE ---
-  const [storeName, setStoreName] = useState("Ginag");
-  const [storeTagline, setStoreTagline] = useState("");
-  const [storeLogo, setStoreLogo] = useState<string | null>(null);
+  const [storeName, setStoreName] = useState(initialSettings?.storeName || "");
+  const [storeTagline, setStoreTagline] = useState(initialSettings?.tagline || "");
+  const [storeLogo, setStoreLogo] = useState<string | null>(
+    initialSettings?.logo?.thumbUrl || 
+    initialSettings?.logo?.originalUrl || 
+    null
+  );
+  const [loadingSettings, setLoadingSettings] = useState(!initialSettings);
 
   // States for Real-Time Search
   const [searchQuery, setSearchQuery] = useState("");
@@ -65,24 +74,28 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
 
-    const fetchSettings = async () => {
-      try {
-        const res = await api.get('/settings');
-        if (res.data?.data) {
-          setStoreName(res.data.data.storeName || "Ginag");
-          setStoreTagline(res.data.data.tagline || "");
-          setStoreLogo(
-            res.data.data.logo?.thumbUrl ||
-            res.data.data.logo?.originalUrl ||
-            null
-          );
+    if (!initialSettings) {
+      const fetchSettings = async () => {
+        try {
+          const res = await api.get('/settings');
+          if (res.data?.data) {
+            setStoreName(res.data.data.storeName);
+            setStoreTagline(res.data.data.tagline || "");
+            setStoreLogo(
+              res.data.data.logo?.thumbUrl ||
+              res.data.data.logo?.originalUrl ||
+              null
+            );
+          }
+        } catch (error) {
+          console.error("Failed to load navbar settings", error);
+        } finally {
+          setLoadingSettings(false);
         }
-      } catch (error) {
-        console.error("Failed to load navbar settings", error);
-      }
-    };
-    fetchSettings();
-  }, []);
+      };
+      fetchSettings();
+    }
+  }, [initialSettings]);
 
   // Check Chat Token when Mobile Chat Opens
   useEffect(() => {
@@ -198,8 +211,8 @@ export default function Navbar() {
             </button>
 
             <Link href="/" className="relative flex items-center gap-2">
-              {!mounted ? (
-                <div className="h-10 w-32 bg-muted/40 rounded-lg animate-pulse" />
+              {loadingSettings && !storeName && !storeLogo ? (
+                <div className="h-8 md:h-10 w-32 bg-muted/40 rounded-lg animate-pulse" />
               ) : storeLogo ? (
                 <img
                   src={storeLogo}

@@ -2,36 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  MessageCircle, ShoppingBag, Palette, Package, Star,
-  Gift, Truck, Heart, Sparkles, Gem, Zap, Shield,
-  type LucideIcon,
-} from "lucide-react";
+import { MessageCircle } from "lucide-react";
+import IconRenderer from "@/components/shared/IconRenderer";
 import api from "@/lib/axios";
-
-// Local icon map — avoids importing all 28 react-icons packages (IconRenderer)
-// Keys match the "Lu..." names stored by the admin icon picker
-const ICON_MAP: Record<string, LucideIcon> = {
-  LuShoppingBag:   ShoppingBag,
-  LuMessageCircle: MessageCircle,
-  LuPalette:       Palette,
-  LuPackage:       Package,
-  LuStar:          Star,
-  LuGift:          Gift,
-  LuTruck:         Truck,
-  LuHeart:         Heart,
-  LuSparkles:      Sparkles,
-  LuGem:           Gem,
-  LuZap:           Zap,
-  LuShield:        Shield,
-  // bare names for backwards-compat
-  ShoppingBag, Palette, Package, Star, Gift, Truck, Heart, Sparkles, Gem, Zap, Shield,
-};
-
-function StepIcon({ name, className }: { name?: string; className?: string }) {
-  const Icon = (name && ICON_MAP[name]) || ShoppingBag;
-  return <Icon className={className} />;
-}
 
 interface HowItWorksProps {
   data?: any;
@@ -46,13 +19,15 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
     if (!initialData) {
       setLoading(true);
       api.get("/settings/homepage")
-        .then(res => setData(res.data?.data?.howItWorks))
+        .then(res => {
+          setData(res.data?.data?.howItWorks);
+        })
         .catch(() => {})
         .finally(() => setLoading(false));
     }
   }, [initialData]);
 
-  if (loading || !data) {
+  if (loading && !data) {
     return (
       <section className="py-24 bg-background border-y border-border/30 relative overflow-hidden">
         <div className="container mx-auto px-4">
@@ -62,7 +37,7 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-64 bg-muted/10 border border-border/50 rounded-[2rem] animate-pulse" aria-hidden="true" />
+              <div key={i} className="h-64 bg-muted/10 border border-border/50 rounded-[2rem] animate-pulse" />
             ))}
           </div>
         </div>
@@ -70,12 +45,14 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
     );
   }
 
+  if (!data) return null;
+
   const steps: any[] = data.steps?.length > 0 ? data.steps : [];
   const waLink = initialWaLink || data.whatsappLink || "";
 
   return (
     <section className="py-24 bg-background text-foreground border-y border-border/30 relative overflow-hidden transition-colors duration-500">
-      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-primary/5 -skew-x-12 translate-x-1/2" />
       </div>
 
@@ -123,23 +100,20 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
               transition={{ delay: index * 0.08 }}
               className="group relative p-6 md:p-8 bg-muted/10 border border-border/50 hover:border-primary/50 rounded-[2rem] transition-all duration-500 overflow-hidden"
             >
-              <div className="absolute top-4 right-4 text-5xl font-black text-foreground/5 select-none pointer-events-none" aria-hidden="true">
+              <div className="absolute top-4 right-4 text-5xl font-black text-foreground/5 select-none pointer-events-none">
                 {step.number || String(index + 1).padStart(2, "0")}
               </div>
 
               <div className="relative z-10">
-                <div
-                  className="w-12 h-12 md:w-14 md:h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary transition-colors duration-500"
-                  aria-hidden="true"
-                >
-                  <StepIcon
+                <div className="w-12 h-12 md:w-14 md:h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary transition-colors duration-500">
+                  <IconRenderer
                     name={step.icon}
                     className="w-5 h-5 md:w-6 md:h-6 text-primary group-hover:text-primary-foreground transition-colors duration-500"
                   />
                 </div>
-                <p className="text-[10px] font-black text-primary tracking-[0.3em] uppercase mb-2">
+                <div className="text-[10px] font-black text-primary tracking-[0.3em] uppercase mb-2">
                   Step {step.number || String(index + 1).padStart(2, "0")}
-                </p>
+                </div>
                 <h3 className="text-lg md:text-xl font-bold text-foreground mb-2 uppercase tracking-tight leading-tight">
                   {step.title}
                 </h3>
@@ -168,10 +142,9 @@ export default function HowItWorks({ data: initialData, whatsappLink: initialWaL
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Chat on WhatsApp"
                 className="shrink-0 inline-flex items-center gap-2 px-6 md:px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-green-500/20"
               >
-                <MessageCircle className="w-4 h-4" aria-hidden="true" />
+                <MessageCircle className="w-4 h-4" />
                 {data.ctaBtnText || "Chat on WhatsApp"}
               </a>
             )}

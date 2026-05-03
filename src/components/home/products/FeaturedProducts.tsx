@@ -7,23 +7,30 @@ import { motion } from "framer-motion";
 import api from "@/lib/axios";
 import { ArrowRight, Layers, ShoppingCart, Sparkles } from "lucide-react";
 
-export default function FeaturedProducts() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+interface FeaturedProductsProps {
+  initialProducts?: any[];
+}
+
+export default function FeaturedProducts({ initialProducts }: FeaturedProductsProps) {
+  const [products, setProducts] = useState<any[]>(initialProducts || []);
+  const [loading, setLoading] = useState(!initialProducts);
 
   useEffect(() => {
-    api.get("/products?limit=3&page=1")
-      .then(res => {
-        const items = Array.isArray(res.data?.data)
-          ? res.data.data
-          : Array.isArray(res.data?.data?.products)
-          ? res.data.data.products
-          : [];
-        setProducts(items.slice(0, 3));
-      })
-      .catch(() => setProducts([]))
-      .finally(() => setLoading(false));
-  }, []);
+    if (!initialProducts) {
+      setLoading(true);
+      api.get("/products?limit=3&page=1")
+        .then(res => {
+          const items = Array.isArray(res.data?.data)
+            ? res.data.data
+            : Array.isArray(res.data?.data?.products)
+            ? res.data.data.products
+            : [];
+          setProducts(items.slice(0, 3));
+        })
+        .catch(() => setProducts([]))
+        .finally(() => setLoading(false));
+    }
+  }, [initialProducts]);
 
   return (
     <section className="py-20 md:py-24 bg-background text-foreground relative overflow-hidden transition-colors duration-500">
@@ -67,7 +74,7 @@ export default function FeaturedProducts() {
         </div>
 
         {/* Grid */}
-        {loading ? (
+        {loading && products.length === 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {[1, 2, 3].map(i => <ProductSkeleton key={i} />)}
           </div>
@@ -150,7 +157,7 @@ function FeaturedProductCard({ product, index }: { product: any; index: number }
         </h3>
         <div className="flex items-center justify-between gap-2">
           <span className="text-xl md:text-2xl font-black text-primary">
-            ${price.toFixed(2)}
+            ৳{price.toLocaleString()}
           </span>
           <Link href={`/products/${product.slug}`}>
             <button aria-label={`View ${product.name}`} className="flex items-center gap-2 px-3 md:px-4 py-2 bg-primary/10 text-primary rounded-full text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all">

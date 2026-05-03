@@ -40,3 +40,21 @@ export async function getActiveTheme() {
     return null;
   }
 }
+
+export async function getFeaturedProducts() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products?limit=3&page=1`, {
+      next: { revalidate: 60, tags: ["products"] },
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    const items = Array.isArray(json.data)
+      ? json.data
+      : Array.isArray(json.data?.products)
+      ? json.data.products
+      : [];
+    return items.slice(0, 3);
+  } catch {
+    return [];
+  }
+}
