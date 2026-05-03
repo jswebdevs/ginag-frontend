@@ -184,7 +184,7 @@ export default async function Footer() {
         {/* COPYRIGHT */}
         <div className="pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground font-medium text-center md:text-left">
-            © {new Date().getFullYear()} {storeName} by <a href="https://jswebdevs.com" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">JS Web Devs</a>. All rights reserved.
+            © {new Date().getFullYear()} {storeName}. All rights reserved.
           </p>
           <div className="flex items-center gap-2 text-muted-foreground">
             <CreditCard className="w-5 h-5" />

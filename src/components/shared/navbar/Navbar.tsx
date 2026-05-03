@@ -198,7 +198,9 @@ export default function Navbar() {
             </button>
 
             <Link href="/" className="relative flex items-center gap-2">
-              {storeLogo ? (
+              {!mounted ? (
+                <div className="h-10 w-32 bg-muted/40 rounded-lg animate-pulse" />
+              ) : storeLogo ? (
                 <img
                   src={storeLogo}
                   alt={`${storeName} Logo`}
@@ -206,10 +208,9 @@ export default function Navbar() {
                 />
               ) : (
                 <div className="flex items-center gap-2 text-primary">
-                  <h2>Ginag</h2>
                   <div className="flex flex-col">
-                    <span className="font-black text-xl tracking-tight hidden sm:block leading-none">{storeName}</span>
-                    {storeTagline && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest hidden lg:block mt-0.5">{storeTagline}</span>}
+                    <span className="font-black text-xl tracking-tight leading-none">{storeName}</span>
+                    {storeTagline && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{storeTagline}</span>}
                   </div>
                 </div>
               )}

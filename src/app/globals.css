@@ -32,6 +32,12 @@
 
   /* Custom Animations */
   --animate-spin-slow: spin 12s linear infinite;
+  --animate-shimmer: shimmer 2s infinite linear;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 @layer base {

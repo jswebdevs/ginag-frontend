@@ -42,30 +42,34 @@ const IconLibrary: Record<string, any> = {
 
 interface IconRendererProps {
     name?: string;
+    icon?: string; // 🔥 Added to resolve persistent TS build error
     className?: string;
-    // 🔥 FIXED: Tell TS this component accepts generic props (including className)
     fallback?: React.ComponentType<any>;
 }
 
 export default function IconRenderer({
     name,
+    icon,
     className = "w-5 h-5",
     fallback: Fallback = LuIcons.LuPackage
 }: IconRendererProps) {
 
-    // 1. Handle Empty Names
-    if (!name) return <Fallback className={className} />;
+    // Use either name or icon prop
+    const resolvedIconName = name || icon;
 
-    // 2. Handle Image URLs (if an image is uploaded instead of an icon selected)
-    if (name.startsWith('http') || name.startsWith('/')) {
-        return <img src={name} alt="icon" className={`object-contain ${className}`} />;
+    // 1. Handle Empty Names
+    if (!resolvedIconName) return <Fallback className={className} />;
+
+    // 2. Handle Image URLs
+    if (resolvedIconName.startsWith('http') || resolvedIconName.startsWith('/')) {
+        return <img src={resolvedIconName} alt="icon" className={`object-contain ${className}`} />;
     }
 
-    // 3. Handle known Lucide v4 renames to prevent crashes
-    let resolvedName = name;
-    if (name === "LuHome") resolvedName = "LuHouse";
-    if (name === "LuLoader2") resolvedName = "LuLoader";
-    if (name === "LuSettings2") resolvedName = "LuSettings";
+    // 3. Handle known Lucide v4 renames
+    let resolvedName = resolvedIconName;
+    if (resolvedName === "LuHome") resolvedName = "LuHouse";
+    if (resolvedName === "LuLoader2") resolvedName = "LuLoader";
+    if (resolvedName === "LuSettings2") resolvedName = "LuSettings";
 
     const IconComponent = IconLibrary[resolvedName];
 
