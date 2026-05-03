@@ -12,6 +12,19 @@ export async function getGlobalSettings() {
   }
 }
 
+export async function getHomepageConfig() {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/settings/homepage`, {
+      next: { revalidate: 60 }
+    });
+    if (!res.ok) return {};
+    const json = await res.json();
+    return json.data || {};
+  } catch {
+    return {};
+  }
+}
+
 export async function getActiveTheme() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/themes/active`, {

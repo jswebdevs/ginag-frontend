@@ -52,7 +52,12 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
     const [status, setStatus] = useState<"PUBLISHED" | "DRAFT">(initialData?.status || "DRAFT");
     const [featuredImage, setFeaturedImage] = useState(initialData?.featuredImage || "");
     const [metaDescription, setMetaDescription] = useState(initialData?.metaDescription || "");
-    const [blocks, setBlocks] = useState<any[]>(initialData?.content || []);
+    const [blocks, setBlocks] = useState<any[]>(
+        (initialData?.content || []).map((b: any) => ({
+            ...b,
+            id: b.id || `block-${Math.random().toString(36).substr(2, 9)}`
+        }))
+    );
 
     const generateSlug = (text: string) =>
         text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
@@ -86,7 +91,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
 
     const quillFormats = [
         'header', 'bold', 'italic', 'underline', 'strike', 'blockquote',
-        'list', 'bullet', 'align', 'link', 'image', 'video'
+        'list', 'align', 'link', 'image', 'video'
     ];
 
     const addBlock = (type: string) => {

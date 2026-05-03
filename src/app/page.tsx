@@ -1,27 +1,23 @@
-import SingleCategoryAuthorityHero from "@/components/home/hero/SingleCategoryAuthorityHero";
-import ProductShowcase from "@/components/home/products/ProductShowcase";
-import IndustrialProcess from "@/components/home/sections/IndustrialProcess";
-import MaterialTechnology from "@/components/home/sections/MaterialTechnology";
-import PersonalizationBlueprint from "@/components/home/sections/PersonalizationBlueprint";
-import TechnicalIntegrity from "@/components/home/sections/TechnicalIntegrity";
-import AestheticLifestyle from "@/components/home/sections/AestheticLifestyle";
-import GiftCuration from "@/components/home/sections/GiftCuration";
-import { getGlobalSettings } from "@/lib/getSettings";
+import GinaGHero from "@/components/home/hero/GinaGHero";
+import FeaturedProducts from "@/components/home/products/FeaturedProducts";
+import StorySection from "@/components/home/sections/StorySection";
+import HowItWorks from "@/components/home/sections/HowItWorks";
+import FAQSection from "@/components/home/sections/FAQSection";
+import StickyBanner from "@/components/home/sections/StickyBanner";
+import { getHomepageConfig } from "@/lib/getSettings";
 
 export default async function Home() {
-  const settings = await getGlobalSettings();
-  const homepageConfig = (settings?.homepageConfig as any) || {};
+  const hp = await getHomepageConfig();
+  const whatsappLink: string = (hp.ginaGHero as any)?.whatsappLink || "";
 
   return (
     <main className="min-h-screen">
-      <SingleCategoryAuthorityHero />
-      <IndustrialProcess />
-      <ProductShowcase />
-      <MaterialTechnology data={homepageConfig.materialTechnology} />
-      <PersonalizationBlueprint />
-      <TechnicalIntegrity data={homepageConfig.technicalIntegrity} />
-      <AestheticLifestyle />
-      <GiftCuration data={homepageConfig.giftCuration} />
+      <StickyBanner data={hp.stickyBanner} />
+      <GinaGHero />
+      <FeaturedProducts />
+      <StorySection data={hp.story} />
+      <HowItWorks data={hp.howItWorks} whatsappLink={whatsappLink} />
+      <FAQSection data={hp.faq} />
     </main>
   );
 }
