@@ -15,7 +15,7 @@ import MaintenanceGuard from "@/components/shared/MaintenanceGuard";
 import FloatingWidget from "@/components/shared/chatbox/FloatingWidget";
 import ToTopButton from "@/components/shared/totop/ToTopButton";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // revalidate layout data at most every 60 s
 
 // 2. Dynamic Metadata Generation
 export async function generateMetadata(): Promise<Metadata> {
@@ -33,7 +33,7 @@ export async function generateMetadata(): Promise<Metadata> {
       template: `%s | ${storeName}`,
     },
     description: tagline,
-    keywords: ["ecommerce", "shopping", "bangladesh", "online store", storeName.toLowerCase()],
+    keywords: ["handmade bag charms", "custom purse charms", "personalized charms", "beaded bag charms", storeName.toLowerCase()],
     authors: [{ name: storeName }],
     creator: storeName,
     publisher: storeName,
@@ -67,7 +67,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
     openGraph: {
       type: "website",
-      locale: "en_IE",
+      locale: "en_US",
       url: "/",
       siteName: storeName,
       title: storeName,
@@ -129,6 +129,9 @@ export default async function RootLayout({
     <html lang="en" suppressHydrationWarning>
       {/* Apply dark class before paint to prevent flash of wrong theme */}
       <head>
+        {/* Resource hints — establish early connection to the API server */}
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:3000'} />
+        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:3000'} />
         <script dangerouslySetInnerHTML={{
           __html: `
           (function(){

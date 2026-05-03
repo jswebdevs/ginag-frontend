@@ -4,9 +4,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import api from '@/lib/axios';
 
-// 🔥 Use the central IconRenderer and stable static UI icons
-import IconRenderer from '@/components/shared/IconRenderer';
-import { LuChevronLeft, LuChevronRight, LuChevronDown } from 'react-icons/lu';
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const IconRenderer = dynamic(() => import('@/components/shared/IconRenderer'), {
+  ssr: false,
+  loading: () => <span className="w-4 h-4 inline-block" aria-hidden="true" />,
+});
 
 export default function PCCategoryBar() {
   const [categories, setCategories] = useState<any[]>([]);
@@ -97,7 +101,7 @@ export default function PCCategoryBar() {
               onClick={scrollLeft}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-card border border-border shadow-md text-foreground hover:text-primary hover:border-primary transition-all ml-2"
             >
-              <LuChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5" />
             </button>
           </div>
         )}
@@ -129,7 +133,7 @@ export default function PCCategoryBar() {
                     />
                     <span>{cat.name}</span>
                     {hasChildren && (
-                      <LuChevronDown className={`w-3 h-3 transition-transform duration-300 ${isHovered ? 'rotate-180 opacity-100' : 'opacity-50'}`} />
+                      <ChevronDown className={`w-3 h-3 transition-transform duration-300 ${isHovered ? 'rotate-180 opacity-100' : 'opacity-50'}`} />
                     )}
                   </Link>
                 </div>
@@ -145,7 +149,7 @@ export default function PCCategoryBar() {
               onClick={scrollRight}
               className="w-8 h-8 flex items-center justify-center rounded-full bg-card border border-border shadow-md text-foreground hover:text-primary hover:border-primary transition-all mr-2"
             >
-              <LuChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5" />
             </button>
           </div>
         )}

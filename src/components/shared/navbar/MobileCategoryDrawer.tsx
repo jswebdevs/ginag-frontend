@@ -4,9 +4,13 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import api from '@/lib/axios';
 
-// 🔥 Use the central IconRenderer and stable static UI icons
-import IconRenderer from '@/components/shared/IconRenderer';
-import { LuX, LuLoader, LuChevronDown } from 'react-icons/lu';
+import { X, Loader2, ChevronDown } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const IconRenderer = dynamic(() => import('@/components/shared/IconRenderer'), {
+  ssr: false,
+  loading: () => <span className="w-4 h-4 inline-block" aria-hidden="true" />,
+});
 
 interface MobileCategoryDrawerProps {
   isOpen: boolean;
@@ -65,7 +69,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
         <div className="flex items-center justify-between p-4 border-b border-border bg-muted/10">
           <span className="font-black text-lg text-primary uppercase tracking-tighter italic">DreamShop</span>
           <button onClick={onClose} className="p-1.5 text-muted-foreground hover:text-destructive transition-colors rounded-xl hover:bg-muted border border-transparent hover:border-border">
-            <LuX className="w-5 h-5" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -73,7 +77,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
         <div className="flex-1 overflow-y-auto py-2 custom-scrollbar">
           {loading ? (
             <div className="flex justify-center items-center py-10 text-primary">
-              <LuLoader className="w-6 h-6 animate-spin" />
+              <Loader2 className="w-6 h-6 animate-spin" />
             </div>
           ) : categories.length === 0 ? (
             <div className="px-6 py-10 text-sm text-muted-foreground text-center font-medium italic">No categories found.</div>
@@ -103,7 +107,7 @@ export default function MobileCategoryDrawer({ isOpen, onClose }: MobileCategory
                           onClick={(e) => toggleExpand(cat.id, e)}
                           className="p-4 text-muted-foreground hover:text-primary transition-colors border-l border-border/30"
                         >
-                          <LuChevronDown
+                          <ChevronDown
                             className={`w-4 h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180 text-primary' : ''}`}
                           />
                         </button>

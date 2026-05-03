@@ -1,6 +1,11 @@
 "use client";
 
-import IconRenderer from "@/components/shared/IconRenderer";
+import dynamic from "next/dynamic";
+
+const IconRenderer = dynamic(() => import("@/components/shared/IconRenderer"), {
+  ssr: false,
+  loading: () => <span className="w-5 h-5 inline-block" aria-hidden="true" />,
+});
 
 interface SocialLink {
   id: string;

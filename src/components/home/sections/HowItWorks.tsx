@@ -1,46 +1,91 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { MessageCircle } from "lucide-react";
-import IconRenderer from "@/components/shared/IconRenderer";
+import {
+  MessageCircle, ShoppingBag, Palette, Package, Star,
+  Gift, Truck, Heart, Sparkles, Gem, Zap, Shield,
+  type LucideIcon,
+} from "lucide-react";
+import api from "@/lib/axios";
 
-const DEFAULT_STEPS = [
-  { icon: "LuShoppingBag",   number: "01", title: "Place Your Order",       description: "Choose your favorite design and place your order on our store." },
-  { icon: "LuMessageCircle", number: "02", title: "We Contact You",          description: "We reach out on WhatsApp for customization details." },
-  { icon: "LuPalette",       number: "03", title: "Customize Your Design",   description: "Select colors, beads, initials, and your personal style." },
-  { icon: "LuPackage",       number: "04", title: "We Create & Deliver",     description: "Your handmade charm is carefully crafted and shipped to you." },
-];
+// Local icon map — avoids importing all 28 react-icons packages (IconRenderer)
+// Keys match the "Lu..." names stored by the admin icon picker
+const ICON_MAP: Record<string, LucideIcon> = {
+  LuShoppingBag:   ShoppingBag,
+  LuMessageCircle: MessageCircle,
+  LuPalette:       Palette,
+  LuPackage:       Package,
+  LuStar:          Star,
+  LuGift:          Gift,
+  LuTruck:         Truck,
+  LuHeart:         Heart,
+  LuSparkles:      Sparkles,
+  LuGem:           Gem,
+  LuZap:           Zap,
+  LuShield:        Shield,
+  // bare names for backwards-compat
+  ShoppingBag, Palette, Package, Star, Gift, Truck, Heart, Sparkles, Gem, Zap, Shield,
+};
+
+function StepIcon({ name, className }: { name?: string; className?: string }) {
+  const Icon = (name && ICON_MAP[name]) || ShoppingBag;
+  return <Icon className={className} />;
+}
 
 interface HowItWorksProps {
   data?: any;
   whatsappLink?: string;
 }
 
-export default function HowItWorks({ data, whatsappLink }: HowItWorksProps) {
-  const content = data || {
-    title: "How It Works",
-    subtitle: "Simple steps to your perfect charm",
-    ctaLine: "For faster communication, connect with us on WhatsApp anytime",
-    ctaBtnText: "Chat on WhatsApp",
-    steps: DEFAULT_STEPS,
-  };
+export default function HowItWorks({ data: initialData, whatsappLink: initialWaLink }: HowItWorksProps) {
+  const [data, setData] = useState<any>(initialData);
+  const [loading, setLoading] = useState(!initialData);
 
-  const steps = content.steps?.length > 0 ? content.steps : DEFAULT_STEPS;
-  const waLink = whatsappLink || content.whatsappLink || "";
+  useEffect(() => {
+    if (!initialData) {
+      setLoading(true);
+      api.get("/settings/homepage")
+        .then(res => setData(res.data?.data?.howItWorks))
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }
+  }, [initialData]);
+
+  if (loading || !data) {
+    return (
+      <section className="py-24 bg-background border-y border-border/30 relative overflow-hidden">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-20 space-y-4">
+            <div className="h-4 w-24 bg-muted/40 rounded-full mx-auto animate-pulse" />
+            <div className="h-12 w-64 bg-muted/40 rounded-full mx-auto animate-pulse" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-64 bg-muted/10 border border-border/50 rounded-[2rem] animate-pulse" aria-hidden="true" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  const steps: any[] = data.steps?.length > 0 ? data.steps : [];
+  const waLink = initialWaLink || data.whatsappLink || "";
 
   return (
     <section className="py-24 bg-background text-foreground border-y border-border/30 relative overflow-hidden transition-colors duration-500">
-      {/* Background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
         <div className="absolute top-0 right-0 w-1/3 h-full bg-primary/5 -skew-x-12 translate-x-1/2" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-16">
           <motion.span
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             className="text-[10px] font-black text-primary tracking-[0.5em] uppercase block mb-4"
           >
             Our Process
@@ -48,48 +93,54 @@ export default function HowItWorks({ data, whatsappLink }: HowItWorksProps) {
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase"
+            className="text-3xl md:text-5xl lg:text-6xl font-black text-foreground tracking-tighter uppercase"
           >
-            🛠️ {content.title}
+            {data.title || "How It Works"}
           </motion.h2>
-          {content.subtitle && (
+          {data.subtitle && (
             <motion.p
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
               transition={{ delay: 0.15 }}
-              className="text-muted-foreground font-medium mt-4 text-lg"
+              className="text-muted-foreground font-medium mt-4 text-base md:text-lg max-w-xl mx-auto"
             >
-              {content.subtitle}
+              {data.subtitle}
             </motion.p>
           )}
         </div>
 
-        {/* Steps Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        {/* Steps */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
           {steps.map((step: any, index: number) => (
             <motion.div
               key={step.number || index}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="group relative p-8 bg-muted/10 border border-border/50 hover:border-primary/50 rounded-[2rem] transition-all duration-500 overflow-hidden"
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08 }}
+              className="group relative p-6 md:p-8 bg-muted/10 border border-border/50 hover:border-primary/50 rounded-[2rem] transition-all duration-500 overflow-hidden"
             >
-              <div className="absolute top-4 right-4 text-6xl font-black text-foreground/5 select-none">
+              <div className="absolute top-4 right-4 text-5xl font-black text-foreground/5 select-none pointer-events-none" aria-hidden="true">
                 {step.number || String(index + 1).padStart(2, "0")}
               </div>
 
               <div className="relative z-10">
-                <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:bg-primary transition-colors duration-500">
-                  <IconRenderer
+                <div
+                  className="w-12 h-12 md:w-14 md:h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-5 group-hover:bg-primary transition-colors duration-500"
+                  aria-hidden="true"
+                >
+                  <StepIcon
                     name={step.icon}
-                    className="w-6 h-6 text-primary group-hover:text-primary-foreground transition-colors duration-500"
+                    className="w-5 h-5 md:w-6 md:h-6 text-primary group-hover:text-primary-foreground transition-colors duration-500"
                   />
                 </div>
-                <div className="text-[10px] font-black text-primary tracking-[0.3em] uppercase mb-2">
+                <p className="text-[10px] font-black text-primary tracking-[0.3em] uppercase mb-2">
                   Step {step.number || String(index + 1).padStart(2, "0")}
-                </div>
-                <h3 className="text-xl font-bold text-foreground mb-3 uppercase tracking-tight leading-tight">
+                </p>
+                <h3 className="text-lg md:text-xl font-bold text-foreground mb-2 uppercase tracking-tight leading-tight">
                   {step.title}
                 </h3>
                 <p className="text-muted-foreground text-sm leading-relaxed font-medium">
@@ -100,26 +151,30 @@ export default function HowItWorks({ data, whatsappLink }: HowItWorksProps) {
           ))}
         </div>
 
-        {/* WhatsApp CTA — uses the link from the hero section */}
-        {waLink && (
+        {/* WhatsApp CTA */}
+        {(waLink || data.ctaLine) && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
             transition={{ delay: 0.3 }}
-            className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-4 p-8 bg-muted/20 border border-border/50 rounded-[2rem]"
+            className="mt-12 md:mt-16 flex flex-col sm:flex-row items-center justify-center gap-4 p-6 md:p-8 bg-muted/20 border border-border/50 rounded-[2rem]"
           >
-            <p className="text-foreground font-medium text-center sm:text-left">
-              📲 {content.ctaLine}
+            <p className="text-foreground font-medium text-center sm:text-left text-sm md:text-base">
+              📲 {data.ctaLine || "Order now – We will contact you on WhatsApp for full customization"}
             </p>
-            <a
-              href={waLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="shrink-0 inline-flex items-center gap-2 px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-green-500/20"
-            >
-              <MessageCircle className="w-4 h-4" />
-              {content.ctaBtnText || "Chat on WhatsApp"}
-            </a>
+            {waLink && (
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Chat on WhatsApp"
+                className="shrink-0 inline-flex items-center gap-2 px-6 md:px-8 py-3 bg-green-500 hover:bg-green-600 text-white rounded-full font-black text-sm uppercase tracking-widest transition-all shadow-lg shadow-green-500/20"
+              >
+                <MessageCircle className="w-4 h-4" aria-hidden="true" />
+                {data.ctaBtnText || "Chat on WhatsApp"}
+              </a>
+            )}
           </motion.div>
         )}
       </div>
