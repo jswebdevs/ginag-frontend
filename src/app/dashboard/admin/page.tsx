@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import api from '@/lib/axios';
 import dynamic from 'next/dynamic';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useCurrency } from '@/context/SettingsContext';
+
 
 // Reusing these shared components
 import KPICards from './_components/KPICards';
@@ -19,7 +21,9 @@ const WelcomeCard3D = dynamic(() => import('./_components/WelcomeCard3D'), {
 });
 
 export default function AdminDashboardPage() {
+    const { symbol } = useCurrency();
     const [data, setData] = useState<any>(null);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [days, setDays] = useState(30);
@@ -121,7 +125,8 @@ export default function AdminDashboardPage() {
                                 tickLine={false}
                                 fontSize={10}
                                 className="text-muted-foreground font-bold"
-                                tickFormatter={(val) => `৳${val}`}
+                                tickFormatter={(val) => `${symbol}${val}`}
+
                                 width={50}
                             />
                             <Tooltip

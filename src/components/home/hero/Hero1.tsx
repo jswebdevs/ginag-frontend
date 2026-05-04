@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import api from "@/lib/axios";
+import { useCurrency } from "@/context/SettingsContext";
+
 import {
   ShoppingBag,
   ArrowUpRight,
@@ -14,7 +16,9 @@ import {
 } from "lucide-react";
 
 export default function Hero1() {
+  const { symbol } = useCurrency();
   const [data, setData] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -111,7 +115,8 @@ export default function Hero1() {
                 {hero.trending.name}
               </h3>
               <p className="text-primary font-black text-xl mt-2 tracking-tighter">
-                ৳{hero.trending.variations?.[0]?.salePrice || hero.trending.basePrice || "0"}
+                {symbol}{hero.trending.variations?.[0]?.salePrice || hero.trending.basePrice || "0"}
+
               </p>
             </div>
 

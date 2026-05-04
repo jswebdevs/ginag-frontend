@@ -5,9 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Trash2, ShoppingCart, Image as ImageIcon, Plus, Minus, CreditCard, ArrowRight, ChevronDown } from "lucide-react";
 import { useCartStore } from "@/store/useCartStore";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function DashboardCartPage() {
+    const { symbol } = useCurrency();
     const router = useRouter();
+
 
     // Extract global state and actions from Zustand
     const { cart, fetchCart, updateQuantity, removeItem, updateVariation } = useCartStore() as any;
@@ -201,10 +205,12 @@ export default function DashboardCartPage() {
                                                             )}
 
                                                             <div className="mt-1 flex items-center gap-2">
-                                                                <span className="font-bold text-primary text-sm">৳{price.toLocaleString()}</span>
+                                                                <span className="font-bold text-primary text-sm">{symbol}{price.toLocaleString()}</span>
+
                                                                 {originalPrice && (
                                                                     <span className="text-xs text-muted-foreground line-through">
-                                                                        ৳{originalPrice.toLocaleString()}
+                                                                        {symbol}{originalPrice.toLocaleString()}
+
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -239,7 +245,8 @@ export default function DashboardCartPage() {
 
                                                 {/* Subtotal Column */}
                                                 <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                    <span className="font-black text-foreground text-lg">৳{subtotal.toLocaleString()}</span>
+                                                    <span className="font-black text-foreground text-lg">{symbol}{subtotal.toLocaleString()}</span>
+
                                                 </td>
 
                                                 {/* Actions Column */}
@@ -268,7 +275,8 @@ export default function DashboardCartPage() {
                             <div className="space-y-4 text-sm mb-6">
                                 <div className="flex justify-between text-muted-foreground">
                                     <span>Subtotal ({cart.totalItems} items)</span>
-                                    <span className="font-semibold text-foreground">৳{cart.totalAmount.toLocaleString()}</span>
+                                    <span className="font-semibold text-foreground">{symbol}{cart.totalAmount.toLocaleString()}</span>
+
                                 </div>
                                 <div className="flex justify-between text-muted-foreground pb-4 border-b border-border">
                                     <span>Delivery Fee</span>
@@ -276,7 +284,8 @@ export default function DashboardCartPage() {
                                 </div>
                                 <div className="flex justify-between items-center pt-2">
                                     <span className="text-base font-bold text-foreground">Total Amount</span>
-                                    <span className="text-2xl font-black text-primary">৳{cart.totalAmount.toLocaleString()}</span>
+                                    <span className="text-2xl font-black text-primary">{symbol}{cart.totalAmount.toLocaleString()}</span>
+
                                 </div>
                             </div>
 

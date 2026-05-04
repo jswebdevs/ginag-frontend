@@ -5,9 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Timer, ShoppingCart, ImageIcon, ArrowRight } from "lucide-react";
 import api from "@/lib/axios";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function FlashSale() {
+  const { symbol } = useCurrency();
   const [product, setProduct] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -177,11 +181,13 @@ export default function FlashSale() {
                 <div className="flex flex-col">
                   {oldPrice && (
                     <span className="text-xs font-bold text-muted-foreground line-through">
-                      ৳{Number(oldPrice).toLocaleString()}
+                      {symbol}{Number(oldPrice).toLocaleString()}
+
                     </span>
                   )}
                   <span className="text-2xl md:text-3xl font-black text-primary leading-none mt-1 tracking-tighter">
-                    ৳{Number(currentPrice).toLocaleString()}
+                    {symbol}{Number(currentPrice).toLocaleString()}
+
                   </span>
                 </div>
               </div>

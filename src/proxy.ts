@@ -3,8 +3,8 @@ import type { NextRequest } from 'next/server';
 
 export function proxy(request: NextRequest) {
   const token = request.cookies.get('token')?.value || request.cookies.get('auth_token')?.value;
-  const rawRole = request.cookies.get('user_role')?.value || 'CUSTOMER'; 
-  
+  const rawRole = request.cookies.get('user_role')?.value || 'CUSTOMER';
+
   const role = rawRole.toLowerCase().replace('_', '-');
   const { pathname } = request.nextUrl;
 
@@ -24,14 +24,11 @@ export function proxy(request: NextRequest) {
   if (isProtectedRoute && token) {
     if (role === 'customer') {
       const staffDirectories = [
-        '/dashboard/super-admin', '/dashboard/admin', 
-        '/dashboard/product-manager', '/dashboard/order-manager', 
-        '/dashboard/support-agent', '/dashboard/marketing-specialist', 
-        '/dashboard/delivery-manager'
+        '/dashboard/super-admin', '/dashboard/admin'
       ];
-      
+
       const isSnooping = staffDirectories.some(dir => pathname.startsWith(dir));
-      
+
       if (isSnooping) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
@@ -49,6 +46,6 @@ export const config = {
   matcher: [
     '/login',
     '/register',
-    '/dashboard/:path*', 
+    '/dashboard/:path*',
   ],
 };

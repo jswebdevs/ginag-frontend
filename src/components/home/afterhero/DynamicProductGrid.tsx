@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, Star, AlertCircle, ImageIcon } from "lucide-react";
 import api from "@/lib/axios";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export interface Product {
   id: string;
@@ -24,6 +26,7 @@ export interface Product {
 }
 
 export default function DynamicProductGrid() {
+  const { symbol } = useCurrency();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -148,17 +151,17 @@ export default function DynamicProductGrid() {
                       {product.name}
                     </Link>
 
-                    <div className="mt-auto pt-4 flex items-center justify-between">
-                      <div className="flex flex-col">
-                        <span className="font-black text-lg text-primary">
-                          ৳{currentPrice.toFixed(2)}
-                        </span>
-                        {originalPrice && (
-                          <span className="text-xs text-muted-foreground line-through">
-                            ৳{originalPrice.toFixed(2)}
+                      <div className="mt-auto pt-4 flex items-center justify-between">
+                        <div className="flex flex-col">
+                          <span className="font-black text-lg text-primary">
+                            {symbol}{currentPrice.toFixed(2)}
                           </span>
-                        )}
-                      </div>
+                          {originalPrice && (
+                            <span className="text-xs text-muted-foreground line-through">
+                              {symbol}{originalPrice.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
 
                       <button
                         disabled={totalStock === 0}

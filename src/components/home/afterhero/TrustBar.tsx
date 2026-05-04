@@ -1,10 +1,14 @@
 "use client";
 
 import { Truck, ShieldCheck, CreditCard, Headphones } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function TrustBar() {
+  const { symbol } = useCurrency();
   const features = [
-    { icon: Truck, title: "Free Shipping", desc: "On orders over ৳5,000" },
+    { icon: Truck, title: "Free Shipping", desc: `On orders over ${symbol}5,000` },
+
     { icon: ShieldCheck, title: "100% Secure", desc: "Encrypted checkout" },
     { icon: CreditCard, title: "Flexible Payment", desc: "Pay with multiple methods" },
     { icon: Headphones, title: "24/7 Support", desc: "Ready to help you" },

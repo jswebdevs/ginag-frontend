@@ -6,9 +6,13 @@ import { Trash2, ShoppingCart, Loader2, HeartCrack } from "lucide-react";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 import { useUserStore } from "@/store/useUserStore";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function WishlistPage() {
+    const { symbol } = useCurrency();
     const { isAuthenticated } = useUserStore();
+
     const [wishlist, setWishlist] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [removing, setRemoving] = useState<string | null>(null);
@@ -120,7 +124,8 @@ export default function WishlistPage() {
                                     </p>
 
                                     <div className="mt-auto pt-4 flex items-center justify-between">
-                                        <span className="font-black text-lg text-primary">৳{price}</span>
+                                        <span className="font-black text-lg text-primary">{symbol}{price}</span>
+
                                         <button className="w-10 h-10 bg-primary/10 text-primary rounded-full flex items-center justify-center hover:bg-primary hover:text-white transition-colors">
                                             <ShoppingCart className="w-5 h-5" />
                                         </button>

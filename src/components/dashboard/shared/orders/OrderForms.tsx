@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 import { MapPin, User, Receipt, Save, Search, PackageOpen, Trash2, Store, Plus } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 interface OrderFormsProps {
   initialData?: any;
@@ -18,6 +20,8 @@ const THANAS = ["Adabor", "Badda", "Cantonment", "Dhanmondi", "Gulshan", "Mirpur
 export default function OrderForms({ initialData, onUpdateSuccess }: OrderFormsProps) {
   const router = useRouter();
   const isEdit = !!initialData;
+  const { symbol } = useCurrency();
+
 
   // --- FORM STATES ---
   const [formData, setFormData] = useState({
@@ -281,7 +285,8 @@ export default function OrderForms({ initialData, onUpdateSuccess }: OrderFormsP
                 >
                   <option value="">Select Option...</option>
                   {selectedProduct?.variations?.map((v: any) => (
-                    <option key={v.id} value={v.id}>{v.name} - ৳{v.salePrice || v.basePrice} ({v.stock} in stock)</option>
+                    <option key={v.id} value={v.id}>{v.name} - {symbol}{v.salePrice || v.basePrice} ({v.stock} in stock)</option>
+
                   ))}
                 </select>
               </div>
@@ -322,9 +327,11 @@ export default function OrderForms({ initialData, onUpdateSuccess }: OrderFormsP
                 ) : orderItems.map((item: any, idx: number) => (
                   <tr key={idx} className="hover:bg-muted/5">
                     <td className="p-4 font-bold text-sm text-foreground">{item.productName}</td>
-                    <td className="p-4 text-center text-sm font-semibold text-muted-foreground">৳{Number(item.price).toLocaleString()}</td>
+                    <td className="p-4 text-center text-sm font-semibold text-muted-foreground">{symbol}{Number(item.price).toLocaleString()}</td>
+
                     <td className="p-4 text-center font-black">{item.quantity}</td>
-                    <td className="p-4 text-right font-black text-primary">৳{Number(item.price * item.quantity).toLocaleString()}</td>
+                    <td className="p-4 text-right font-black text-primary">{symbol}{Number(item.price * item.quantity).toLocaleString()}</td>
+
                     {!isEdit && (
                       <td className="p-4 text-center">
                         <button onClick={() => removeItem(idx)} className="text-muted-foreground hover:text-destructive"><Trash2 size={16} /></button>
@@ -349,8 +356,10 @@ export default function OrderForms({ initialData, onUpdateSuccess }: OrderFormsP
                 )}
                 <h4 className="font-bold text-sm text-foreground pr-8">{item.productName}</h4>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground font-semibold">৳{Number(item.price).toLocaleString()} <span className="text-xs">x {item.quantity}</span></span>
-                  <span className="font-black text-primary text-base">৳{Number(item.price * item.quantity).toLocaleString()}</span>
+                  <span className="text-muted-foreground font-semibold">{symbol}{Number(item.price).toLocaleString()} <span className="text-xs">x {item.quantity}</span></span>
+
+                  <span className="font-black text-primary text-base">{symbol}{Number(item.price * item.quantity).toLocaleString()}</span>
+
                 </div>
               </div>
             ))}
@@ -377,24 +386,30 @@ export default function OrderForms({ initialData, onUpdateSuccess }: OrderFormsP
           </div>
 
           <div className="w-full max-w-sm space-y-3 text-sm">
-            <div className="flex justify-between font-semibold text-muted-foreground"><span>Subtotal</span><span>৳{subtotal.toLocaleString()}</span></div>
-            <div className="flex justify-between font-semibold text-muted-foreground"><span>Delivery Fee</span><span>+ ৳{Number(formData.deliveryFee).toLocaleString()}</span></div>
-            <div className="flex justify-between font-bold text-emerald-500"><span>Discount</span><span>- ৳{Number(formData.discountAmount).toLocaleString()}</span></div>
+            <div className="flex justify-between font-semibold text-muted-foreground"><span>Subtotal</span><span>{symbol}{subtotal.toLocaleString()}</span></div>
+
+            <div className="flex justify-between font-semibold text-muted-foreground"><span>Delivery Fee</span><span>+ {symbol}{Number(formData.deliveryFee).toLocaleString()}</span></div>
+
+            <div className="flex justify-between font-bold text-emerald-500"><span>Discount</span><span>- {symbol}{Number(formData.discountAmount).toLocaleString()}</span></div>
+
             <div className="pt-3 border-t border-border flex justify-between items-center text-lg font-black text-foreground">
-              <span>Final Total</span><span>৳{finalTotal.toLocaleString()}</span>
+              <span>Final Total</span><span>{symbol}{finalTotal.toLocaleString()}</span>
+
             </div>
 
             <div className="flex justify-between items-center text-xs font-bold pt-2">
               <span className="text-muted-foreground uppercase tracking-widest">Paid Amount</span>
               {isEdit ? (
-                <span className="text-emerald-500 text-sm">৳{Number(formData.paidAmount).toLocaleString()}</span>
+                <span className="text-emerald-500 text-sm">{symbol}{Number(formData.paidAmount).toLocaleString()}</span>
+
               ) : (
                 <input type="number" name="paidAmount" value={formData.paidAmount === 0 ? '' : formData.paidAmount} onChange={handleInputChange} placeholder="0" className="bg-background border border-border rounded-lg px-2 py-1 text-xs outline-none focus:border-primary w-24 text-right" />
               )}
             </div>
             <div className="flex justify-between items-center text-xs font-bold">
               <span className="text-muted-foreground uppercase tracking-widest">Due Amount</span>
-              <span className="text-red-500 text-sm">৳{dueAmount.toLocaleString()}</span>
+              <span className="text-red-500 text-sm">{symbol}{dueAmount.toLocaleString()}</span>
+
             </div>
           </div>
         </div>

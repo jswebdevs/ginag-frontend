@@ -47,7 +47,7 @@ export default function EditStorefrontPage() {
     return (
         <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
             <div>
-                <h1 className="text-2xl md:text-3xl font-black text-heading uppercase tracking-tight">
+                <h1 className="text-2xl md:text-3xl font-black text-heading uppercase">
                     Edit <span className="text-primary italic">Page</span>
                 </h1>
                 <p className="text-muted-foreground text-sm font-medium mt-1">
@@ -55,8 +55,8 @@ export default function EditStorefrontPage() {
                 </p>
             </div>
 
-            {/* Pass the fetched data directly into the form! */}
-            <PageCreationForm initialData={initialData} />
+            {/* key forces full remount when switching between different pages */}
+            <PageCreationForm key={initialData.id} initialData={initialData} />
         </div>
     );
 }

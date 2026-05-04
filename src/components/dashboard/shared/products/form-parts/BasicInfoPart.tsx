@@ -4,9 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import api from "@/lib/axios";
 import { ChevronDown, Search, Check, AlignLeft, List, Plus, Trash2, Wand2 } from "lucide-react";
 import Swal from "sweetalert2";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function BasicInfoPart({ product, update }: any) {
+  const { symbol } = useCurrency();
   const [descType, setDescType] = useState<"paragraph" | "list">("paragraph");
+
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -99,7 +103,8 @@ export default function BasicInfoPart({ product, update }: any) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-primary/5 rounded-3xl border border-primary/10">
         <div>
           <div className="flex items-center mb-2">
-            <label className="text-[10px] font-black text-primary uppercase tracking-widest">Global Base Price (৳)</label>
+            <label className="text-[10px] font-black text-primary uppercase tracking-widest">Global Base Price ({symbol})</label>
+
           </div>
           <input
             type="number" value={product.basePrice} onChange={(e) => update({ basePrice: e.target.value })}
@@ -108,7 +113,8 @@ export default function BasicInfoPart({ product, update }: any) {
         </div>
         <div>
           <div className="flex items-center mb-2">
-            <label className="text-[10px] font-black text-primary uppercase tracking-widest">Global Sale Price (৳)</label>
+            <label className="text-[10px] font-black text-primary uppercase tracking-widest">Global Sale Price ({symbol})</label>
+
           </div>
           <input
             type="number" value={product.salePrice} onChange={(e) => update({ salePrice: e.target.value })}

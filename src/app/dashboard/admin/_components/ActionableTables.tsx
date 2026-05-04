@@ -3,13 +3,17 @@
 import React from 'react';
 import { CheckCircle, Eye, Clock, Store } from 'lucide-react'; // <-- Added Store here
 import Link from 'next/link';
+import { useCurrency } from '@/context/SettingsContext';
+
 
 interface ActionablesData {
   recentOrders: any[];
 }
 
 export default function ActionableTables({ actionables }: { actionables: ActionablesData }) {
+  const { symbol } = useCurrency();
   if (!actionables) return null;
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -46,7 +50,8 @@ export default function ActionableTables({ actionables }: { actionables: Actiona
                       {order.customerName || `${order.user?.firstName || ''} ${order.user?.lastName || ''}` || 'Guest'}
                     </td>
                     <td className="py-3 px-2 text-foreground font-medium">
-                      ৳{Number(order.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      {symbol}{Number(order.totalAmount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+
                     </td>
                     <td className="py-3 px-2">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider

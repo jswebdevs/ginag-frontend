@@ -5,9 +5,13 @@ import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import api from "@/lib/axios";
 import { Loader2, PackageSearch, ArrowDownUp, Folder, Tag, Image as ImageIcon } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 function SearchContent() {
+  const { symbol } = useCurrency();
   const searchParams = useSearchParams();
+
   const query = searchParams.get("q") || "";
 
   const [results, setResults] = useState<any[]>([]);
@@ -90,7 +94,7 @@ function SearchContent() {
       {results.length > 0 ? (
         <div className="space-y-10">
 
-          {/* SECTION 1: RELATED CATEGORIES & BRANDS (Pills) */}
+          {/* SECTION 1: RELATED CATEGORIES */}
           {otherResults.length > 0 && (
             <div>
               <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-4">Related Categories</h3>
@@ -98,7 +102,7 @@ function SearchContent() {
                 {otherResults.map((item, idx) => {
                   const itemSlug = item.slug || item.id;
                   // Route dynamically based on type
-                  const link = item.type === 'category' ? `/categories/${itemSlug}` : `/brand/${itemSlug}`;
+                  const link = item.type === 'category' ? `/categories/${itemSlug}` : "";
                   const Icon = item.type === 'category' ? Folder : Tag;
 
                   return (
@@ -125,7 +129,8 @@ function SearchContent() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
                 {sortedProducts.map((product, idx) => {
                   const imageSrc = product.featuredImage?.thumbUrl || product.featuredImage?.originalUrl;
-                  const price = product.basePrice ? `৳${Number(product.basePrice).toLocaleString()}` : 'N/A';
+                  const price = product.basePrice ? `${symbol}${Number(product.basePrice).toLocaleString()}` : 'N/A';
+
 
                   return (
                     <Link

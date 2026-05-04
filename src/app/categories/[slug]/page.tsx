@@ -4,13 +4,17 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import api from "@/lib/axios";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 // 🔥 Use the central IconRenderer and specific React Icons
 import IconRenderer from "@/components/shared/IconRenderer";
 import { LuLoader, LuCloudOff, LuImage, LuPackageOpen } from "react-icons/lu";
 
 export default function SingleCategoryPage() {
+  const { symbol } = useCurrency();
   const params = useParams();
+
   const slug = params.slug as string;
 
   const [category, setCategory] = useState<any>(null);
@@ -155,7 +159,8 @@ export default function SingleCategoryPage() {
               {products.map((product) => {
                 const itemName = product.name || product.title || "Unnamed Product";
                 const imageSrc = product.featuredImage?.thumbUrl || product.featuredImage?.originalUrl;
-                const priceText = product.basePrice ? `৳${Number(product.basePrice).toLocaleString()}` : 'N/A';
+                const priceText = product.basePrice ? `${symbol}${Number(product.basePrice).toLocaleString()}` : 'N/A';
+
 
                 return (
                   <Link

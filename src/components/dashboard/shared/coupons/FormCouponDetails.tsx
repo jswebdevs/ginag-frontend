@@ -1,9 +1,13 @@
 "use client";
 
 import { Ticket, Percent, Banknote } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function FormCouponDetails({ data, update }: any) {
+  const { symbol } = useCurrency();
   return (
+
     <div className="bg-card border border-border rounded-3xl p-8 shadow-theme-sm space-y-6">
       <div className="border-b border-border pb-4">
         <h2 className="text-xl font-black text-foreground tracking-tight flex items-center gap-2">
@@ -84,7 +88,8 @@ export default function FormCouponDetails({ data, update }: any) {
                 className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-primary transition-all font-mono"
               />
               <span className="absolute left-4 top-2.5 font-bold text-muted-foreground">
-                {data.discountType === "PERCENTAGE" ? "%" : "৳"}
+                {data.discountType === "PERCENTAGE" ? "%" : symbol}
+
               </span>
             </div>
           </div>

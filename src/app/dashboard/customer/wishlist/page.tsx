@@ -6,9 +6,13 @@ import { Trash2, ShoppingCart, Image as ImageIcon, Heart } from "lucide-react";
 import api from "@/lib/axios";
 import { useCartStore } from "@/store/useCartStore";
 import Swal from "sweetalert2";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function WishlistPage() {
+    const { symbol } = useCurrency();
     const [wishlistItems, setWishlistItems] = useState<any[]>([]);
+
     const [loading, setLoading] = useState(true);
     const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
@@ -212,10 +216,12 @@ export default function WishlistPage() {
                                             {/* Price Column */}
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold text-foreground">৳{currentPrice.toLocaleString()}</span>
+                                                    <span className="font-bold text-foreground">{symbol}{currentPrice.toLocaleString()}</span>
+
                                                     {originalPrice && (
                                                         <span className="text-xs text-muted-foreground line-through">
-                                                            ৳{originalPrice.toLocaleString()}
+                                                            {symbol}{originalPrice.toLocaleString()}
+
                                                         </span>
                                                     )}
                                                 </div>

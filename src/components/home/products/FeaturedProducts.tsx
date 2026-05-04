@@ -6,6 +6,8 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import api from "@/lib/axios";
 import { ArrowRight, Layers, ShoppingCart, Sparkles } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 interface FeaturedProductsProps {
   initialProducts?: any[];
@@ -122,8 +124,10 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
 }
 
 function FeaturedProductCard({ product, index }: { product: any; index: number }) {
+  const { symbol } = useCurrency();
   const imageUrl = product.featuredImage?.originalUrl || product.featuredImage?.thumbUrl;
   const price = Number(product.salePrice || product.basePrice || 0);
+
 
   return (
     <motion.div
@@ -157,7 +161,8 @@ function FeaturedProductCard({ product, index }: { product: any; index: number }
         </h3>
         <div className="flex items-center justify-between gap-2">
           <span className="text-xl md:text-2xl font-black text-primary">
-            ৳{price.toLocaleString()}
+            {symbol}{price.toLocaleString()}
+
           </span>
           <Link href={`/products/${product.slug}`}>
             <button aria-label={`View ${product.name}`} className="flex items-center gap-2 px-3 md:px-4 py-2 bg-primary/10 text-primary rounded-full text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-primary-foreground transition-all">

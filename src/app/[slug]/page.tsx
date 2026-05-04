@@ -5,6 +5,11 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import api from "@/lib/axios";
 import { LuLoader } from "react-icons/lu";
+import AboutTemplate from "@/components/templates/AboutTemplate";
+import ProcessTemplate from "@/components/templates/ProcessTemplate";
+import FAQTemplate from "@/components/templates/FAQTemplate";
+import ContactTemplate from "@/components/templates/ContactTemplate";
+import PolicyTemplate from "@/components/templates/PolicyTemplate";
 
 // --- 1. The Alternating Split-Screen Block (Hero) ---
 const SplitBlock = ({ data, alignLeft }: { data: any; alignLeft: boolean }) => (
@@ -120,6 +125,27 @@ export default function DynamicStorefrontPage({ params }: PageProps) {
 
     if (error || !pageData || !pageData.content) {
         return notFound();
+    }
+
+    // --- Template Selector ---
+    if (pageData.template === "ABOUT") {
+        return <AboutTemplate data={pageData} />;
+    }
+
+    if (pageData.template === "PROCESS") {
+        return <ProcessTemplate data={pageData} />;
+    }
+
+    if (pageData.template === "FAQ") {
+        return <FAQTemplate data={pageData} />;
+    }
+
+    if (pageData.template === "CONTACT") {
+        return <ContactTemplate data={pageData} />;
+    }
+
+    if (pageData.template === "POLICY") {
+        return <PolicyTemplate data={pageData} />;
     }
 
     // Variable to track alternating image alignment

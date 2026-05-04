@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { Edit, Trash2, Ticket, CalendarX2, Percent, Tag } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 interface CouponTableProps {
     coupons: any[];
@@ -9,6 +11,8 @@ interface CouponTableProps {
 }
 
 export default function CouponTable({ coupons, onDelete }: CouponTableProps) {
+    const { symbol } = useCurrency();
+
     if (coupons.length === 0) {
         return (
             <div className="p-8 text-center text-muted-foreground font-medium italic border border-border rounded-2xl bg-card">
@@ -62,10 +66,12 @@ export default function CouponTable({ coupons, onDelete }: CouponTableProps) {
                                         <Tag size={10} /> Discount
                                     </p>
                                     <p className="font-bold text-foreground text-sm">
-                                        {coupon.discountType === "PERCENTAGE" ? `${coupon.discountValue}% OFF` : `৳${coupon.discountValue} OFF`}
+                                        {coupon.discountType === "PERCENTAGE" ? `${coupon.discountValue}% OFF` : `${symbol}${coupon.discountValue} OFF`}
+
                                     </p>
                                     <p className="text-[10px] text-muted-foreground mt-0.5">
-                                        Min: ৳{coupon.minPurchase} {coupon.maxDiscount ? `| Max: ৳${coupon.maxDiscount}` : ""}
+                                        Min: {symbol}{coupon.minPurchase} {coupon.maxDiscount ? `| Max: ${symbol}${coupon.maxDiscount}` : ""}
+
                                     </p>
                                 </div>
                                 <div>
@@ -155,10 +161,12 @@ export default function CouponTable({ coupons, onDelete }: CouponTableProps) {
                                     </td>
                                     <td className="p-4">
                                         <p className="font-bold text-foreground text-sm">
-                                            {coupon.discountType === "PERCENTAGE" ? `${coupon.discountValue}% OFF` : `৳${coupon.discountValue} OFF`}
+                                            {coupon.discountType === "PERCENTAGE" ? `${coupon.discountValue}% OFF` : `${symbol}${coupon.discountValue} OFF`}
+
                                         </p>
                                         <p className="text-xs text-muted-foreground mt-0.5">
-                                            Min: ৳{coupon.minPurchase} {coupon.maxDiscount ? `| Max: ৳${coupon.maxDiscount}` : ""}
+                                            Min: {symbol}{coupon.minPurchase} {coupon.maxDiscount ? `| Max: ${symbol}${coupon.maxDiscount}` : ""}
+
                                         </p>
                                     </td>
                                     <td className="p-4">

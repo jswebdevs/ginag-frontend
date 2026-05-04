@@ -111,6 +111,8 @@ export function generateViewport() {
 }
 
 
+import { SettingsProvider } from "@/context/SettingsContext";
+
 // 3. Updated Async Root Layout
 export default async function RootLayout({
   children,
@@ -146,7 +148,8 @@ export default async function RootLayout({
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
         <TanstackProvider>
           <AuthProvider>
-            <ThemeProvider initialTheme={activeTheme}>
+            <SettingsProvider initialSettings={settings}>
+              <ThemeProvider initialTheme={activeTheme}>
 
               <MaintenanceGuard
                 isMaintenanceMode={isMaintenanceMode}
@@ -170,6 +173,7 @@ export default async function RootLayout({
               <Toaster richColors position="top-right" />
 
             </ThemeProvider>
+            </SettingsProvider>
           </AuthProvider>
         </TanstackProvider>
       </body>

@@ -27,7 +27,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     slug: "",
     productCode: "",
     origin: "",
-    brandId: "",
     basePrice: 0,
     salePrice: 0,
     shortDesc: "",
@@ -63,7 +62,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         basePrice: Number(initialData.basePrice) || 0,
         salePrice: Number(initialData.salePrice) || 0,
         origin: initialData.origin || "",
-        brandId: initialData.brandId || "",
 
         categoryIds: initialData.categories?.map((c: any) => c.id) || initialData.categoryIds || [],
         suggestedProducts: initialData.suggestedProducts?.map((p: any) => p.id) || initialData.suggestedProducts || [],
@@ -110,7 +108,6 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         slug: product.slug,
         productCode: product.productCode,
         origin: product.origin,
-        brandId: product.brandId,
         basePrice: product.basePrice,
         salePrice: product.salePrice,
         shortDesc: product.shortDesc,

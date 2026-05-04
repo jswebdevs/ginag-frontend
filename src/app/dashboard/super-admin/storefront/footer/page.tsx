@@ -3,17 +3,17 @@
 import { useState, useEffect } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
-import { 
-  LayoutDashboard, 
-  Plus, 
-  Trash2, 
-  Save, 
-  Loader2, 
-  Link as LinkIcon, 
-  Info, 
-  Phone, 
-  Mail, 
-  MapPin, 
+import {
+  LayoutDashboard,
+  Plus,
+  Trash2,
+  Save,
+  Loader2,
+  Link as LinkIcon,
+  Info,
+  Phone,
+  Mail,
+  MapPin,
   Store,
   ExternalLink,
   ChevronUp,
@@ -194,9 +194,9 @@ export default function FooterManagementPage() {
     const items = col === 'col4' ? [...config.col4.contacts] : [...config[col].links];
     const newIndex = direction === 'up' ? index - 1 : index + 1;
     if (newIndex < 0 || newIndex >= items.length) return;
-    
+
     [items[index], items[newIndex]] = [items[newIndex], items[index]];
-    
+
     setConfig(prev => ({
       ...prev,
       [col]: col === 'col4' ? { ...prev.col4, contacts: items } : { ...prev[col], links: items }
@@ -242,21 +242,20 @@ export default function FooterManagementPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
-                activeTab === tab
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === tab
                   ? "bg-primary text-primary-foreground shadow-theme-sm"
                   : "bg-card text-muted-foreground hover:bg-muted border border-border"
-              }`}
+                }`}
             >
               <div className={`p-1.5 rounded-lg ${activeTab === tab ? "bg-white/20" : "bg-muted"}`}>
                 {tab === "col1" && <Info size={16} />}
                 {(tab === "col2" || tab === "col3") && <LinkIcon size={16} />}
                 {tab === "col4" && <Phone size={16} />}
               </div>
-              {tab === "col1" ? "Column 1: Branding" : 
-               tab === "col2" ? "Column 2: Quick Links" : 
-               tab === "col3" ? "Column 3: Support" : 
-               "Column 4: Contacts"}
+              {tab === "col1" ? "Column 1: Branding" :
+                tab === "col2" ? "Column 2: Quick Links" :
+                  tab === "col3" ? "Column 3: Support" :
+                    "Column 4: Contacts"}
             </button>
           ))}
         </div>
@@ -264,7 +263,7 @@ export default function FooterManagementPage() {
         {/* CONTENT */}
         <div className="lg:col-span-3 space-y-6">
           <div className="bg-card border border-border rounded-3xl p-8 shadow-theme-sm space-y-8">
-            
+
             {/* COLUMN 1 */}
             {activeTab === "col1" && (
               <div className="space-y-6">
@@ -276,14 +275,14 @@ export default function FooterManagementPage() {
                   <div className="flex gap-4">
                     <label className="flex items-center gap-2 cursor-pointer group">
                       <div className="relative inline-flex items-center">
-                        <input type="checkbox" checked={config.col1.showLogo} onChange={e => setConfig({...config, col1: {...config.col1, showLogo: e.target.checked}})} className="sr-only peer" />
+                        <input type="checkbox" checked={config.col1.showLogo} onChange={e => setConfig({ ...config, col1: { ...config.col1, showLogo: e.target.checked } })} className="sr-only peer" />
                         <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                       </div>
                       <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground">Show Logo</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer group">
                       <div className="relative inline-flex items-center">
-                        <input type="checkbox" checked={config.col1.showTitle} onChange={e => setConfig({...config, col1: {...config.col1, showTitle: e.target.checked}})} className="sr-only peer" />
+                        <input type="checkbox" checked={config.col1.showTitle} onChange={e => setConfig({ ...config, col1: { ...config.col1, showTitle: e.target.checked } })} className="sr-only peer" />
                         <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:bg-primary after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
                       </div>
                       <span className="text-xs font-bold text-muted-foreground group-hover:text-foreground">Show Title</span>
@@ -294,19 +293,19 @@ export default function FooterManagementPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2 block">Footer Site Title</label>
-                    <input 
-                      type="text" 
-                      value={config.col1.title} 
-                      onChange={e => setConfig({...config, col1: {...config.col1, title: e.target.value}})}
+                    <input
+                      type="text"
+                      value={config.col1.title}
+                      onChange={e => setConfig({ ...config, col1: { ...config.col1, title: e.target.value } })}
                       className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none font-bold"
                     />
                   </div>
                   <div>
                     <label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2 block">Footer Description (About Section)</label>
-                    <textarea 
+                    <textarea
                       rows={4}
-                      value={config.col1.description} 
-                      onChange={e => setConfig({...config, col1: {...config.col1, description: e.target.value}})}
+                      value={config.col1.description}
+                      onChange={e => setConfig({ ...config, col1: { ...config.col1, description: e.target.value } })}
                       className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none font-medium leading-relaxed"
                     />
                   </div>
@@ -319,10 +318,10 @@ export default function FooterManagementPage() {
               <div className="space-y-6">
                 <div>
                   <label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2 block">Column Title</label>
-                  <input 
-                    type="text" 
-                    value={config[activeTab].title} 
-                    onChange={e => setConfig({...config, [activeTab]: {...config[activeTab], title: e.target.value}})}
+                  <input
+                    type="text"
+                    value={config[activeTab].title}
+                    onChange={e => setConfig({ ...config, [activeTab]: { ...config[activeTab], title: e.target.value } })}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none font-black uppercase tracking-widest"
                   />
                 </div>
@@ -330,36 +329,36 @@ export default function FooterManagementPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <label className="text-xs font-black text-muted-foreground uppercase tracking-wider">Links</label>
-                    <button 
+                    <button
                       onClick={() => addLink(activeTab)}
                       className="text-[10px] font-black uppercase bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all flex items-center gap-1.5"
                     >
                       <Plus size={12} /> Add Link
                     </button>
                   </div>
-                  
+
                   <div className="space-y-3">
                     {config[activeTab].links.map((link, i) => (
                       <div key={i} className="flex gap-3 group animate-in slide-in-from-left-2 duration-200">
                         <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => moveItem(activeTab, i, 'up')} disabled={i === 0} className="p-1 hover:text-primary disabled:opacity-30"><ChevronUp size={14}/></button>
-                          <button onClick={() => moveItem(activeTab, i, 'down')} disabled={i === config[activeTab].links.length - 1} className="p-1 hover:text-primary disabled:opacity-30"><ChevronDown size={14}/></button>
+                          <button onClick={() => moveItem(activeTab, i, 'up')} disabled={i === 0} className="p-1 hover:text-primary disabled:opacity-30"><ChevronUp size={14} /></button>
+                          <button onClick={() => moveItem(activeTab, i, 'down')} disabled={i === config[activeTab].links.length - 1} className="p-1 hover:text-primary disabled:opacity-30"><ChevronDown size={14} /></button>
                         </div>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           placeholder="Label"
-                          value={link.label} 
+                          value={link.label}
                           onChange={e => updateLink(activeTab, i, "label", e.target.value)}
                           className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none font-bold"
                         />
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           placeholder="URL / Path"
-                          value={link.href} 
+                          value={link.href}
                           onChange={e => updateLink(activeTab, i, "href", e.target.value)}
                           className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none font-mono"
                         />
-                        <button 
+                        <button
                           onClick={() => removeLink(activeTab, i)}
                           className="p-3 bg-muted rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
                         >
@@ -377,10 +376,10 @@ export default function FooterManagementPage() {
               <div className="space-y-6">
                 <div>
                   <label className="text-xs font-black text-muted-foreground uppercase tracking-wider mb-2 block">Column Title</label>
-                  <input 
-                    type="text" 
-                    value={config.col4.title} 
-                    onChange={e => setConfig({...config, col4: {...config.col4, title: e.target.value}})}
+                  <input
+                    type="text"
+                    value={config.col4.title}
+                    onChange={e => setConfig({ ...config, col4: { ...config.col4, title: e.target.value } })}
                     className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none font-black uppercase tracking-widest"
                   />
                 </div>
@@ -388,51 +387,51 @@ export default function FooterManagementPage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <label className="text-xs font-black text-muted-foreground uppercase tracking-wider">Contacts</label>
-                    <button 
+                    <button
                       onClick={addContact}
                       className="text-[10px] font-black uppercase bg-primary/10 text-primary px-3 py-1.5 rounded-lg hover:bg-primary hover:text-white transition-all flex items-center gap-1.5"
                     >
                       <Plus size={12} /> Add Contact
                     </button>
                   </div>
-                  
+
                   <div className="space-y-4">
                     {config.col4.contacts.map((contact, i) => (
                       <div key={i} className="flex gap-4 items-start group p-4 border border-border rounded-2xl bg-muted/10 animate-in slide-in-from-left-2 duration-200">
                         <div className="flex flex-col gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity self-center">
-                          <button onClick={() => moveItem('col4', i, 'up')} disabled={i === 0} className="p-1 hover:text-primary disabled:opacity-30"><ChevronUp size={14}/></button>
-                          <button onClick={() => moveItem('col4', i, 'down')} disabled={i === config.col4.contacts.length - 1} className="p-1 hover:text-primary disabled:opacity-30"><ChevronDown size={14}/></button>
+                          <button onClick={() => moveItem('col4', i, 'up')} disabled={i === 0} className="p-1 hover:text-primary disabled:opacity-30"><ChevronUp size={14} /></button>
+                          <button onClick={() => moveItem('col4', i, 'down')} disabled={i === config.col4.contacts.length - 1} className="p-1 hover:text-primary disabled:opacity-30"><ChevronDown size={14} /></button>
                         </div>
-                        
+
                         <div className="flex flex-col gap-3">
                           <div className="w-12 h-12 rounded-xl bg-background border border-border flex items-center justify-center text-primary shadow-sm group-hover:border-primary transition-colors cursor-pointer"
-                               onClick={() => { setActiveContactIndex(i); setIsIconPickerOpen(true); }}>
+                            onClick={() => { setActiveContactIndex(i); setIsIconPickerOpen(true); }}>
                             <IconRenderer name={contact.icon} className="w-6 h-6" />
                           </div>
                           <span className="text-[8px] font-black text-muted-foreground uppercase text-center">Icon</span>
                         </div>
 
                         <div className="flex-1 space-y-3">
-                          <input 
-                            type="text" 
+                          <input
+                            type="text"
                             placeholder="Contact Text / Value"
-                            value={contact.text} 
+                            value={contact.text}
                             onChange={e => updateContact(i, "text", e.target.value)}
                             className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:border-primary outline-none font-bold"
                           />
                           <div className="flex items-center gap-2">
                             <ExternalLink size={14} className="text-muted-foreground" />
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               placeholder="Optional Link (tel:, mailto:, or URL)"
-                              value={contact.link || ""} 
+                              value={contact.link || ""}
                               onChange={e => updateContact(i, "link", e.target.value)}
                               className="flex-1 bg-background border border-border rounded-lg px-3 py-1.5 text-[11px] focus:border-primary outline-none font-mono"
                             />
                           </div>
                         </div>
 
-                        <button 
+                        <button
                           onClick={() => removeContact(i)}
                           className="p-3 bg-muted rounded-xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors self-center"
                         >

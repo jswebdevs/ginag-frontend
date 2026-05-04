@@ -1,9 +1,13 @@
 "use client";
 
 import { ShieldAlert, CalendarClock, ShoppingCart, Users } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function FormCouponRules({ data, update }: any) {
+    const { symbol } = useCurrency();
     const isPercentage = data.discountType === "PERCENTAGE";
+
 
     return (
         <div className="bg-card border border-border rounded-3xl p-8 shadow-theme-sm space-y-8 mt-8">
@@ -51,7 +55,8 @@ export default function FormCouponRules({ data, update }: any) {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Minimum Purchase (৳)</label>
+                            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Minimum Purchase ({symbol})</label>
+
                             <input
                                 type="number" min="0" step="0.01"
                                 value={data.minPurchase}
@@ -63,7 +68,8 @@ export default function FormCouponRules({ data, update }: any) {
                         </div>
 
                         <div className={`space-y-2 transition-opacity ${!isPercentage ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
-                            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Maximum Discount (৳)</label>
+                            <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Maximum Discount ({symbol})</label>
+
                             <input
                                 type="number" min="0" step="0.01"
                                 value={data.maxDiscount}

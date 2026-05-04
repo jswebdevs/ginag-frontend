@@ -5,9 +5,13 @@ import Link from 'next/link';
 import api from '@/lib/axios';
 import { useUserStore } from '@/store/useUserStore';
 import { Package, ShoppingBag, Heart, ArrowRight } from 'lucide-react';
+import { useCurrency } from '@/context/SettingsContext';
+
 
 export default function UserDashboardPage() {
+    const { symbol } = useCurrency();
     const { user } = useUserStore();
+
 
     const [stats, setStats] = useState({ activeOrders: 0, totalOrders: 0, wishlistItems: 0 });
     const [recentOrders, setRecentOrders] = useState<any[]>([]);
@@ -153,7 +157,8 @@ export default function UserDashboardPage() {
                                 <div className="flex items-center justify-between sm:justify-end gap-6 sm:w-1/2">
                                     <div className="text-left sm:text-right">
                                         <p className="text-xs text-muted-foreground mb-1">Total</p>
-                                        <p className="font-bold text-foreground">৳{(Number(order.totalAmount) || 0).toLocaleString()}</p>
+                                        <p className="font-bold text-foreground">{symbol}{(Number(order.totalAmount) || 0).toLocaleString()}</p>
+
                                     </div>
 
                                     <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border border-transparent ${getStatusColor(order.status)}`}>

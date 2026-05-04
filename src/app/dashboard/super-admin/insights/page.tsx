@@ -4,9 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { Users, CreditCard, ShoppingBag, TrendingUp, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import api from '@/lib/axios';
+import { useCurrency } from '@/context/SettingsContext';
+
 
 export default function InsightsPage() {
+  const { symbol } = useCurrency();
   const [data, setData] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -82,14 +86,14 @@ export default function InsightsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
           title="Total Revenue (6m)" 
-          value={`৳${data?.kpis?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}`} 
+          value={`${symbol}${data?.kpis?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2 }) || '0.00'}`} 
           trend="Based on delivered orders" 
           icon={<TrendingUp className="w-6 h-6 text-primary" />} 
           color="bg-primary/10"
         />
         <StatCard 
           title="Avg. Order Value" 
-          value={`৳${data?.kpis?.avgOrderValue?.toFixed(2) || '0.00'}`} 
+          value={`${symbol}${data?.kpis?.avgOrderValue?.toFixed(2) || '0.00'}`} 
           trend="Per successful transaction" 
           icon={<CreditCard className="w-6 h-6 text-emerald-500" />} 
           color="bg-emerald-500/10"
@@ -134,7 +138,8 @@ export default function InsightsPage() {
                 tickLine={false} 
                 tick={{ fill: 'currentColor', fontSize: 12 }} 
                 className="text-muted-foreground"
-                tickFormatter={(val) => `৳${val}`}
+                tickFormatter={(val) => `${symbol}${val}`}
+
               />
               
               <YAxis 
@@ -159,7 +164,8 @@ export default function InsightsPage() {
               />
               
               {/* Uses primary color for Revenue */}
-              <Bar yAxisId="left" dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} name="Revenue (৳)" />
+              <Bar yAxisId="left" dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} name={`Revenue (${symbol})`} />
+
               
               {/* Uses primary color with 30% opacity for Orders to avoid the missing --secondary black box */}
               <Bar yAxisId="right" dataKey="orders" fill="var(--primary)" fillOpacity={0.3} radius={[4, 4, 0, 0]} name="Total Orders" />

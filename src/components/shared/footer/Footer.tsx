@@ -43,21 +43,21 @@ export default async function Footer() {
     links: [
       { label: "Shop All Products", href: "/shop" },
       { label: "Help Center & FAQ", href: "/faq" },
-      { label: "Today's Deals", href: "/deals" },
+      { label: "Custom Order Process", href: "/custom-order-process" },
       { label: "Categories", href: "/categories" },
-      { label: "About Us", href: "/about" }
+      { label: "About Us", href: "/about-us" }
     ]
   };
 
   const col3 = footerConfig?.col3 || {
     title: "Customer Support",
     links: [
-      { label: "My Account", href: "/account" },
-      { label: "Track Order", href: "/track-order" },
-      { label: "Shipping Policy", href: "/policies/shipping-policy" },
-      { label: "Returns & Refunds", href: "/policies/return-policy" },
-      { label: "Privacy Policy", href: "/policies/privacy-policy" },
-      { label: "Terms of Service", href: "/policies/terms-of-service" }
+      { label: "My Account", href: "/dashboard" },
+      { label: "Track Order", href: "/dashboard/orders" },
+      { label: "Shipping Policy", href: "/shipping-policy" },
+      { label: "Returns & Refunds", href: "/return-refund-policy" },
+      { label: "Privacy Policy", href: "/privacy-policy" },
+      { label: "Terms of Service", href: "/terms-of-service" }
     ]
   };
 

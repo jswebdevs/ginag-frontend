@@ -1,4 +1,5 @@
 const REVALIDATE_SETTINGS = 300;  // 5 min — store settings rarely change
+const REVALIDATE_PAGE = 120;      // 2 min — admin edits show sooner
 const REVALIDATE_THEME    = 300;
 const REVALIDATE_HOMEPAGE = 120;  // 2 min — admin edits need to show sooner
 
@@ -36,6 +37,19 @@ export async function getActiveTheme() {
     if (!res.ok) return null;
     const json = await res.json();
     return json.data;
+  } catch {
+    return null;
+  }
+}
+
+export async function getPageBySlug(slug: string) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pages/${slug}`, {
+      next: { revalidate: REVALIDATE_PAGE, tags: [`page-${slug}`] },
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.data || null;
   } catch {
     return null;
   }

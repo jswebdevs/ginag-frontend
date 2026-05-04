@@ -3,22 +3,12 @@
 export type Role =
   | 'SUPER_ADMIN'
   | 'ADMIN'
-  | 'PRODUCT_MANAGER'
-  | 'ORDER_MANAGER'
-  | 'SUPPORT_AGENT'
-  | 'MARKETING_SPECIALIST'
-  | 'DELIVERY_MANAGER'
   | 'CUSTOMER';
 
 // 1. Define the power ranking (Highest to Lowest)
 const ROLE_HIERARCHY: Role[] = [
   'SUPER_ADMIN',
   'ADMIN',
-  'PRODUCT_MANAGER',
-  'ORDER_MANAGER',
-  'DELIVERY_MANAGER',
-  'MARKETING_SPECIALIST',
-  'SUPPORT_AGENT',
   'CUSTOMER'
 ];
 

@@ -51,7 +51,10 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
     const [slug, setSlug] = useState(initialData?.slug || "");
     const [status, setStatus] = useState<"PUBLISHED" | "DRAFT">(initialData?.status || "DRAFT");
     const [featuredImage, setFeaturedImage] = useState(initialData?.featuredImage || "");
+    const [template, setTemplate] = useState(initialData?.template || "DEFAULT");
+    const [metaTitle, setMetaTitle] = useState(initialData?.metaTitle || "");
     const [metaDescription, setMetaDescription] = useState(initialData?.metaDescription || "");
+    const [pageConfig, setPageConfig] = useState<any>(initialData?.pageConfig || {});
     const [blocks, setBlocks] = useState<any[]>(
         (initialData?.content || []).map((b: any) => ({
             ...b,
@@ -171,13 +174,16 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
         setLoading(true);
 
         try {
-            const payload = { 
-                title, 
-                slug, 
-                status, 
+            const payload = {
+                title,
+                slug,
+                status,
                 featuredImage,
+                metaTitle,
                 metaDescription,
-                content: blocks 
+                pageConfig,
+                template,
+                content: blocks
             };
 
             if (initialData?.id) {
@@ -206,7 +212,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
 
             <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in duration-500">
                 {/* Header Action Bar */}
-                <div className="flex flex-col sm:flex-row items-center justify-between bg-card/80 backdrop-blur-xl p-4 rounded-3xl border border-border shadow-theme-lg sticky top-6 z-50 gap-4">
+                <div className="flex flex-col sm:flex-row items-center justify-between bg-card/80 backdrop-blur-xl p-4 rounded-3xl border border-border shadow-theme-lg gap-4">
                     <div className="flex items-center gap-4">
                         <button type="button" onClick={() => router.back()} className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors">
                             <ArrowLeft className="w-5 h-5" />
@@ -433,7 +439,7 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
 
                     {/* Right Sidebar: Settings */}
                     <div className="lg:col-span-4 space-y-8">
-                        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm space-y-8 sticky top-28">
+                        <div className="bg-card border border-border rounded-[2.5rem] p-8 shadow-sm space-y-8">
                             <div>
                                 <h3 className="text-sm font-black uppercase tracking-tight flex items-center gap-2 mb-6">
                                     <Settings size={16} className="text-primary" />
@@ -486,6 +492,67 @@ export default function PageCreationForm({ initialData }: PageFormProps) {
                                         {featuredImage && (
                                             <button type="button" onClick={() => setFeaturedImage("")} className="text-[9px] font-black text-red-500 uppercase tracking-widest hover:underline">Remove Featured Image</button>
                                         )}
+                                    </div>
+
+                                     {/* Template Selection */}
+                                     <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Page Template</label>
+                                        <select
+                                            value={template}
+                                            onChange={(e) => setTemplate(e.target.value)}
+                                            className="w-full bg-muted/30 border border-border rounded-2xl px-4 py-3 text-sm font-bold focus:ring-2 focus:ring-primary focus:outline-none cursor-pointer hover:bg-muted transition-colors"
+                                        >
+                                            <option value="DEFAULT">Default (Blocks)</option>
+                                            <option value="ABOUT">About Us (Editorial)</option>
+                                            <option value="PROCESS">Custom Order Process (Visual)</option>
+                                            <option value="FAQ">Help Center (Accordion)</option>
+                                            <option value="CONTACT">Contact Us (Form + Info)</option>
+                                            <option value="POLICY">Policy/Legal (Document)</option>
+                                            <option value="SHIPPING">Shipping Policy (Timeline)</option>
+                                            <option value="RETURN_REFUND">Return & Refund (Sections)</option>
+                                            <option value="CANCELLATION">Cancellation (Time Window)</option>
+                                            <option value="EXCHANGE">Exchange Policy (Conditions)</option>
+                                            <option value="PRIVACY">Privacy Policy (Data)</option>
+                                            <option value="TERMS">Terms of Service (Legal)</option>
+                                        </select>
+                                        <p className="text-[9px] text-muted-foreground italic font-medium">Choose a specialized layout for specific page types.</p>
+                                    </div>
+
+                                    {/* Contact Page Config */}
+                                    {template === "CONTACT" && (
+                                        <div className="space-y-3 p-4 bg-primary/5 border border-primary/15 rounded-2xl">
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Contact Page Settings</p>
+                                            {[
+                                                { key: "email", label: "Email Address", placeholder: "hello@example.com" },
+                                                { key: "whatsapp", label: "WhatsApp Number", placeholder: "+880 1700 000000" },
+                                                { key: "location", label: "Location / Address", placeholder: "Dhaka, Bangladesh" },
+                                                { key: "responseTime", label: "Response Time", placeholder: "12–24 hours" },
+                                            ].map(({ key, label, placeholder }) => (
+                                                <div key={key} className="space-y-1">
+                                                    <label className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{label}</label>
+                                                    <input
+                                                        type="text"
+                                                        value={pageConfig[key] || ""}
+                                                        onChange={(e) => setPageConfig((prev: any) => ({ ...prev, [key]: e.target.value }))}
+                                                        placeholder={placeholder}
+                                                        className="w-full bg-muted/30 border border-border rounded-xl px-4 py-2.5 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {/* SEO Meta Title */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">SEO Title</label>
+                                        <input
+                                            type="text"
+                                            value={metaTitle}
+                                            onChange={(e) => setMetaTitle(e.target.value)}
+                                            placeholder={title || "Custom browser tab title..."}
+                                            className="w-full bg-muted/30 border border-border rounded-2xl px-5 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                                        />
+                                        <p className="text-[9px] text-muted-foreground italic font-medium">Defaults to page title if left empty.</p>
                                     </div>
 
                                     {/* Meta Description */}

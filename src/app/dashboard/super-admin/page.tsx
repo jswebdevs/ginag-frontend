@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react';
 import api from '@/lib/axios';
 import dynamic from 'next/dynamic';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { useCurrency } from '@/context/SettingsContext';
+
 
 import KPICards from './_components/KPICards';
 import ActionableTables from './_components/ActionableTables';
@@ -18,7 +20,9 @@ const WelcomeCard3D = dynamic(() => import('./_components/WelcomeCard3D'), {
 });
 
 export default function SuperadminDashboardPage() {
+  const { symbol } = useCurrency();
   const [data, setData] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [days, setDays] = useState(30);
@@ -103,11 +107,13 @@ export default function SuperadminDashboardPage() {
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-muted-foreground/20" />
               <XAxis dataKey="name" axisLine={false} tickLine={false} dy={10} fontSize={12} stroke="currentColor" className="text-muted-foreground font-medium" minTickGap={30} />
-              <YAxis axisLine={false} tickLine={false} fontSize={12} stroke="currentColor" className="text-muted-foreground font-medium" tickFormatter={(val) => `৳${val}`} width={65} />
+              <YAxis axisLine={false} tickLine={false} fontSize={12} stroke="currentColor" className="text-muted-foreground font-medium" tickFormatter={(val) => `${symbol}${val}`} width={65} />
+
               <Tooltip
                 contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
                 itemStyle={{ color: 'var(--primary)' }}
-                formatter={(value: any) => [`৳${Number(value).toLocaleString()}`, 'Exact Revenue']}
+                formatter={(value: any) => [`${symbol}${Number(value).toLocaleString()}`, 'Exact Revenue']}
+
               />
               <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
             </AreaChart>

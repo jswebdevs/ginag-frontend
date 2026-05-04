@@ -5,9 +5,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star, ShoppingCart, Heart, ImageIcon } from "lucide-react";
 import api from "@/lib/axios";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 export default function TrendingProducts() {
+  const { symbol } = useCurrency();
   const [products, setProducts] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -163,11 +167,13 @@ export default function TrendingProducts() {
                     <div className="flex flex-col">
                       {oldPrice && (
                         <span className="text-xs text-muted-foreground line-through font-bold">
-                          ৳{Number(oldPrice).toLocaleString()}
+                          {symbol}{Number(oldPrice).toLocaleString()}
+
                         </span>
                       )}
                       <span className="font-black text-lg md:text-xl text-primary leading-none mt-0.5">
-                        ৳{Number(currentPrice).toLocaleString()}
+                        {symbol}{Number(currentPrice).toLocaleString()}
+
                       </span>
                     </div>
 

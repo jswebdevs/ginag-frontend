@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { DollarSign, ShoppingCart, Users, AlertCircle } from 'lucide-react';
+import { useCurrency } from '@/context/SettingsContext';
+
 
 interface KPIData {
   totalRevenue: number;
@@ -11,14 +13,17 @@ interface KPIData {
 }
 
 export default function KPICards({ kpis }: { kpis: KPIData }) {
+  const { symbol } = useCurrency();
   if (!kpis) return null;
+
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
 
       <StatCard
         title="Exact Revenue"
-        value={`৳${kpis.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+        value={`${symbol}${kpis.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+
         icon={<DollarSign className="w-6 h-6" />}
         colorClass="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
       />

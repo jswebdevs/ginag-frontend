@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Eye, Edit, Trash2, Image as ImageIcon, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 interface ProductTableProps {
   products: any[];
@@ -12,7 +14,9 @@ interface ProductTableProps {
 type SortKey = "name" | "price" | "stock" | "category" | null;
 
 export default function ProductTable({ products, onDelete }: ProductTableProps) {
+  const { symbol } = useCurrency();
   const [sortConfig, setSortConfig] = useState<{ key: SortKey; direction: "asc" | "desc" } | null>(null);
+
 
   // Helper to calculate total stock from variations
   const getTotalStock = (product: any) => {
@@ -133,7 +137,8 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
               <div className="flex items-center justify-between py-3 border-y border-border/50">
                 <div>
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">Base Price</p>
-                  <p className="font-black text-foreground">৳{Number(product.basePrice).toLocaleString()}</p>
+                  <p className="font-black text-foreground">{symbol}{Number(product.basePrice).toLocaleString()}</p>
+
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">Total Stock</p>
@@ -257,7 +262,8 @@ export default function ProductTable({ products, onDelete }: ProductTableProps) 
                   </td>
 
                   <td className="p-4 text-right font-black text-foreground">
-                    ৳{Number(product.basePrice).toLocaleString()}
+                    {symbol}{Number(product.basePrice).toLocaleString()}
+
                   </td>
 
                   <td className="p-4 text-center">

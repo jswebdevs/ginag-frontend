@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Eye, ArrowUpDown, ArrowUp, ArrowDown, Trash2, Loader2 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
+import { useCurrency } from "@/context/SettingsContext";
+
 import api from "@/lib/axios";
 import Swal from "sweetalert2";
 
@@ -15,7 +17,9 @@ interface OrderTableProps {
 type SortKey = "orderNumber" | "customer" | "total" | "date" | null;
 
 export default function OrderTable({ orders, onDeleteSuccess }: OrderTableProps) {
+  const { symbol } = useCurrency();
   const { user } = useUserStore();
+
   const isSuperAdmin = user?.roles?.includes('SUPER_ADMIN');
 
   // Default to newest first
@@ -197,7 +201,8 @@ export default function OrderTable({ orders, onDeleteSuccess }: OrderTableProps)
                   <p className="text-xs text-muted-foreground font-medium">{order.customerPhone}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-black text-foreground text-base leading-tight">৳{Number(order.finalAmount).toLocaleString()}</p>
+                  <p className="font-black text-foreground text-base leading-tight">{symbol}{Number(order.finalAmount).toLocaleString()}</p>
+
                   <p className="text-[10px] text-muted-foreground font-bold uppercase mt-0.5">{String(order.paymentMethod).replace(/_/g, ' ')}</p>
                 </div>
               </div>
@@ -257,7 +262,8 @@ export default function OrderTable({ orders, onDeleteSuccess }: OrderTableProps)
                     <p className="text-xs text-muted-foreground font-medium mt-0.5">{order.customerPhone}</p>
                   </td>
                   <td className="p-4 text-right">
-                    <p className="font-black text-foreground text-sm">৳{Number(order.finalAmount).toLocaleString()}</p>
+                    <p className="font-black text-foreground text-sm">{symbol}{Number(order.finalAmount).toLocaleString()}</p>
+
                     <p className="text-[10px] text-muted-foreground font-bold uppercase mt-0.5">{String(order.paymentMethod).replace(/_/g, ' ')}</p>
                   </td>
                   <td className="p-4 text-center">

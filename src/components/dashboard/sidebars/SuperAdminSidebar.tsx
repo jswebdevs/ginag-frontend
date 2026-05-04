@@ -77,11 +77,6 @@ export default function SuperAdminSidebar() {
       icon: Users,
       subItems: [
         { name: "Admins", href: "/dashboard/super-admin/admins" },
-        { name: "Product Managers", href: "/dashboard/super-admin/product-managers" },
-        { name: "Order Managers", href: "/dashboard/super-admin/order-managers" },
-        { name: "Support Agents", href: "/dashboard/super-admin/support-agents" },
-        { name: "Marketing Specialists", href: "/dashboard/super-admin/marketing-specialists" },
-        { name: "Delivery Managers", href: "/dashboard/super-admin/delivery-managers" },
         { name: "Customers", href: "/dashboard/super-admin/customers" }
       ]
     },

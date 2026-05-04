@@ -12,6 +12,8 @@ import api from "@/lib/axios";
 // 🔥 Import Chat Components for Mobile Overlay
 import ChatLogin from "@/components/shared/chatbox/ChatLogin";
 import CustomerChatBox from "@/components/shared/chatbox/CustomerChatBox";
+import { useCurrency } from "@/context/SettingsContext";
+
 
 // 🔥 Clean, specific imports for static UI elements
 import {
@@ -34,7 +36,9 @@ interface NavbarProps {
 }
 
 export default function Navbar({ initialSettings }: NavbarProps) {
+  const { symbol } = useCurrency();
   const router = useRouter();
+
   const pathname = usePathname();
   const { isDark, toggleDark } = useThemeStore();
   const { user, isAuthenticated } = useUserStore();
@@ -155,10 +159,7 @@ export default function Navbar({ initialSettings }: NavbarProps) {
     const rolesArray = Array.isArray(rawRoles) ? rawRoles : [rawRoles].filter(Boolean);
     if (rolesArray.length === 0) return "/dashboard";
 
-    const ROLE_HIERARCHY = [
-      'SUPER_ADMIN', 'ADMIN', 'PRODUCT_MANAGER', 'ORDER_MANAGER',
-      'DELIVERY_MANAGER', 'MARKETING_SPECIALIST', 'SUPPORT_AGENT', 'CUSTOMER'
-    ];
+    const ROLE_HIERARCHY = ['SUPER_ADMIN', 'ADMIN', 'CUSTOMER'];
 
     let primaryRole = 'CUSTOMER';
     for (const rank of ROLE_HIERARCHY) {
@@ -290,7 +291,8 @@ export default function Navbar({ initialSettings }: NavbarProps) {
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
                                 {item.basePrice && (
-                                  <p className="text-xs font-bold text-primary">৳{Number(item.basePrice).toLocaleString()}</p>
+                                  <p className="text-xs font-bold text-primary">{symbol}{Number(item.basePrice).toLocaleString()}</p>
+
                                 )}
                               </div>
                             </Link>

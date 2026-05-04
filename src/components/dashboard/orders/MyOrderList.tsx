@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { X, MapPin, CreditCard, Package } from 'lucide-react';
+import { useCurrency } from '@/context/SettingsContext';
+
 
 export type OrderStatus = 'PENDING' | 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'COMPLETED';
 
@@ -52,8 +54,10 @@ interface MyOrdersListProps {
 }
 
 export default function MyOrdersList({ orders, onCancelClick, onChangeVariationClick }: MyOrdersListProps) {
+    const { symbol } = useCurrency();
     // Modal State
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
 
     const getStatusColor = (status: string) => {
         switch (status?.toUpperCase()) {
@@ -115,7 +119,8 @@ export default function MyOrdersList({ orders, onCancelClick, onChangeVariationC
                             <div className="flex items-center sm:justify-end">
                                 <p className="text-sm text-muted-foreground mr-2">Total:</p>
                                 <p className="font-bold text-lg text-foreground">
-                                    ৳{(Number(order.totalAmount) || 0).toLocaleString()}
+                                    {symbol}{(Number(order.totalAmount) || 0).toLocaleString()}
+
                                 </p>
                             </div>
                         </div>
@@ -143,7 +148,8 @@ export default function MyOrdersList({ orders, onCancelClick, onChangeVariationC
                                                     <p><span className="font-medium text-foreground/80">Variant:</span> {displayVariation}</p>
                                                     <p><span className="font-medium text-foreground/80">Qty:</span> {item.quantity}</p>
                                                 </div>
-                                                <p className="mt-1 text-sm font-semibold text-foreground">৳{(Number(item.price) || 0).toLocaleString()}</p>
+                                                <p className="mt-1 text-sm font-semibold text-foreground">{symbol}{(Number(item.price) || 0).toLocaleString()}</p>
+
                                             </div>
                                         </div>
 
@@ -279,12 +285,14 @@ export default function MyOrdersList({ orders, onCancelClick, onChangeVariationC
                                                         <p className="font-bold text-sm text-foreground line-clamp-1">{displayName}</p>
                                                         <p className="text-xs text-muted-foreground mt-0.5">Variant: {displayVariation}</p>
                                                         <p className="text-xs font-medium text-foreground mt-1">
-                                                            {item.quantity} x ৳{Number(item.price).toLocaleString()}
+                                                            {item.quantity} x {symbol}{Number(item.price).toLocaleString()}
+
                                                         </p>
                                                     </div>
                                                 </div>
                                                 <div className="text-right font-black text-foreground">
-                                                    ৳{(Number(item.price) * item.quantity).toLocaleString()}
+                                                    {symbol}{(Number(item.price) * item.quantity).toLocaleString()}
+
                                                 </div>
                                             </div>
                                         );
@@ -297,21 +305,25 @@ export default function MyOrdersList({ orders, onCancelClick, onChangeVariationC
                                 <div className="w-full sm:w-1/2 space-y-3 text-sm">
                                     <div className="flex justify-between text-muted-foreground">
                                         <span>Subtotal</span>
-                                        <span>৳{(Number(selectedOrder.totalAmount) - Number(selectedOrder.deliveryFee || 0) + Number(selectedOrder.discountAmount || 0)).toLocaleString()}</span>
+                                        <span>{symbol}{(Number(selectedOrder.totalAmount) - Number(selectedOrder.deliveryFee || 0) + Number(selectedOrder.discountAmount || 0)).toLocaleString()}</span>
+
                                     </div>
                                     <div className="flex justify-between text-muted-foreground">
                                         <span>Delivery Fee</span>
-                                        <span>+ ৳{Number(selectedOrder.deliveryFee || 0).toLocaleString()}</span>
+                                        <span>+ {symbol}{Number(selectedOrder.deliveryFee || 0).toLocaleString()}</span>
+
                                     </div>
                                     {Number(selectedOrder.discountAmount) > 0 && (
                                         <div className="flex justify-between text-green-500 font-medium">
                                             <span>Discount</span>
-                                            <span>- ৳{Number(selectedOrder.discountAmount).toLocaleString()}</span>
+                                            <span>- {symbol}{Number(selectedOrder.discountAmount).toLocaleString()}</span>
+
                                         </div>
                                     )}
                                     <div className="flex justify-between items-center border-t border-border pt-3">
                                         <span className="font-bold text-foreground text-base">Total Amount</span>
-                                        <span className="font-black text-xl text-primary">৳{Number(selectedOrder.totalAmount).toLocaleString()}</span>
+                                        <span className="font-black text-xl text-primary">{symbol}{Number(selectedOrder.totalAmount).toLocaleString()}</span>
+
                                     </div>
                                 </div>
                             </div>
