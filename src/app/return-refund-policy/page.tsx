@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPageBySlug } from "@/lib/getSettings";
 import ReturnRefundTemplate from "@/components/templates/ReturnRefundTemplate";
+import PageLoader from "@/components/shared/PageLoader";
 
 export async function generateMetadata(): Promise<Metadata> {
     const page = await getPageBySlug("return-refund-policy");
@@ -11,8 +13,16 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default async function ReturnRefundPolicyPage() {
+async function ReturnRefundContent() {
     const page = await getPageBySlug("return-refund-policy");
     if (!page) notFound();
     return <ReturnRefundTemplate data={page} />;
+}
+
+export default function ReturnRefundPolicyPage() {
+    return (
+        <Suspense fallback={<PageLoader label="Loading Return & Refund Policy..." />}>
+            <ReturnRefundContent />
+        </Suspense>
+    );
 }
