@@ -56,7 +56,7 @@ export default function ChatLogin({ onLoginSuccess }: { onLoginSuccess: (token: 
                 try {
                     primaryRole = getHighestRole(loggedInUser.roles || []);
                 } catch {
-                    const ROLE_HIERARCHY = ['SUPER_ADMIN', 'ADMIN', 'PRODUCT_MANAGER', 'ORDER_MANAGER', 'DELIVERY_MANAGER', 'MARKETING_SPECIALIST', 'SUPPORT_AGENT', 'CUSTOMER'];
+                    const ROLE_HIERARCHY = ['SUPER_ADMIN', 'ADMIN', 'CUSTOMER'];
                     for (const rank of ROLE_HIERARCHY) {
                         if (loggedInUser.roles?.includes(rank)) {
                             primaryRole = rank; break;

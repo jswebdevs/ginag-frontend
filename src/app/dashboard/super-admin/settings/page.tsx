@@ -5,12 +5,12 @@ import api from "@/lib/axios";
 import { toast } from "sonner";
 import {
     Save, Store, Globe, ShieldAlert, Loader2,
-    Plus, X, Phone, Mail, MapPin, CreditCard
+    Plus, X, Phone, Mail, MapPin, Star
 } from "lucide-react";
 import MediaManager from "@/components/dashboard/shared/media/MediaManager";
 
 export default function GeneralSettingsPage() {
-    const [activeTab, setActiveTab] = useState<"IDENTITY" | "CONTACT" | "REGIONAL" | "RULES" | "PAYMENTS">("IDENTITY");
+    const [activeTab, setActiveTab] = useState<"IDENTITY" | "CONTACT" | "REGIONAL" | "RULES" | "GOOGLE">("IDENTITY");
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -27,14 +27,13 @@ export default function GeneralSettingsPage() {
         contactAddress: "",
         currencyCode: "USD",
         currencySymbol: "$",
-        timezone: "Asia/Dhaka",
+        timezone: "America/California",
         address: "",
-        enableGuestCheckout: true,
-        orderPrefix: "DRM-",
+        orderPrefix: "CO-",
         maintenanceMode: false,
         maintenanceMessage: "",
-        stripePublishableKey: "",
-        paypalClientId: "",
+        googlePlaceId: "",
+        googleApiKey: "",
         logoId: null as string | null,
         faviconId: null as string | null,
         ogImageId: null as string | null,
@@ -63,14 +62,13 @@ export default function GeneralSettingsPage() {
                     contactAddress: d.contactAddress || "",
                     currencyCode: d.currencyCode || "USD",
                     currencySymbol: d.currencySymbol || "$",
-                    timezone: d.timezone || "Asia/Dhaka",
+                    timezone: d.timezone || "America/Chicago",
                     address: d.address || "",
-                    enableGuestCheckout: d.enableGuestCheckout ?? true,
-                    orderPrefix: d.orderPrefix || "DRM-",
+                    orderPrefix: d.orderPrefix || "CO-",
                     maintenanceMode: d.maintenanceMode ?? false,
                     maintenanceMessage: d.maintenanceMessage || "",
-                    stripePublishableKey: d.stripePublishableKey || "",
-                    paypalClientId: d.paypalClientId || "",
+                    googlePlaceId: d.googlePlaceId || "",
+                    googleApiKey: d.googleApiKey || "",
                     logoId: d.logoId,
                     logoUrl: d.logo?.thumbUrl || d.logo?.originalUrl || null,
                     faviconId: d.faviconId,
@@ -178,8 +176,8 @@ export default function GeneralSettingsPage() {
                     <button onClick={() => setActiveTab("RULES")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "RULES" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
                         <ShieldAlert size={18} /> Checkout & Status
                     </button>
-                    <button onClick={() => setActiveTab("PAYMENTS")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "PAYMENTS" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
-                        <CreditCard size={18} /> Payment Keys
+                    <button onClick={() => setActiveTab("GOOGLE")} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all ${activeTab === "GOOGLE" ? "bg-background shadow-sm text-primary border border-border" : "text-muted-foreground hover:bg-muted/50"}`}>
+                        <Star size={18} /> Google Reviews
                     </button>
                 </div>
 
@@ -289,17 +287,6 @@ export default function GeneralSettingsPage() {
                     {activeTab === "RULES" && (
                         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
 
-                            <div className="bg-background border border-border rounded-2xl p-5 flex items-center justify-between shadow-sm">
-                                <div>
-                                    <p className="font-bold text-foreground">Allow Guest Checkout</p>
-                                    <p className="text-xs text-muted-foreground mt-1">Users can buy without creating an account.</p>
-                                </div>
-                                <label className="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" className="sr-only peer" checked={formData.enableGuestCheckout} onChange={e => setFormData({ ...formData, enableGuestCheckout: e.target.checked })} />
-                                    <div className="w-11 h-6 bg-muted peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                                </label>
-                            </div>
-
                             <div>
                                 <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Order Number Prefix</label>
                                 <input type="text" value={formData.orderPrefix} onChange={e => setFormData({ ...formData, orderPrefix: e.target.value })} className="w-full md:w-1/2 bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary outline-none" placeholder="e.g. DRM-" />
@@ -328,35 +315,38 @@ export default function GeneralSettingsPage() {
                         </div>
                     )}
 
-                    {/* --- TAB 5: PAYMENT KEYS --- */}
-                    {activeTab === "PAYMENTS" && (
+                    {/* --- TAB 5: GOOGLE REVIEWS --- */}
+                    {activeTab === "GOOGLE" && (
                         <div className="space-y-8 animate-in fade-in zoom-in-95 duration-300">
-                            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-sm text-amber-700 dark:text-amber-300">
-                                <p className="font-bold mb-1">ℹ️ Public keys only</p>
-                                <p className="text-xs opacity-80">Enter your Stripe <strong>Publishable Key</strong> (pk_live_... or pk_test_...) and your PayPal <strong>Client ID</strong>. These are safe to store here. Your Stripe Secret Key must be set in the server environment variables — never enter it here.</p>
+                            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-sm">
+                                <p className="font-bold mb-2 flex items-center gap-2"><Star size={16} className="text-primary" /> Google Places Integration</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed">
+                                    To pull live Google reviews onto the storefront you need a <strong>Google Maps Platform API key</strong> with the <em>Places API</em> enabled, and the <strong>Place ID</strong> of your business listing. Find your Place ID at <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener noreferrer" className="text-primary underline">the Place ID Finder</a>. Reviews are cached for 6 hours.
+                                </p>
                             </div>
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Stripe Publishable Key</label>
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Google Place ID</label>
                                     <input
                                         type="text"
-                                        value={formData.stripePublishableKey}
-                                        onChange={e => setFormData({ ...formData, stripePublishableKey: e.target.value })}
+                                        value={formData.googlePlaceId}
+                                        onChange={e => setFormData({ ...formData, googlePlaceId: e.target.value })}
                                         className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono"
-                                        placeholder="pk_live_... or pk_test_..."
+                                        placeholder="ChIJ..."
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">PayPal Client ID</label>
+                                    <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Google API Key (Places enabled)</label>
                                     <input
-                                        type="text"
-                                        value={formData.paypalClientId}
-                                        onChange={e => setFormData({ ...formData, paypalClientId: e.target.value })}
+                                        type="password"
+                                        value={formData.googleApiKey}
+                                        onChange={e => setFormData({ ...formData, googleApiKey: e.target.value })}
                                         className="w-full bg-background border border-border rounded-xl px-4 py-3 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none font-mono"
-                                        placeholder="Your PayPal Client ID..."
+                                        placeholder="AIza..."
                                     />
+                                    <p className="text-[11px] text-muted-foreground mt-2">Stored server-side. Restrict the key to your domain in Google Cloud Console.</p>
                                 </div>
                             </div>
                         </div>

@@ -2,15 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import Cookies from 'js-cookie';
 
-export type Role = 
-  | 'SUPER_ADMIN' 
-  | 'ADMIN' 
-  | 'PRODUCT_MANAGER' 
-  | 'ORDER_MANAGER' 
-  | 'SUPPORT_AGENT' 
-  | 'MARKETING_SPECIALIST' 
-  | 'DELIVERY_MANAGER' 
-  | 'CUSTOMER';
+export type Role = 'SUPER_ADMIN' | 'ADMIN' | 'CUSTOMER';
 
 export interface User {
   id: string;

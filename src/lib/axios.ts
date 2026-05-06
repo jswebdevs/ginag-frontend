@@ -61,7 +61,7 @@ api.interceptors.response.use(
         
         useUserStore.getState().logout();
         
-        const publicPaths = ['/login', '/shop', '/cart', '/'];
+        const publicPaths = ['/login', '/products', '/order-now', '/'];
         const isProductPage = window.location.pathname.startsWith('/products/');
         
         if (!publicPaths.includes(window.location.pathname) && !isProductPage) {

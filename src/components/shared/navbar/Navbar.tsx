@@ -12,23 +12,18 @@ import api from "@/lib/axios";
 // 🔥 Import Chat Components for Mobile Overlay
 import ChatLogin from "@/components/shared/chatbox/ChatLogin";
 import CustomerChatBox from "@/components/shared/chatbox/CustomerChatBox";
-import { useCurrency } from "@/context/SettingsContext";
-
-
 // 🔥 Clean, specific imports for static UI elements
 import {
   LuMoon,
   LuSun,
   LuMenu,
-  LuStore,
-  LuHeart,
-  LuShoppingCart,
   LuUser,
   LuSearch,
   LuLogOut,
   LuX,
   LuHouse,
-  LuMessageSquare
+  LuMessageSquare,
+  LuClipboardList,
 } from "react-icons/lu";
 
 interface NavbarProps {
@@ -36,7 +31,6 @@ interface NavbarProps {
 }
 
 export default function Navbar({ initialSettings }: NavbarProps) {
-  const { symbol } = useCurrency();
   const router = useRouter();
 
   const pathname = usePathname();
@@ -50,9 +44,6 @@ export default function Navbar({ initialSettings }: NavbarProps) {
   // 🔥 Mobile Chat State
   const [isMobileChatOpen, setIsMobileChatOpen] = useState(false);
   const [chatToken, setChatToken] = useState<string | null>(null);
-
-  const [cartCount, setCartCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0);
 
   // --- DYNAMIC SETTINGS STATE ---
   const [storeName, setStoreName] = useState(initialSettings?.storeName || "");
@@ -104,7 +95,9 @@ export default function Navbar({ initialSettings }: NavbarProps) {
   // Check Chat Token when Mobile Chat Opens
   useEffect(() => {
     if (isMobileChatOpen) {
-      const storedToken = localStorage.getItem("token") || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+      const storedToken = localStorage.getItem("token") ||
+        document.cookie.split('; ').find(row => row.startsWith('auth_token='))?.split('=')[1] ||
+        document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
       if (storedToken) setChatToken(storedToken);
     }
   }, [isMobileChatOpen]);
@@ -267,13 +260,15 @@ export default function Navbar({ initialSettings }: NavbarProps) {
                 ) : searchResults.length > 0 ? (
                   <>
                     {/* Products */}
-                    {searchResults.filter(r => r.type === 'product' || r.basePrice).length > 0 && (
+                    {searchResults.filter(r => r.type === 'product' || r.priceMin !== undefined).length > 0 && (
                       <div>
                         <div className="px-4 py-2 bg-muted/50 border-b border-border">
                           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Products</span>
                         </div>
-                        {searchResults.filter(r => r.type === 'product' || r.basePrice).map((item, idx) => {
+                        {searchResults.filter(r => r.type === 'product' || r.priceMin !== undefined).map((item, idx) => {
                           const imgSrc = item.featuredImage?.thumbUrl || item.featuredImage?.originalUrl;
+                          const min = item.priceMin != null ? Number(item.priceMin) : null;
+                          const max = item.priceMax != null ? Number(item.priceMax) : null;
                           return (
                             <Link
                               key={item.id || idx}
@@ -290,9 +285,10 @@ export default function Navbar({ initialSettings }: NavbarProps) {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-semibold text-foreground truncate">{item.name}</p>
-                                {item.basePrice && (
-                                  <p className="text-xs font-bold text-primary">{symbol}{Number(item.basePrice).toLocaleString()}</p>
-
+                                {min != null && (
+                                  <p className="text-xs font-bold text-primary">
+                                    ${min.toLocaleString()}{max != null && max !== min ? ` – $${max.toLocaleString()}` : ''}
+                                  </p>
                                 )}
                               </div>
                             </Link>
@@ -302,12 +298,12 @@ export default function Navbar({ initialSettings }: NavbarProps) {
                     )}
 
                     {/* Categories */}
-                    {searchResults.filter(r => r.type === 'category' && !r.basePrice).length > 0 && (
+                    {searchResults.filter(r => r.type === 'category' && r.priceMin === undefined).length > 0 && (
                       <div>
                         <div className="px-4 py-2 bg-muted/50 border-b border-border">
                           <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Categories</span>
                         </div>
-                        {searchResults.filter(r => r.type === 'category' && !r.basePrice).map((item, idx) => (
+                        {searchResults.filter(r => r.type === 'category' && r.priceMin === undefined).map((item, idx) => (
                           <Link
                             key={item.id || idx}
                             href={`/categories/${item.slug || item.id}`}
@@ -346,18 +342,12 @@ export default function Navbar({ initialSettings }: NavbarProps) {
           <div className="flex items-center gap-3 md:gap-5">
             <ThemeSwitcherUI />
 
-            <Link href="/wishlist" className="hidden md:flex relative p-2 text-muted-foreground hover:text-primary transition-colors">
-              <LuHeart className="w-6 h-6" />
-              <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                {wishlistCount}
-              </span>
-            </Link>
-
-            <Link href="/cart" className="relative p-2 text-muted-foreground hover:text-primary transition-colors">
-              <LuShoppingCart className="w-6 h-6" />
-              <span className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                {cartCount}
-              </span>
+            <Link
+              href="/order-now"
+              className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-bold text-sm tracking-tight shadow-theme-sm hover:shadow-theme-md hover:scale-105 transition-all"
+            >
+              <LuClipboardList className="w-4 h-4" />
+              Order Now
             </Link>
 
             <Link href={dashboardLink} className="hidden md:flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors ml-2">
@@ -427,10 +417,9 @@ export default function Navbar({ initialSettings }: NavbarProps) {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-60 bg-gradient-theme border-t border-border pb-safe shadow-theme-md">
         <div className="flex justify-around items-center h-16 px-2">
 
-          <Link href="/wishlist" className={`flex flex-col items-center justify-center w-full h-full gap-1 relative ${pathname === '/wishlist' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
-            <LuHeart className="w-5 h-5" />
-            <span className="text-10px font-medium">Wishlist</span>
-            {wishlistCount > 0 && <span className="absolute top-2 right-4 bg-primary text-white text-[8px] font-bold px-1.5 rounded-full">{wishlistCount}</span>}
+          <Link href="/order-now" className={`flex flex-col items-center justify-center w-full h-full gap-1 ${pathname === '/order-now' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>
+            <LuClipboardList className="w-5 h-5" />
+            <span className="text-10px font-medium">Order</span>
           </Link>
 
           <Link href="/" onClick={() => { setIsMobileChatOpen(false); setShowMobileSearch(false); }} className={`flex flex-col items-center justify-center w-full h-full gap-1 ${pathname === '/' && !isMobileChatOpen && !showMobileSearch ? 'text-primary' : 'text-muted-foreground hover:text-foreground'}`}>

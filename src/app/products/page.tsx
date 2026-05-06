@@ -1,7 +1,12 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Catalog",
+  description: "Browse our full collection of handcrafted purse charms.",
+  alternates: { canonical: "/shop" },
+};
 
 export default function ProductsIndexPage() {
-  // If a user navigates to /products without a slug, 
-  // instantly bounce them to your fully-featured shop page!
   redirect("/shop");
 }

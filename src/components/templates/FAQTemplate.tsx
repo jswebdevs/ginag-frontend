@@ -16,7 +16,7 @@ export default function FAQTemplate({ data }: FAQTemplateProps) {
 
     // Simple parser for Q&A if they follow the <strong>Q:</strong> pattern
     // Otherwise fallback to rich text
-    const faqPairs = combinedContent.split(/<p><strong>Q:/).filter(s => s.trim().length > 0).map(s => {
+    const faqPairs = combinedContent.split(/<p><strong>Q:/).filter((s: string) => s.trim().length > 0).map((s: string) => {
         const parts = s.split(/<br>|<strong>A:/);
         const question = parts[0].replace(/<\/?[^>]+(>|$)/g, "").replace(/^Q:/, "").trim();
         const answer = parts.slice(1).join(" ").replace(/<\/?[^>]+(>|$)/g, "").trim();
@@ -49,7 +49,7 @@ export default function FAQTemplate({ data }: FAQTemplateProps) {
 
                     <div className="space-y-4">
                         {faqPairs.length > 0 ? (
-                            faqPairs.map((faq, idx) => (
+                            faqPairs.map((faq: { question: string; answer: string }, idx: number) => (
                                 <FAQItem key={idx} question={faq.question} answer={faq.answer} index={idx} />
                             ))
                         ) : (

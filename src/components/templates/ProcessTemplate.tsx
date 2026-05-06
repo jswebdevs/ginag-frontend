@@ -16,7 +16,7 @@ export default function ProcessTemplate({ data }: ProcessTemplateProps) {
     const combinedContent = richTextBlocks.map((b: any) => b.data.content).join("");
 
     // Split content into steps if they follow the "1️⃣", "2️⃣" pattern from pages.json
-    const steps = combinedContent.split(/<p>[0-9]️⃣/).filter(s => s.trim().length > 0).map(s => {
+    const steps = combinedContent.split(/<p>[0-9]️⃣/).filter((s: string) => s.trim().length > 0).map((s: string) => {
         // Clean up HTML tags and get just the text
         const clean = s.replace(/<\/?[^>]+(>|$)/g, "").trim();
         return clean;
@@ -47,7 +47,7 @@ export default function ProcessTemplate({ data }: ProcessTemplateProps) {
 
                 <div className="max-w-5xl mx-auto space-y-4">
                     {steps.length > 0 ? (
-                        steps.map((step, idx) => (
+                        steps.map((step: string, idx: number) => (
                             <motion.div 
                                 key={idx}
                                 initial={{ opacity: 0, x: idx % 2 === 0 ? -20 : 20 }}

@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { 
-  LayoutDashboard, TrendingUp, CircleDollarSign, 
-  Users, PackageSearch, Megaphone, Store, ShieldCheck, 
+  LayoutDashboard, CircleDollarSign,
+  Users, PackageSearch, Store, ShieldCheck, 
   Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle, MessageCircleMore,
   User
 } from "lucide-react";
@@ -62,16 +62,8 @@ export default function SuperAdminSidebar() {
 
   const menuItems = [
     { name: "Dashboard", href: "/dashboard/super-admin", icon: LayoutDashboard },
-    { name: "Insights", href: "/dashboard/super-admin/insights", icon: TrendingUp },
     { name: "Chats", href: "/dashboard/super-admin/chats", icon: MessageCircleMore},
-    {
-      name: "Sales & Finance",
-      icon: CircleDollarSign,
-      subItems: [
-        { name: "Orders", href: "/dashboard/super-admin/orders" },
-        { name: "Refunds", href: "/dashboard/super-admin/refunds" },
-      ]
-    },
+    { name: "Custom Orders", href: "/dashboard/super-admin/orders", icon: CircleDollarSign },
     {
       name: "User Management",
       icon: Users,
@@ -90,26 +82,15 @@ export default function SuperAdminSidebar() {
       ]
     },
     {
-      name: "Marketing",
-      icon: Megaphone,
-      subItems: [
-        { name: "Coupons", href: "/dashboard/super-admin/coupons" },
-        { name: "Blog Categories", href: "/dashboard/super-admin/blogs/blog-category"},
-        { name: "Blogs", href: "/dashboard/super-admin/blogs/blog" },
-        { name: "Wishlists", href: "/dashboard/super-admin/wishlist"},
-        { name: "Carts", href: "/dashboard/super-admin/cart"}
-      ]
-    },
-    {
       name: "Storefront",
       icon: Store,
       subItems: [
         { name: "Homepage", href: "/dashboard/super-admin/storefront/homepage" },
+        { name: "Order Form", href: "/dashboard/super-admin/storefront/order-form" },
         { name: "Pages", href: "/dashboard/super-admin/storefront/pages" },
-        { name: "Social", href: "/dashboard/super-admin/storefront/social"},
-        { name: "Footer", href: "/dashboard/super-admin/storefront/footer"},
-        { name: "Reviews", href: "/dashboard/super-admin/storefront/reviews"},
-        { name: "Themes", href: "/dashboard/super-admin/storefront/themes"}
+        { name: "Social", href: "/dashboard/super-admin/storefront/social" },
+        { name: "Footer", href: "/dashboard/super-admin/storefront/footer" },
+        { name: "Themes", href: "/dashboard/super-admin/storefront/themes" }
       ]
     },
     {
@@ -120,14 +101,7 @@ export default function SuperAdminSidebar() {
         { name: "Audit Logs", href: "/dashboard/super-admin/audit-logs" },
       ]
     },
-    {
-      name: "Profile",
-      icon: User,
-      subItems: [
-        { name: "My Orders", href: "/dashboard/super-admin/my-orders" },
-        { name: "My Profile", href: "/dashboard/super-admin/profile"}
-      ]
-    }
+    { name: "My Profile", href: "/dashboard/super-admin/profile", icon: User },
   ];
 
   return (

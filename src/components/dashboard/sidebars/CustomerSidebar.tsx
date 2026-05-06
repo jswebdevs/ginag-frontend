@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-    LayoutDashboard, Package, Heart, ShoppingCart,
-    User, MapPin, Power, Menu, X, ChevronLeft, ChevronRight, UserCircle
+    LayoutDashboard, ClipboardList, MessageCircleMore, User,
+    Power, Menu, X, ChevronLeft, ChevronRight, UserCircle
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
 import Cookies from "js-cookie";
@@ -50,11 +50,9 @@ export default function CustomerSidebar() {
 
     const menuItems = [
         { name: "Dashboard", href: "/dashboard/customer/dashboard", icon: LayoutDashboard },
-        { name: "My Orders", href: "/dashboard/customer/orders", icon: Package },
-        { name: "Wishlist", href: "/dashboard/customer/wishlist", icon: Heart },
-        { name: "My Cart", href: "/dashboard/customer/cart", icon: ShoppingCart }, // Usually global, but keeping in sidebar for ease
+        { name: "Chats", href: "/dashboard/customer/chats", icon: MessageCircleMore },
+        { name: "Orders", href: "/dashboard/customer/orders", icon: ClipboardList },
         { name: "Profile", href: "/dashboard/customer/profile", icon: User },
-        { name: "Addresses", href: "/dashboard/customer/addresses", icon: MapPin }
     ];
 
     return (

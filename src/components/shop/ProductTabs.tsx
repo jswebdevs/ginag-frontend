@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import ProductReviews from "./ProductReviews";
 
 export default function ProductTabs({ product }: { product: any }) {
-    // 1. Define all possible tabs
     const allTabs = [
         { id: "desc", label: "Description", content: product.longDesc },
         { id: "spec", label: "Specifications", content: product.specifications },
@@ -12,11 +10,9 @@ export default function ProductTabs({ product }: { product: any }) {
         { id: "usage", label: "Usage", content: product.usage },
         { id: "usefulness", label: "Usefulness", content: product.usefulness },
         { id: "awareness", label: "Awareness", content: product.awareness },
-        { id: "reviews", label: `Reviews (${product.reviews?.length || 0})`, content: "REVIEWS_SPECIAL" }
     ];
 
-    // 2. Filter out tabs that have no content (Keep reviews visible always)
-    const activeTabs = allTabs.filter(tab => tab.content && tab.content.trim() !== "");
+    const activeTabs = allTabs.filter(tab => tab.content && String(tab.content).trim() !== "");
 
     const [currentTab, setCurrentTab] = useState(activeTabs[0]?.id || "desc");
 
@@ -45,18 +41,6 @@ export default function ProductTabs({ product }: { product: any }) {
                 {activeTabs.map((tab) => {
                     if (currentTab !== tab.id) return null;
 
-                    // 1. Mount the dedicated Reviews Component
-                    if (tab.id === "reviews") {
-                        return (
-                            <ProductReviews
-                                key={tab.id}
-                                productId={product.id}
-                                initialReviews={product.reviews || []}
-                            />
-                        );
-                    }
-
-                    // 2. Handle Long Description (HTML from Quill)
                     if (tab.id === "desc") {
                         // FIX: Replace excessive non-breaking spaces with normal spaces so the text wraps properly
                         const cleanHtml = tab.content.replace(/&nbsp;/g, ' ');

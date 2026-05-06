@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import api from "@/lib/axios";
 import Link from "next/link";
-import { ArrowLeft, Edit, Mail, Phone, Calendar, Landmark, MapPin, Loader2 } from "lucide-react";
+import { ArrowLeft, Edit, Mail, Phone, Calendar, Loader2 } from "lucide-react";
 import Image from "next/image";
 
 export default function ViewAdminPage() {
@@ -69,50 +69,21 @@ export default function ViewAdminPage() {
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* CONTACT INFO */}
-                <div className="bg-card border border-border rounded-3xl p-8 shadow-theme-sm space-y-6">
-                    <h3 className="font-black text-foreground uppercase tracking-widest text-sm border-b border-border pb-3">Contact Information</h3>
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4 text-sm font-medium">
-                            <Mail className="text-muted-foreground shrink-0" size={18} />
-                            <span className="text-foreground">{admin.email}</span>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm font-medium">
-                            <Phone className="text-muted-foreground shrink-0" size={18} />
-                            <span className="text-foreground">{admin.phone || "Not provided"}</span>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm font-medium">
-                            <Calendar className="text-muted-foreground shrink-0" size={18} />
-                            <span className="text-foreground">{admin.dob ? new Date(admin.dob).toLocaleDateString() : "Not provided"}</span>
-                        </div>
+            {/* CONTACT INFO */}
+            <div className="bg-card border border-border rounded-3xl p-8 shadow-theme-sm space-y-6">
+                <h3 className="font-black text-foreground uppercase tracking-widest text-sm border-b border-border pb-3">Contact Information</h3>
+                <div className="space-y-4">
+                    <div className="flex items-center gap-4 text-sm font-medium">
+                        <Mail className="text-muted-foreground shrink-0" size={18} />
+                        <span className="text-foreground">{admin.email}</span>
                     </div>
-                </div>
-
-                {/* FINANCIAL INFO */}
-                <div className="bg-card border border-border rounded-3xl p-8 shadow-theme-sm space-y-6">
-                    <h3 className="font-black text-foreground uppercase tracking-widest text-sm border-b border-border pb-3">Financial Routing</h3>
-
-                    <div className="space-y-4">
-                        <div className="bg-muted/20 p-4 rounded-xl border border-border">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-2"><Landmark size={12} /> Bank Account</p>
-                            {admin.bankDetails?.bankName ? (
-                                <div>
-                                    <p className="text-sm font-bold text-foreground">{admin.bankDetails.bankName}</p>
-                                    <p className="text-xs text-muted-foreground">A/C: {admin.bankDetails.accNo} • Rtg: {admin.bankDetails.routingNo}</p>
-                                </div>
-                            ) : <p className="text-xs italic text-muted-foreground">Not configured</p>}
-                        </div>
-
-                        <div className="bg-muted/20 p-4 rounded-xl border border-border">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2 mb-2"><Phone size={12} /> Mobile Banking</p>
-                            {admin.mobileBanking?.provider ? (
-                                <div>
-                                    <p className="text-sm font-bold text-foreground capitalize">{admin.mobileBanking.provider}</p>
-                                    <p className="text-xs text-muted-foreground font-mono">{admin.mobileBanking.number}</p>
-                                </div>
-                            ) : <p className="text-xs italic text-muted-foreground">Not configured</p>}
-                        </div>
+                    <div className="flex items-center gap-4 text-sm font-medium">
+                        <Phone className="text-muted-foreground shrink-0" size={18} />
+                        <span className="text-foreground">{admin.phone || "Not provided"}</span>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm font-medium">
+                        <Calendar className="text-muted-foreground shrink-0" size={18} />
+                        <span className="text-foreground">{admin.dob ? new Date(admin.dob).toLocaleDateString() : "Not provided"}</span>
                     </div>
                 </div>
             </div>

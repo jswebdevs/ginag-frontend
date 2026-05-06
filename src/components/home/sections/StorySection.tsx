@@ -51,9 +51,9 @@ export default function StorySection({ data: initialData }: { data?: any }) {
 
   return (
     <section className="py-24 bg-background text-foreground relative overflow-hidden transition-colors duration-500">
-      {/* Background accent */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
+      {/* Background accent — capped to viewport so it never overflows on small screens */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(600px,90vw)] h-[min(600px,90vw)] bg-primary/5 rounded-full blur-[120px]" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">

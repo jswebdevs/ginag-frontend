@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
     LayoutDashboard, CircleDollarSign,
-    Users, PackageSearch, Megaphone, Store,
+    Users, PackageSearch, MessageCircleMore,
     Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
@@ -56,17 +56,11 @@ export default function AdminSidebar() {
         setOpenMenus((prev) => ({ ...prev, [menuName]: !prev[menuName] }));
     };
 
-    // CLEANER MENU FOR REGULAR ADMINS
+    // Admin role: NO storefront / NO admins / NO settings (super-admin only)
     const menuItems = [
         { name: "Dashboard", href: "/dashboard/admin", icon: LayoutDashboard },
-        {
-            name: "Sales & Orders",
-            icon: CircleDollarSign,
-            subItems: [
-                { name: "Orders", href: "/dashboard/admin/orders" },
-                { name: "Refund Requests", href: "/dashboard/admin/refunds" },
-            ]
-        },
+        { name: "Custom Orders", href: "/dashboard/admin/orders", icon: CircleDollarSign },
+        { name: "Chats", href: "/dashboard/admin/chats", icon: MessageCircleMore },
         {
             name: "Catalog",
             icon: PackageSearch,
@@ -76,25 +70,7 @@ export default function AdminSidebar() {
                 { name: "Media", href: "/dashboard/admin/media" }
             ]
         },
-        {
-            name: "Marketing",
-            icon: Megaphone,
-            subItems: [
-                { name: "Coupons", href: "/dashboard/admin/coupons" },
-            ]
-        },
-        {
-            name: "Customers",
-            icon: Users,
-            href: "/dashboard/admin/customers"
-        },
-        {
-            name: "Storefront",
-            icon: Store,
-            subItems: [
-                { name: "Hero Section", href: "/dashboard/admin/storefront/hero" },
-            ]
-        }
+        { name: "Customers", icon: Users, href: "/dashboard/admin/customers" },
     ];
 
     return (

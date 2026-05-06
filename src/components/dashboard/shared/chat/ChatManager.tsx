@@ -49,24 +49,36 @@ export default function ChatManager() {
 
     // 🔥 Global Socket Connection for the Dashboard
     useEffect(() => {
-        // Bulletproof Token Fetching
+        // Look for the JWT in either storage key the app uses (login sets both).
         const token = localStorage.getItem('token') ||
+            document.cookie.split('; ').find(row => row.startsWith('auth_token='))?.split('=')[1] ||
             document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] ||
             "";
 
-        const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || "http://localhost:5000";
+        if (!token) {
+            console.warn("Chat dashboard: no auth token found — socket will not connect.");
+            return;
+        }
+
+        const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+\/?$/, '') || "http://localhost:5000";
         const newSocket = io(SOCKET_URL, {
-            auth: { token }
+            auth: { token },
+            withCredentials: true,
+            transports: ['websocket', 'polling'],
         });
 
         newSocket.on('connect', () => {
-            console.log("🟢 Admin Dashboard Connected to Real-Time Server");
+            console.log("🟢 Admin dashboard connected to chat server");
             newSocket.emit('join_admin_room');
+        });
+
+        newSocket.on('connect_error', (err) => {
+            console.error("Chat socket connect_error:", err?.message || err);
         });
 
         // Update the table dynamically when a message happens anywhere
         newSocket.on('admin_receive_message', () => {
-            setRefreshTrigger(prev => prev + 1); // Safely trigger refresh using latest state
+            setRefreshTrigger(prev => prev + 1);
         });
 
         // Update the table if AI requests a human

@@ -6,14 +6,12 @@ import api from "@/lib/axios";
 import Swal from "sweetalert2";
 import { Save, Loader2 } from "lucide-react";
 
-// Sub-components
 import BasicInfoPart from "./form-parts/BasicInfoPart";
 import StatusTagsPart from "./form-parts/StatusTagsPart";
 import DescriptionPart from "./form-parts/DescriptionPart";
 import AdditionalInfoPart from "./form-parts/AdditionalInfoPart";
 import MediaPart from "./form-parts/MediaPart";
 import CategorySidebar from "./form-parts/CategorySidebar";
-import VariationManager from "./form-parts/VariationManager";
 
 export default function ProductForm({ initialData }: { initialData?: any }) {
   const router = useRouter();
@@ -26,9 +24,9 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     name: "",
     slug: "",
     productCode: "",
-    origin: "",
-    basePrice: 0,
-    salePrice: 0,
+    priceMin: "" as number | string | null,
+    priceMax: "" as number | string | null,
+    priceNote: "",
     shortDesc: "",
     longDesc: "",
     tags: [] as string[],
@@ -38,48 +36,54 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
     featuredImage: undefined as { id: string; thumbUrl?: string; originalUrl: string } | undefined,
     galleryImages: [] as { id: string; thumbUrl?: string; originalUrl: string }[],
     attributes: [] as any[],
-    variations: [] as any[],
     material: "",
     usage: "",
     usefulness: "",
     awareness: "",
     specifications: "",
-    suggestedProducts: [] as string[]
+    suggestedProducts: [] as string[],
   });
 
   useEffect(() => {
-    // Only load the data ONCE to stop the form from wiping newly selected images
     if (initialData && !isInitialized) {
       let parsedSpecs = "";
-      if (typeof initialData.specifications === 'string') {
+      if (typeof initialData.specifications === "string") {
         parsedSpecs = initialData.specifications;
       } else if (Array.isArray(initialData.specifications)) {
-        parsedSpecs = initialData.specifications.map((s: any) => `${s.key}: ${s.value}`).join('\n');
+        parsedSpecs = initialData.specifications.map((s: any) => `${s.key}: ${s.value}`).join("\n");
       }
 
       setProduct({
         ...initialData,
-        basePrice: Number(initialData.basePrice) || 0,
-        salePrice: Number(initialData.salePrice) || 0,
-        origin: initialData.origin || "",
+        priceMin:
+          initialData.priceMin === null || initialData.priceMin === undefined
+            ? ""
+            : Number(initialData.priceMin),
+        priceMax:
+          initialData.priceMax === null || initialData.priceMax === undefined
+            ? ""
+            : Number(initialData.priceMax),
+        priceNote: initialData.priceNote || "",
 
         categoryIds: initialData.categories?.map((c: any) => c.id) || initialData.categoryIds || [],
-        suggestedProducts: initialData.suggestedProducts?.map((p: any) => p.id) || initialData.suggestedProducts || [],
+        suggestedProducts:
+          initialData.suggestedProducts?.map((p: any) => p.id) || initialData.suggestedProducts || [],
 
-        // 🔥 THE FIX: Fallback to featuredImageId if the API forgot to include the ID inside the image object!
-        featuredImage: (initialData.featuredImage || initialData.featuredImageId)
-          ? {
-            id: initialData.featuredImage?.id || initialData.featuredImageId,
-            thumbUrl: initialData.featuredImage?.thumbUrl || "",
-            originalUrl: initialData.featuredImage?.originalUrl || "",
-          }
-          : undefined,
+        featuredImage:
+          initialData.featuredImage || initialData.featuredImageId
+            ? {
+                id: initialData.featuredImage?.id || initialData.featuredImageId,
+                thumbUrl: initialData.featuredImage?.thumbUrl || "",
+                originalUrl: initialData.featuredImage?.originalUrl || "",
+              }
+            : undefined,
 
-        galleryImages: initialData.images?.map((img: any) => ({
-          id: img.id,
-          thumbUrl: img.thumbUrl,
-          originalUrl: img.originalUrl,
-        })) || [],
+        galleryImages:
+          initialData.images?.map((img: any) => ({
+            id: img.id,
+            thumbUrl: img.thumbUrl,
+            originalUrl: img.originalUrl,
+          })) || [],
 
         material: initialData.material || "",
         usage: initialData.usage || "",
@@ -101,15 +105,26 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
       return Swal.fire("Error", "Product Title and Code are required", "error");
     }
 
+    const cleanPrice = (v: number | string | null | undefined) => {
+      if (v === null || v === undefined || v === "" || (typeof v === "number" && Number.isNaN(v))) return null;
+      const n = Number(v);
+      return Number.isNaN(n) ? null : n;
+    };
+    const minN = cleanPrice(product.priceMin);
+    const maxN = cleanPrice(product.priceMax);
+    if (minN != null && maxN != null && minN > maxN) {
+      return Swal.fire("Error", "Min price cannot be greater than max price.", "error");
+    }
+
     setLoading(true);
     try {
       const payload = {
         name: product.name,
         slug: product.slug,
         productCode: product.productCode,
-        origin: product.origin,
-        basePrice: product.basePrice,
-        salePrice: product.salePrice,
+        priceMin: minN,
+        priceMax: maxN,
+        priceNote: product.priceNote || null,
         shortDesc: product.shortDesc,
         longDesc: product.longDesc,
         tags: product.tags,
@@ -123,68 +138,14 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
         attributes: product.attributes,
         categoryIds: product.categoryIds,
         suggestedProducts: product.suggestedProducts,
-
         featuredImageId: product.featuredImage ? product.featuredImage.id : null,
         galleryImageIds: product.galleryImages.map((img) => img.id).filter(Boolean),
       };
 
-      // --- EXTRACT MAIN IMAGES FOR FALLBACKS ---
-      const defaultFeaturedImageUrl = product.featuredImage ? product.featuredImage.originalUrl : null;
-      const defaultGalleryUrls = product.galleryImages.length > 0 ? product.galleryImages.map(img => img.originalUrl) : [];
-
       if (isEdit) {
-        // 1. Update Core Product
         await api.patch(`/products/${initialData.id}`, payload);
-
-        // 2. Sync Variations
-        const existingVars = product.variations.filter(v => v.id);
-        const newVars = product.variations.filter(v => !v.id);
-
-        if (existingVars.length > 0) {
-          await Promise.all(existingVars.map(v =>
-            api.patch(`/variations/${v.id}`, {
-              basePrice: v.basePrice,
-              salePrice: v.salePrice,
-              stock: v.stock,
-              sku: v.sku,
-              isDefault: v.isDefault,
-              // Apply fallback logic if variation is missing images
-              featuredImage: v.featuredImage || defaultFeaturedImageUrl,
-              gallery: (v.gallery && v.gallery.length > 0) ? v.gallery : defaultGalleryUrls
-            })
-          ));
-        }
-
-        if (newVars.length > 0) {
-          // Map new variations to ensure fallbacks are applied before creating
-          const processedNewVars = newVars.map(v => ({
-            ...v,
-            featuredImage: v.featuredImage || defaultFeaturedImageUrl,
-            gallery: (v.gallery && v.gallery.length > 0) ? v.gallery : defaultGalleryUrls
-          }));
-
-          await api.post("/variations/bulk", {
-            productId: initialData.id,
-            variations: processedNewVars
-          });
-        }
       } else {
-        // Create Core Product
-        const res = await api.post("/products", payload);
-
-        if (product.variations.length > 0) {
-          // Map variations to ensure fallbacks are applied during initial creation
-          const processedAllVars = product.variations.map(v => ({
-            ...v,
-            featuredImage: v.featuredImage || defaultFeaturedImageUrl,
-            gallery: (v.gallery && v.gallery.length > 0) ? v.gallery : defaultGalleryUrls
-          }));
-
-          await api.post("/variations/bulk", {
-            productId: res.data.product.id,
-            variations: processedAllVars
-          });
-        }
+        await api.post("/products", payload);
       }
 
       Swal.fire("Success", "Product saved successfully", "success");
@@ -198,36 +159,35 @@ export default function ProductForm({ initialData }: { initialData?: any }) {
   };
 
   return (
-    // 1. Give the wrapper a fixed height on large screens to act as a boundaries for the scrollbars
-    <div className="flex flex-col xl:flex-row gap-8 items-start xl:h-[calc(100vh-8rem)]">
+    <div className="space-y-8">
+      {/* Single-scroll, equal-width 2-column grid (stacks below xl) */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
+        <div className="space-y-8">
+          <BasicInfoPart product={product} update={updateProduct} />
+          <DescriptionPart product={product} update={updateProduct} />
+          <MediaPart product={product} update={updateProduct} />
+        </div>
 
-      {/* Left Column */}
-      <div className="flex-1 w-full xl:overflow-y-auto xl:pr-4 space-y-8 xl:h-full scrollbar-thin">
-        <BasicInfoPart product={product} update={updateProduct} />
-        <StatusTagsPart product={product} update={updateProduct} />
-        <DescriptionPart product={product} update={updateProduct} />
-        <AdditionalInfoPart product={product} update={updateProduct} />
-        <MediaPart product={product} update={updateProduct} />
+        <div className="space-y-8">
+          <CategorySidebar product={product} update={updateProduct} />
+          <StatusTagsPart product={product} update={updateProduct} />
+          <AdditionalInfoPart product={product} update={updateProduct} />
+        </div>
       </div>
 
-      {/* Right Column */}
-      <div className="w-full xl:w-[450px] xl:overflow-y-auto xl:pr-4 space-y-8 xl:h-full scrollbar-thin">
-        <CategorySidebar product={product} update={updateProduct} />
-        <VariationManager product={product} update={updateProduct} />
-
-        <div className="bg-card border border-border rounded-3xl p-6 shadow-theme-sm mt-8">
+      {/* Sticky save bar */}
+      <div className="sticky bottom-4 z-30">
+        <div className="bg-card border border-border rounded-3xl p-4 shadow-theme-lg">
           <button
             onClick={handleSave}
             disabled={loading}
-            title="Commit all product data to database"
-            className="w-full py-4 bg-primary text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:shadow-theme-md hover:scale-[1.02] transition-all disabled:opacity-50 cursor-pointer"
+            className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black flex items-center justify-center gap-3 hover:shadow-theme-md hover:scale-[1.01] transition-all disabled:opacity-50"
           >
             {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
             {isEdit ? "Update Changes" : "Publish Product"}
           </button>
         </div>
       </div>
-
     </div>
   );
 }

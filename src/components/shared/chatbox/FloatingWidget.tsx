@@ -11,7 +11,9 @@ export default function FloatingWidget() {
 
     useEffect(() => {
         if (isOpen) {
-            const storedToken = localStorage.getItem("token") || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+            const storedToken = localStorage.getItem("token") ||
+                document.cookie.split('; ').find(row => row.startsWith('auth_token='))?.split('=')[1] ||
+                document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
             if (storedToken) setToken(storedToken);
         }
     }, [isOpen]);

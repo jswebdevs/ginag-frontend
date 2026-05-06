@@ -146,6 +146,12 @@ export default async function RootLayout({
         `}} />
       </head>
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[200] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold focus:shadow-theme-lg"
+        >
+          Skip to main content
+        </a>
         <TanstackProvider>
           <AuthProvider>
             <SettingsProvider initialSettings={settings}>
@@ -156,7 +162,7 @@ export default async function RootLayout({
                 message={maintenanceMessage}
               >
                 <Navbar initialSettings={settings} />
-                <main className="flex-1">
+                <main id="main-content" className="flex-1">
                   {children}
                 </main>
                 <Footer />

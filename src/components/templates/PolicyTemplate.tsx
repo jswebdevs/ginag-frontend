@@ -2,12 +2,15 @@
 
 import { motion } from "framer-motion";
 import { FileText, Clock, ShieldCheck } from "lucide-react";
+import { useSettings } from "@/context/SettingsContext";
 
 interface PolicyTemplateProps {
     data: any;
 }
 
 export default function PolicyTemplate({ data }: PolicyTemplateProps) {
+    const { settings } = useSettings();
+    const storeName = settings?.storeName || "GinaG";
     const { title, content, updatedAt } = data;
     
     const richTextBlocks = content.filter((b: any) => b.type === "rich-text");
@@ -51,7 +54,7 @@ export default function PolicyTemplate({ data }: PolicyTemplateProps) {
                             </div>
                             <div className="flex items-center gap-2">
                                 <ShieldCheck size={16} className="text-primary" />
-                                <span>Official DreamShop Policy</span>
+                                <span>Official {storeName} Policy</span>
                             </div>
                         </div>
                     </div>

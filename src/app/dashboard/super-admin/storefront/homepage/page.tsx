@@ -30,9 +30,13 @@ const TABS: { id: TabId; label: string; icon: IconComp }[] = [
 
 const DEFAULTS: Record<TabId, any> = {
   hero: {
-    headline: "Handmade Custom Bag Charms – Designed Just for You",
-    subheadline: "Create your own unique style with personalized, handcrafted charms made after you order.",
+    brandName: "GinaG",
+    headline: "PURSE CHARMS AND CHAINS",
+    subheadline: "GINA ALEXANDER-GREENLEE",
+    tagline: "Handmade custom charms, designed just for you.",
     imageUrl: "",
+    contactPhone: "",
+    contactEmail: "",
     whatsappLink: "",
     shopBtnText: "Shop Now",
     whatsappBtnText: "Customize via WhatsApp",
@@ -170,11 +174,23 @@ export default function HomepageAdminPage() {
               <SectionGrid>
                 {/* Left: text fields */}
                 <FieldGroup title="Text Content" icon={<Type className="w-5 h-5 text-primary" />}>
-                  <Field label="Headline">
+                  <Field label="Brand Name" hint="Shown as a fallback wordmark when no hero image is set.">
+                    <Input value={configs.hero.brandName || ""} onChange={v => update("hero", "brandName", v)} />
+                  </Field>
+                  <Field label="Headline" hint="The big uppercase title under the image. e.g. 'PURSE CHARMS AND CHAINS'.">
                     <Input value={configs.hero.headline} onChange={v => update("hero", "headline", v)} />
                   </Field>
-                  <Field label="Subheadline">
-                    <Textarea value={configs.hero.subheadline} onChange={v => update("hero", "subheadline", v)} rows={3} />
+                  <Field label="Subheadline" hint="Smaller tracked-out line under the headline. e.g. 'GINA ALEXANDER-GREENLEE'.">
+                    <Input value={configs.hero.subheadline} onChange={v => update("hero", "subheadline", v)} />
+                  </Field>
+                  <Field label="Tagline" hint="One-sentence description shown under the subheadline.">
+                    <Textarea value={configs.hero.tagline || ""} onChange={v => update("hero", "tagline", v)} rows={2} />
+                  </Field>
+                  <Field label="Contact Phone" hint="Rendered as a tap-to-call link in the hero. Leave blank to hide.">
+                    <Input value={configs.hero.contactPhone || ""} onChange={v => update("hero", "contactPhone", v)} />
+                  </Field>
+                  <Field label="Contact Email" hint="Rendered as a mailto link in the hero. Leave blank to hide.">
+                    <Input value={configs.hero.contactEmail || ""} onChange={v => update("hero", "contactEmail", v)} />
                   </Field>
                   <Field label="Shop Button Text">
                     <Input value={configs.hero.shopBtnText} onChange={v => update("hero", "shopBtnText", v)} />

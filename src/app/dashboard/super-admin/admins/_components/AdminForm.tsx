@@ -6,11 +6,9 @@ import api from "@/lib/axios";
 import Swal from "sweetalert2";
 import { Save, Loader2 } from "lucide-react";
 
-// Sub-components (We will build the rest in the next step)
 import FormBasicInfo from "./FormBasicInfo";
 import FormAvatar from "./FormAvatar";
 import FormStatus from "./FormStatus";
-import FormBankDetails from "./FormBankDetails";
 import FormAddresses from "./FormAddresses";
 
 export default function AdminForm({ initialData }: { initialData?: any }) {
@@ -23,15 +21,12 @@ export default function AdminForm({ initialData }: { initialData?: any }) {
         username: "",
         email: "",
         phone: "",
-        password: "", // Only required on create
+        password: "",
         gender: "",
         dob: "",
         avatar: "",
-        status: "ACTIVE", // Default
-        roles: ["ADMIN"], // Default to Admin
-        bankDetails: { bankName: "", branch: "", accNo: "", routingNo: "" },
-        mobileBanking: { provider: "", number: "" },
-        addresses: [] as any[]
+        status: "ACTIVE",
+        addresses: [] as any[],
     });
 
     const [loading, setLoading] = useState(false);
@@ -39,14 +34,17 @@ export default function AdminForm({ initialData }: { initialData?: any }) {
     useEffect(() => {
         if (initialData) {
             setAdminData({
-                ...initialData,
-                password: "", // Never populate password on edit
+                firstName: initialData.firstName || "",
+                lastName: initialData.lastName || "",
+                username: initialData.username || "",
+                email: initialData.email || "",
+                phone: initialData.phone || "",
+                password: "",
+                gender: initialData.gender || "",
                 dob: initialData.dob ? new Date(initialData.dob).toISOString().split('T')[0] : "",
-                bankDetails: initialData.bankDetails || { bankName: "", branch: "", accNo: "", routingNo: "" },
-                mobileBanking: initialData.mobileBanking || { provider: "", number: "" },
+                avatar: initialData.avatar || "",
+                status: initialData.status || "ACTIVE",
                 addresses: initialData.addresses || [],
-                roles: initialData.roles?.length ? initialData.roles : ["ADMIN"],
-                status: initialData.status || "ACTIVE"
             });
         }
     }, [initialData]);
@@ -65,20 +63,16 @@ export default function AdminForm({ initialData }: { initialData?: any }) {
 
         setLoading(true);
         try {
+            // Roles are always ADMIN — not editable from this form.
+            const basePayload = { ...adminData, roles: ["ADMIN"] };
+
             if (isEdit) {
-                // Destructure to separate password from the rest of the data
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                const { password, ...payload } = adminData;
-
-                // Only add password back to payload if the user actually typed something
-                const finalPayload = adminData.password
-                    ? { ...payload, password: adminData.password }
-                    : payload;
-
-                // Added missing leading slash for consistency
+                const { password, ...rest } = basePayload;
+                const finalPayload = adminData.password ? { ...rest, password: adminData.password } : rest;
                 await api.patch(`/users/admins/${initialData.id}`, finalPayload);
             } else {
-                await api.post("/users/admins", adminData);
+                await api.post("/users/admins", basePayload);
             }
 
             Swal.fire("Success", `Admin ${isEdit ? 'updated' : 'created'} successfully`, "success");
@@ -91,33 +85,24 @@ export default function AdminForm({ initialData }: { initialData?: any }) {
     };
 
     return (
-        <div className="flex flex-col xl:flex-row gap-8 items-start">
+        <div className="max-w-3xl mx-auto w-full space-y-8">
+            <FormAvatar data={adminData} update={updateData} />
+            <FormBasicInfo data={adminData} update={updateData} isEdit={isEdit} />
+            <FormStatus data={adminData} update={updateData} />
+            <FormAddresses data={adminData} update={updateData} />
 
-            {/* LEFT SIDE: Core Data & Records */}
-            <div className="flex-1 w-full space-y-8">
-                <FormBasicInfo data={adminData} update={updateData} isEdit={isEdit} />
-                <FormAddresses data={adminData} update={updateData} />
-                <FormBankDetails data={adminData} update={updateData} />
-            </div>
-
-            {/* RIGHT SIDE: Status, Media, Roles & Save */}
-            <div className="w-full xl:w-100 space-y-8 xl:sticky xl:top-24">
-                <FormAvatar data={adminData} update={updateData} />
-                <FormStatus data={adminData} update={updateData} />
-
-                {/* Save Action */}
-                <div className="bg-card border border-border rounded-3xl p-6 shadow-theme-sm">
+            <div className="sticky bottom-4 z-30">
+                <div className="bg-card border border-border rounded-3xl p-4 shadow-theme-lg">
                     <button
                         onClick={handleSave}
                         disabled={loading}
-                        className="w-full py-4 bg-primary text-white rounded-2xl font-black flex items-center justify-center gap-3 hover:shadow-theme-md hover:scale-[1.02] transition-all disabled:opacity-50"
+                        className="w-full py-4 bg-primary text-primary-foreground rounded-2xl font-black flex items-center justify-center gap-3 hover:shadow-theme-md hover:scale-[1.01] transition-all disabled:opacity-50"
                     >
                         {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
                         {isEdit ? "Update Admin Record" : "Create Admin Account"}
                     </button>
                 </div>
             </div>
-
         </div>
     );
 }

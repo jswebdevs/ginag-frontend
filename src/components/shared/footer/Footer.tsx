@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Phone, MapPin, CreditCard, Store } from "lucide-react";
+import { Mail, Phone, MapPin, Store, Sparkles } from "lucide-react";
 import { getGlobalSettings } from "@/lib/getSettings";
 import FooterSocials from "./FooterSocials";
 
@@ -41,21 +41,18 @@ export default async function Footer() {
   const col2 = footerConfig?.col2 || {
     title: "Quick Links",
     links: [
-      { label: "Shop All Products", href: "/shop" },
-      { label: "Help Center & FAQ", href: "/faq" },
-      { label: "Custom Order Process", href: "/custom-order-process" },
+      { label: "Browse Catalog", href: "/products" },
+      { label: "Order Now", href: "/order-now" },
       { label: "Categories", href: "/categories" },
+      { label: "FAQ", href: "/faq" },
       { label: "About Us", href: "/about-us" }
     ]
   };
 
   const col3 = footerConfig?.col3 || {
-    title: "Customer Support",
+    title: "Information",
     links: [
-      { label: "My Account", href: "/dashboard" },
-      { label: "Track Order", href: "/dashboard/orders" },
-      { label: "Shipping Policy", href: "/shipping-policy" },
-      { label: "Returns & Refunds", href: "/return-refund-policy" },
+      { label: "Contact Us", href: "/contact-us" },
       { label: "Privacy Policy", href: "/privacy-policy" },
       { label: "Terms of Service", href: "/terms-of-service" }
     ]
@@ -186,10 +183,10 @@ export default async function Footer() {
           <p className="text-sm text-muted-foreground font-medium text-center md:text-left">
             © {new Date().getFullYear()} {storeName}. All rights reserved.
           </p>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <CreditCard className="w-5 h-5" />
-            <span className="text-sm font-bold uppercase tracking-widest">Secure Payments</span>
-          </div>
+          <Link href="/order-now" className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors">
+            <Sparkles className="w-5 h-5" />
+            <span className="text-sm font-bold uppercase tracking-widest">Custom Orders Welcome</span>
+          </Link>
         </div>
       </div>
     </footer>

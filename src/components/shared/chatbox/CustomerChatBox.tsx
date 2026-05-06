@@ -2,17 +2,36 @@
 
 import { useState, useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
-import { Send, Loader2, Headset, User } from "lucide-react";
+import { Send, Headset, AlertCircle } from "lucide-react";
 
 export default function CustomerChatBox({ token }: { token: string }) {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState("");
+    const [connectionError, setConnectionError] = useState<string | null>(null);
+    const [connected, setConnected] = useState(false);
     const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const newSocket = io(process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') || "http://localhost:5000", {
-            auth: { token }
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v\d+\/?$/, '') || "http://localhost:5000";
+        const newSocket = io(baseUrl, {
+            auth: { token },
+            withCredentials: true,
+            transports: ['websocket', 'polling'],
+        });
+
+        newSocket.on('connect', () => {
+            setConnected(true);
+            setConnectionError(null);
+        });
+
+        newSocket.on('connect_error', (err) => {
+            setConnected(false);
+            setConnectionError(err?.message || 'Could not connect to chat. Please refresh.');
+        });
+
+        newSocket.on('disconnect', () => {
+            setConnected(false);
         });
 
         newSocket.on('chat_history', (history: any[]) => {
@@ -33,7 +52,7 @@ export default function CustomerChatBox({ token }: { token: string }) {
     }, [messages]);
 
     const sendMessage = () => {
-        if (!input.trim() || !socket) return;
+        if (!input.trim() || !socket || !connected) return;
         socket.emit('message', { content: input.trim() });
         setInput("");
     };
@@ -67,12 +86,21 @@ export default function CustomerChatBox({ token }: { token: string }) {
     return (
         <div className="flex flex-col h-full w-full overflow-hidden bg-background relative">
 
+            {connectionError && (
+                <div className="px-3 py-2 bg-destructive/10 border-b border-destructive/20 flex items-center gap-2 text-xs text-destructive">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <span className="flex-1 truncate">{connectionError}</span>
+                </div>
+            )}
+
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/10">
-                {messages.length === 0 && (
+                {messages.length === 0 && !connectionError && (
                     <div className="text-center text-muted-foreground text-sm mt-10">
                         <Headset size={32} className="mx-auto mb-2 text-primary" />
-                        <p className="font-medium">Hi! How can we help you today?</p>
+                        <p className="font-medium">
+                            {connected ? "Hi! How can we help you today?" : "Connecting…"}
+                        </p>
                     </div>
                 )}
 
@@ -115,7 +143,8 @@ export default function CustomerChatBox({ token }: { token: string }) {
                 />
                 <button
                     onClick={sendMessage}
-                    disabled={!input.trim()}
+                    disabled={!input.trim() || !connected}
+                    title={!connected ? "Not connected" : undefined}
                     className="w-11 h-11 shrink-0 bg-primary text-primary-foreground rounded-xl flex items-center justify-center hover:scale-105 transition-transform disabled:opacity-50"
                 >
                     <Send size={16} />

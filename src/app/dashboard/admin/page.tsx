@@ -1,159 +1,90 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import api from '@/lib/axios';
-import dynamic from 'next/dynamic';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useCurrency } from '@/context/SettingsContext';
+import { useEffect, useState } from "react";
+import api from "@/lib/axios";
+import Link from "next/link";
+import { ClipboardList, Users, Package, FolderTree, Loader2 } from "lucide-react";
 
+interface Overview {
+  totalOrders: number;
+  pendingOrders: number;
+  inProgressOrders: number;
+  completedOrders: number;
+  totalCustomers: number;
+  totalProducts: number;
+  totalCategories: number;
+}
 
-// Reusing these shared components
-import KPICards from './_components/KPICards';
-import ActionableTables from './_components/ActionableTables';
-
-const WelcomeCard3D = dynamic(() => import('./_components/WelcomeCard3D'), {
-    ssr: false,
-    loading: () => (
-        <div className="h-64 w-full rounded-2xl bg-primary/10 animate-pulse flex items-center justify-center text-primary font-bold shadow-sm">
-            Initializing Admin Hub...
-        </div>
-    )
-});
+const KPI = ({ label, value, Icon, tone = "primary" }: { label: string; value: number | string; Icon: any; tone?: string }) => {
+  const tones: Record<string, string> = {
+    primary: "bg-primary/10 text-primary",
+    amber: "bg-amber-500/10 text-amber-600",
+    emerald: "bg-emerald-500/10 text-emerald-600",
+    violet: "bg-violet-500/10 text-violet-600",
+  };
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-sm flex items-center gap-4">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${tones[tone]}`}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <div>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{label}</p>
+        <h3 className="text-2xl font-black text-foreground">{value}</h3>
+      </div>
+    </div>
+  );
+};
 
 export default function AdminDashboardPage() {
-    const { symbol } = useCurrency();
-    const [data, setData] = useState<any>(null);
+  const [overview, setOverview] = useState<Overview | null>(null);
+  const [loading, setLoading] = useState(true);
 
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [days, setDays] = useState(30);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await api.get("/analytics/overview");
+        setOverview(res.data?.data || null);
+      } catch (err) {
+        console.error("Admin dashboard error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
-    useEffect(() => {
-        const fetchAdminData = async () => {
-            if (!data) setLoading(true);
-
-            try {
-                // Admins fetch restricted overview and chart data
-                const [overviewRes, chartRes, ordersRes] = await Promise.all([
-                    api.get('/analytics/overview'),
-                    api.get(`/analytics/chart-data?days=${days}`),
-                    api.get('/orders/all?limit=5')
-                ]);
-
-                const formattedChartData = chartRes.data.data.map((stat: any) => ({
-                    name: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                    revenue: Number(stat.totalRevenue)
-                }));
-
-                setData({
-                    kpis: overviewRes.data.data,
-                    chartData: formattedChartData,
-                    actionables: {
-                        recentOrders: ordersRes.data.data
-                    }
-                });
-                setError('');
-            } catch (err) {
-                setError('Connection to admin analytics lost. Please refresh.');
-                console.error("Admin Dashboard fetch error:", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchAdminData();
-    }, [days]);
-
-    if (loading && !data) {
-        return (
-            <div className="flex min-h-[70vh] items-center justify-center">
-                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    if (error) return <div className="p-8 text-destructive bg-destructive/10 rounded-xl font-bold">{error}</div>;
-
+  if (loading) {
     return (
-        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-
-            {/* 3D Visual Header */}
-            <WelcomeCard3D />
-
-            {/* Sales Stats Overview */}
-            <KPICards kpis={data?.kpis} />
-
-            {/* Revenue Graph with Mobile Support */}
-            <div className="bg-card p-4 md:p-6 rounded-3xl border border-border shadow-theme-sm">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                    <div>
-                        <h3 className="text-xl font-black text-foreground tracking-tight">Performance Chart</h3>
-                        <p className="text-xs text-muted-foreground">Revenue generated across the store.</p>
-                    </div>
-                    <select
-                        value={days}
-                        onChange={(e) => setDays(Number(e.target.value))}
-                        className="w-full sm:w-auto bg-background border border-border text-foreground font-bold text-xs rounded-xl p-2.5 outline-none cursor-pointer hover:border-primary transition-all shadow-sm"
-                    >
-                        <option value={7}>Week View</option>
-                        <option value={30}>Month View</option>
-                        <option value={90}>Quarter View</option>
-                    </select>
-                </div>
-
-                <div className="w-full h-[300px] md:h-[400px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={data?.chartData || []}>
-                            <defs>
-                                <linearGradient id="adminColorRev" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
-                                    <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-muted-foreground/10" />
-                            <XAxis
-                                dataKey="name"
-                                axisLine={false}
-                                tickLine={false}
-                                dy={10}
-                                fontSize={10}
-                                className="text-muted-foreground font-bold"
-                                minTickGap={20}
-                            />
-                            <YAxis
-                                axisLine={false}
-                                tickLine={false}
-                                fontSize={10}
-                                className="text-muted-foreground font-bold"
-                                tickFormatter={(val) => `${symbol}${val}`}
-
-                                width={50}
-                            />
-                            <Tooltip
-                                contentStyle={{
-                                    backgroundColor: 'var(--card)',
-                                    borderColor: 'var(--border)',
-                                    borderRadius: '16px',
-                                    fontSize: '12px',
-                                    boxShadow: 'var(--shadow-lg)'
-                                }}
-                                itemStyle={{ color: 'var(--primary)', fontWeight: '900' }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="revenue"
-                                stroke="var(--primary)"
-                                strokeWidth={4}
-                                fillOpacity={1}
-                                fill="url(#adminColorRev)"
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* Task List / Recent Orders */}
-            <ActionableTables actionables={data?.actionables} />
-        </div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
     );
+  }
+
+  return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+      <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground uppercase tracking-tight">Admin</h1>
+          <p className="text-muted-foreground mt-1">Catalog and custom-order overview.</p>
+        </div>
+        <Link
+          href="/dashboard/admin/orders"
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold text-sm hover:scale-105 transition-transform"
+        >
+          <ClipboardList className="w-4 h-4" /> View Orders
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPI label="Total Orders" value={overview?.totalOrders ?? 0} Icon={ClipboardList} />
+        <KPI label="Pending" value={overview?.pendingOrders ?? 0} Icon={ClipboardList} tone="amber" />
+        <KPI label="In Progress" value={overview?.inProgressOrders ?? 0} Icon={ClipboardList} tone="violet" />
+        <KPI label="Completed" value={overview?.completedOrders ?? 0} Icon={ClipboardList} tone="emerald" />
+        <KPI label="Customers" value={overview?.totalCustomers ?? 0} Icon={Users} />
+        <KPI label="Products" value={overview?.totalProducts ?? 0} Icon={Package} />
+        <KPI label="Categories" value={overview?.totalCategories ?? 0} Icon={FolderTree} />
+      </div>
+    </div>
+  );
 }

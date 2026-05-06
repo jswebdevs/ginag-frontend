@@ -1,127 +1,155 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import api from '@/lib/axios';
-import dynamic from 'next/dynamic';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useCurrency } from '@/context/SettingsContext';
+import { useEffect, useState } from "react";
+import api from "@/lib/axios";
+import Link from "next/link";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { ClipboardList, Users, Package, FolderTree, Loader2 } from "lucide-react";
 
+interface Overview {
+  totalOrders: number;
+  pendingOrders: number;
+  inProgressOrders: number;
+  completedOrders: number;
+  totalCustomers: number;
+  totalProducts: number;
+  totalCategories: number;
+}
 
-import KPICards from './_components/KPICards';
-import ActionableTables from './_components/ActionableTables';
+interface ChartPoint {
+  date: string;
+  totalOrders: number;
+  completedOrders: number;
+}
 
-const WelcomeCard3D = dynamic(() => import('./_components/WelcomeCard3D'), {
-  ssr: false,
-  loading: () => (
-    <div className="h-64 w-full rounded-2xl bg-primary/10 animate-pulse flex items-center justify-center text-primary font-bold shadow-sm">
-      Initializing 3D Engine...
+const KPI = ({
+  label,
+  value,
+  Icon,
+  tone = "primary",
+}: {
+  label: string;
+  value: number | string;
+  Icon: any;
+  tone?: "primary" | "amber" | "emerald" | "violet";
+}) => {
+  const tones: Record<string, string> = {
+    primary: "bg-primary/10 text-primary",
+    amber: "bg-amber-500/10 text-amber-600",
+    emerald: "bg-emerald-500/10 text-emerald-600",
+    violet: "bg-violet-500/10 text-violet-600",
+  };
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-sm flex items-center gap-4">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${tones[tone]}`}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <div>
+        <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{label}</p>
+        <h3 className="text-2xl font-black text-foreground">{value}</h3>
+      </div>
     </div>
-  )
-});
+  );
+};
 
 export default function SuperadminDashboardPage() {
-  const { symbol } = useCurrency();
-  const [data, setData] = useState<any>(null);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [overview, setOverview] = useState<Overview | null>(null);
+  const [chart, setChart] = useState<ChartPoint[]>([]);
   const [days, setDays] = useState(30);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!data) setLoading(true);
-
+    const load = async () => {
+      setLoading(true);
       try {
-        // Fetch from routes concurrently. 
-        // Note: Adjusted the order route to match your Express router setup
-        const [overviewRes, chartRes, ordersRes] = await Promise.all([
-          api.get('/analytics/overview'),
+        const [ov, ch] = await Promise.all([
+          api.get("/analytics/overview"),
           api.get(`/analytics/chart-data?days=${days}`),
-          api.get('/orders/all?limit=5')
         ]);
-
-        // Format the chart data to match what Recharts expects
-        const formattedChartData = chartRes.data.data.map((stat: any) => ({
-          name: new Date(stat.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          revenue: Number(stat.totalRevenue)
-        }));
-
-        setData({
-          kpis: overviewRes.data.data,
-          chartData: formattedChartData,
-          actionables: {
-            recentOrders: ordersRes.data.data
-          }
-        });
-        setError('');
+        setOverview(ov.data?.data || null);
+        setChart(ch.data?.data || []);
       } catch (err) {
-        setError('Failed to load dashboard data. Ensure backend is running.');
-        console.error("Dashboard fetch error:", err);
+        console.error("Dashboard load error:", err);
       } finally {
         setLoading(false);
       }
     };
+    load();
+  }, [days]);
 
-    fetchDashboardData();
-  }, [days]); // Trigger fetch only when 'days' filter changes
-
-  if (loading && !data) {
+  if (loading && !overview) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     );
   }
 
-  if (error) return <div className="p-8 text-destructive bg-destructive/10 rounded-xl font-bold">{error}</div>;
-
   return (
-    <div className="space-y-6 transition-colors duration-300 animate-in fade-in slide-in-from-bottom-4">
-      <WelcomeCard3D />
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+      <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-foreground uppercase tracking-tight">Super Admin</h1>
+          <p className="text-muted-foreground mt-1">Overview of catalog and custom-order activity.</p>
+        </div>
+        <Link
+          href="/dashboard/super-admin/orders"
+          className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl font-bold text-sm hover:scale-105 transition-transform"
+        >
+          <ClipboardList className="w-4 h-4" /> View Orders
+        </Link>
+      </div>
 
-      {/* Passes the exact numeric overview data */}
-      <KPICards kpis={data?.kpis} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <KPI label="Total Orders" value={overview?.totalOrders ?? 0} Icon={ClipboardList} tone="primary" />
+        <KPI label="Pending" value={overview?.pendingOrders ?? 0} Icon={ClipboardList} tone="amber" />
+        <KPI label="In Progress" value={overview?.inProgressOrders ?? 0} Icon={ClipboardList} tone="violet" />
+        <KPI label="Completed" value={overview?.completedOrders ?? 0} Icon={ClipboardList} tone="emerald" />
+        <KPI label="Customers" value={overview?.totalCustomers ?? 0} Icon={Users} tone="primary" />
+        <KPI label="Products" value={overview?.totalProducts ?? 0} Icon={Package} tone="primary" />
+        <KPI label="Categories" value={overview?.totalCategories ?? 0} Icon={FolderTree} tone="primary" />
+      </div>
 
-      <div className="bg-card p-6 rounded-2xl border border-border shadow-sm transition-colors duration-300">
+      <div className="bg-card p-6 rounded-2xl border border-border shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h3 className="text-xl font-black text-foreground">Revenue Overview</h3>
+          <h3 className="text-xl font-black text-foreground">Order activity</h3>
           <select
             value={days}
             onChange={(e) => setDays(Number(e.target.value))}
-            className="bg-background border border-border text-foreground font-semibold text-sm rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary p-2.5 outline-none cursor-pointer transition-colors"
+            className="bg-background border border-border text-foreground font-semibold text-sm rounded-xl p-2.5 outline-none focus:ring-2 focus:ring-primary"
           >
             <option value={7}>Last 7 Days</option>
             <option value={30}>Last 30 Days</option>
-            <option value={100}>Last 100 Days</option>
+            <option value={90}>Last 90 Days</option>
           </select>
         </div>
 
-        <div className="w-full h-[350px]">
+        <div className="w-full h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data?.chartData || []} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+            <AreaChart data={chart} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
-                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                <linearGradient id="orderGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-muted-foreground/20" />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} dy={10} fontSize={12} stroke="currentColor" className="text-muted-foreground font-medium" minTickGap={30} />
-              <YAxis axisLine={false} tickLine={false} fontSize={12} stroke="currentColor" className="text-muted-foreground font-medium" tickFormatter={(val) => `${symbol}${val}`} width={65} />
-
+              <XAxis dataKey="date" axisLine={false} tickLine={false} dy={10} fontSize={11} stroke="currentColor" className="text-muted-foreground" minTickGap={30} />
+              <YAxis axisLine={false} tickLine={false} fontSize={11} stroke="currentColor" className="text-muted-foreground" allowDecimals={false} />
               <Tooltip
-                contentStyle={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontWeight: 'bold' }}
-                itemStyle={{ color: 'var(--primary)' }}
-                formatter={(value: any) => [`${symbol}${Number(value).toLocaleString()}`, 'Exact Revenue']}
-
+                contentStyle={{
+                  backgroundColor: "hsl(var(--card))",
+                  borderColor: "hsl(var(--border))",
+                  color: "hsl(var(--foreground))",
+                  borderRadius: "12px",
+                  fontWeight: "bold",
+                }}
               />
-              <Area type="monotone" dataKey="revenue" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+              <Area type="monotone" dataKey="totalOrders" stroke="hsl(var(--primary))" strokeWidth={3} fill="url(#orderGrad)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
-
-      <ActionableTables actionables={data?.actionables} />
     </div>
   );
 }
