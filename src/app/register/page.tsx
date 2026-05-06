@@ -84,7 +84,7 @@ export default function RegisterPage() {
         
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-heading mb-2">Create an Account</h1>
-          <p className="text-subheading">Join Dream Shop today.</p>
+          <p className="text-subheading">Join Ginag today.</p>
         </div>
 
         {error && (

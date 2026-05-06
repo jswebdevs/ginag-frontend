@@ -21,7 +21,7 @@ export const revalidate = 60; // revalidate layout data at most every 60 s
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getGlobalSettings();
 
-  const storeName = settings?.storeName || "Dream Shop";
+  const storeName = settings?.storeName || "Ginag";
   const tagline = settings?.tagline || "The best place to find everything you need with fast delivery.";
   const faviconUrl = settings?.favicon?.originalUrl || settings?.favicon?.thumbUrl || "/dreamecommerce.svg";
   const ogImageUrl = settings?.ogImage?.originalUrl || "https://yourdreamshop.com/default-og.jpg";

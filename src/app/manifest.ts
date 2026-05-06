@@ -4,7 +4,7 @@ import { getGlobalSettings } from '@/lib/getSettings';
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const settings = await getGlobalSettings();
   
-  const storeName = settings?.storeName || 'Dream Shop';
+  const storeName = settings?.storeName || 'Ginag';
   const description = settings?.tagline || 'Premium E-commerce platform';
   const faviconUrl = settings?.favicon?.originalUrl || '/dreamecommerce.svg';
 
