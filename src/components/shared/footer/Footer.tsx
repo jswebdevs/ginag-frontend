@@ -23,7 +23,7 @@ export default async function Footer() {
     getPublicSocialLinks()
   ]);
 
-  const storeName = settings?.storeName || "Dream Shop";
+  const storeName = settings?.storeName || "Ginag";
   const tagline = settings?.tagline || "The best place to find everything you need with fast delivery. Premium e-commerce experience right at your fingertips.";
   const address = settings?.contactAddress || settings?.address || "Rajshahi, Bangladesh";
   const phone = settings?.contactPhone || settings?.supportPhone || "+880 1700 000000";
