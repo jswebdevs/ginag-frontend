@@ -17,36 +17,23 @@ export default async function OrderNowPage() {
   const heroConfig = (hp as any)?.orderHero || {};
 
   const hero = {
-    title: heroConfig.title || settings?.storeName || "GinaG",
-    subtitle: heroConfig.subtitle || "PURSE CHARMS and CHAINS",
-    personName: heroConfig.personName || settings?.companySlogan || "",
-    phone: heroConfig.phone || settings?.contactPhone || settings?.supportPhone || "",
-    email: heroConfig.email || settings?.contactEmail || settings?.supportEmail || "",
-    badgeText: heroConfig.badgeText || "CUSTOM CHARMS MADE JUST FOR YOU!",
     imageUrl:
       heroConfig.imageUrl ||
       settings?.logo?.originalUrl ||
       settings?.logo?.thumbUrl ||
       null,
     bottomImageUrl: heroConfig.bottomImageUrl || null,
-    instructions:
-      heroConfig.instructions ||
-      (settings?.contactPhone || settings?.contactEmail
-        ? `Text or call ${settings?.contactPhone || ""}${
-            settings?.contactPhone && settings?.contactEmail ? "\nor email " : ""
-          }${settings?.contactEmail || ""}`.trim()
-        : ""),
   };
 
   return (
-    <main className="min-h-screen md:h-screen bg-black md:overflow-hidden p-3 md:p-5">
+    <main className="min-h-screen bg-black p-3 md:p-4">
       <div
-        className="md:h-full max-w-[1100px] mx-auto rounded-2xl border-2 md:overflow-hidden"
+        className="max-w-[825px] mx-auto rounded-2xl border-2 overflow-hidden bg-black"
         style={{ borderColor: "#d4af37" }}
       >
-        <div className="md:h-full grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 bg-black">
           <OrderHero hero={hero} />
-          <div className="bg-black md:h-full md:overflow-y-auto md:scrollbar-hide flex md:items-center">
+          <div className="bg-black flex items-stretch">
             <div className="w-full">
               <OrderForm />
             </div>

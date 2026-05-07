@@ -1,157 +1,199 @@
 import Image from "next/image";
+import { Heart } from "lucide-react";
 
 const GOLD = "#d4af37";
 
 interface HeroData {
-  title: string;
-  subtitle?: string;
-  personName?: string;
-  phone?: string;
-  email?: string;
-  badgeText?: string;
   imageUrl?: string | null;
   bottomImageUrl?: string | null;
-  instructions?: string;
+}
+
+// Top-left gold-dust cluster — heart sits above the swarm.
+const TOP_LEFT_DOTS: Array<{ top: string; left: string; size: number; delay: string }> = [
+  { top: "10px", left: "12px", size: 3,   delay: "0s"   },
+  { top: "26px", left: "26px", size: 1.5, delay: "0.4s" },
+  { top: "16px", left: "46px", size: 2,   delay: "0.8s" },
+  { top: "36px", left: "14px", size: 1,   delay: "1.2s" },
+  { top: "44px", left: "34px", size: 2,   delay: "0.6s" },
+  { top: "30px", left: "66px", size: 1,   delay: "1.0s" },
+  { top: "56px", left: "20px", size: 2.5, delay: "0.2s" },
+  { top: "52px", left: "52px", size: 1.5, delay: "1.4s" },
+  { top: "66px", left: "38px", size: 1,   delay: "1.7s" },
+  { top: "74px", left: "12px", size: 1.5, delay: "0.9s" },
+  { top: "20px", left: "82px", size: 1,   delay: "1.5s" },
+  { top: "8px",  left: "60px", size: 1.5, delay: "1.9s" },
+  { top: "44px", left: "78px", size: 1,   delay: "1.1s" },
+];
+
+function HeartDivider({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`relative flex items-center justify-center gap-3 ${className}`}
+      aria-hidden="true"
+    >
+      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
+      <Heart className="w-3 h-3" style={{ color: GOLD, fill: GOLD }} />
+      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
+    </div>
+  );
+}
+
+function DiamondDivider({ className = "" }: { className?: string }) {
+  return (
+    <div
+      className={`relative flex items-center justify-center gap-3 ${className}`}
+      aria-hidden="true"
+    >
+      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
+      <span className="text-[11px] leading-none tracking-normal" style={{ color: GOLD }}>
+        ◆
+      </span>
+      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
+    </div>
+  );
 }
 
 export default function OrderHero({ hero }: { hero: HeroData }) {
   return (
-    <section className="relative h-full bg-black text-white overflow-hidden flex flex-col px-6 md:pl-8 md:pr-4 py-6 md:py-8">
-      {/* Subtle gold dust corners */}
-      <div
-        className="absolute top-0 right-0 w-64 h-64 pointer-events-none"
-        style={{ background: `radial-gradient(circle at 80% 20%, ${GOLD}33, transparent 60%)` }}
-      />
-      <div
-        className="absolute bottom-0 left-0 w-64 h-64 pointer-events-none"
-        style={{ background: `radial-gradient(circle at 20% 80%, ${GOLD}22, transparent 60%)` }}
-      />
+    <section className="relative bg-black text-white overflow-hidden flex flex-col justify-around p-2">
+      {/* S-1 — top-left love icon + gold-dust cluster */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <Heart
+          className="absolute top-2 left-2.5 w-6 h-6 animate-float-slow"
+          style={{ color: GOLD, fill: GOLD }}
+          aria-hidden="true"
+        />
+        {TOP_LEFT_DOTS.map((s, i) => (
+          <span
+            key={`tl-${i}`}
+            className="absolute rounded-full animate-twinkle"
+            style={{
+              top: s.top,
+              left: s.left,
+              width: `${s.size}px`,
+              height: `${s.size}px`,
+              background: GOLD,
+              boxShadow: `0 0 ${s.size * 2.5}px ${GOLD}`,
+              animationDelay: s.delay,
+            }}
+          />
+        ))}
+      </div>
 
-      {/* TOP: Logo image (or fallback script title) */}
-      <div className="relative z-10 flex flex-col items-center md:items-start text-center md:text-left">
+      {/* S-2 — central content: logo, PURSE DECOR, diamond, tagline, cursive, heart divider */}
+      <div className="relative z-10 flex flex-col items-center text-center px-3 pt-3">
+        {/* Logo: full width, height auto — preserves aspect ratio at the column's width */}
         {hero.imageUrl ? (
-          <div className="relative w-48 md:w-64 h-28 md:h-32">
-            <Image
-              src={hero.imageUrl}
-              alt={hero.title}
-              fill
-              sizes="(max-width: 768px) 192px, 256px"
-              className="object-contain object-left"
-              priority
-            />
-          </div>
+          <Image
+            src={hero.imageUrl}
+            alt="GinaG Purse Decor"
+            width={800}
+            height={300}
+            sizes="(max-width: 768px) 100vw, 400px"
+            className="w-full h-auto max-h-44 object-contain"
+            priority
+          />
         ) : (
           <h1
             className="text-5xl md:text-6xl italic font-black tracking-tight"
             style={{ color: GOLD, fontFamily: "'Brush Script MT', cursive" }}
           >
-            {hero.title}
+            GinaG
           </h1>
         )}
 
-        {hero.subtitle && (
-          <p
-            className="mt-2 text-xs md:text-sm font-black uppercase tracking-[0.3em] text-white"
-          >
-            {hero.subtitle}
-          </p>
-        )}
+        {/* PURSE DECOR — gold */}
+        <p
+          className="mt-2 text-xl md:text-2xl font-black uppercase tracking-[0.3em]"
+          style={{ color: GOLD, fontFamily: "'Cormorant Garamond', 'Playfair Display', serif" }}
+        >
+          Purse Decor
+        </p>
+
+        {/* Diamond divider */}
+        <DiamondDivider className="mt-2 w-full max-w-[260px]" />
+
+        {/* CUSTOM CHARMS. TIMELESS STYLE. — gold */}
+        <p
+          className="mt-2 text-[11px] md:text-sm font-black uppercase tracking-[0.18em]"
+          style={{ color: GOLD }}
+        >
+          Custom Charms. Timeless Style.
+        </p>
+
+        {/* Decorate. Personalize. Shine. — cursive, white */}
+        <p
+          className="mt-1 text-lg md:text-xl italic text-white"
+          style={{ fontFamily: "'Brush Script MT', 'Pinyon Script', cursive" }}
+        >
+          Decorate. Personalize. Shine.
+        </p>
+
+        {/* Heart divider */}
+        <HeartDivider className="mt-2 w-full max-w-[260px]" />
       </div>
 
-      {/* MIDDLE: Person + contact + "To order" instructions */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center text-center md:text-left py-6 md:py-8 space-y-4">
-        {hero.personName && (
-          <p
-            className="text-sm md:text-base font-black uppercase tracking-[0.18em]"
-            style={{ color: GOLD }}
+      {/* S-3 — bottom: image as background on left, To order + badge stacked on right (allowed to overlap the image) */}
+      <div className="relative flex-1 mt-2 min-h-[260px]">
+        {/* Bottom image — full height, 60% width, anchored at bottom-left, with a soft radial mask that fades the top and right edges into the black background */}
+        {hero.bottomImageUrl && (
+          <div
+            className="absolute left-0 bottom-0 w-[60%] h-full z-0"
+            style={{
+              WebkitMaskImage:
+                "radial-gradient(ellipse 110% 110% at 0% 100%, black 55%, transparent 100%)",
+              maskImage:
+                "radial-gradient(ellipse 110% 110% at 0% 100%, black 55%, transparent 100%)",
+            }}
           >
-            {hero.personName}
-          </p>
-        )}
-
-        {(hero.phone || hero.email) && (
-          <div className="space-y-1">
-            {hero.phone && (
-              <div
-                className="flex items-center justify-center md:justify-start gap-2 text-xs md:text-sm"
-                style={{ color: GOLD }}
-              >
-                <span>✦</span>
-                <a href={`tel:${hero.phone.replace(/\s/g, "")}`} className="hover:underline">
-                  {hero.phone}
-                </a>
-                <span>✦</span>
-              </div>
-            )}
-            {hero.email && (
-              <a
-                href={`mailto:${hero.email}`}
-                className="block text-xs md:text-sm hover:underline"
-                style={{ color: GOLD }}
-              >
-                {hero.email}
-              </a>
-            )}
+            <Image
+              src={hero.bottomImageUrl}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 60vw, 250px"
+              className="object-cover object-left-bottom"
+            />
           </div>
         )}
 
-        {hero.instructions && (
-          <div className="pt-4">
+        {/* Right column — z-10 above the image so they can overlap. Centered vertically with a wider gap between blocks. */}
+        <div className="relative z-10 h-full flex flex-col items-end justify-center gap-8 md:gap-10 pr-3">
+          {/* Row 1: To order + contact */}
+          <div className="text-center max-w-[60%]">
             <p
-              className="text-2xl md:text-3xl italic font-black mb-2"
-              style={{ color: GOLD, fontFamily: "'Brush Script MT', cursive" }}
+              className="text-4xl md:text-5xl italic font-black mb-2 leading-none"
+              style={{ color: GOLD, fontFamily: "'Brush Script MT', 'Pinyon Script', cursive" }}
             >
               To order
             </p>
-            <p className="text-[11px] md:text-xs text-white/80 whitespace-pre-line max-w-xs mx-auto md:mx-0 leading-relaxed">
-              {hero.instructions}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* BOTTOM ROW: bottom image (circular, 3/4 clipped off bottom-left) + badge (right) */}
-      <div className="relative z-10 flex items-end justify-end">
-        {hero.bottomImageUrl && (
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              // Push 3/4 of the circle past the bottom-left edge so only the top-right quarter shows.
-              left: "calc(-1 * var(--bottom-img-size) / 2)",
-              bottom: "calc(-1 * var(--bottom-img-size) / 2)",
-              width: "var(--bottom-img-size)",
-              height: "var(--bottom-img-size)",
-              ["--bottom-img-size" as any]: "min(20rem, 50vw)",
-            }}
-          >
-            <div
-              className="relative w-full h-full rounded-full overflow-hidden border-2 shadow-2xl"
-              style={{ borderColor: GOLD }}
-            >
-              <Image
-                src={hero.bottomImageUrl}
-                alt=""
-                fill
-                sizes="20rem"
-                className="object-cover"
-              />
+            <div className="text-sm md:text-lg text-white/90 leading-snug space-y-1">
+              <a href="tel:6152022317" className="block hover:underline">
+                Text or call 615-202-2317
+              </a>
+              <a href="mailto:alexgreeng@att.net" className="block hover:underline">
+                or email alexgreeng@att.net
+              </a>
             </div>
           </div>
-        )}
 
-        {hero.badgeText && (
+          {/* Row 2: Badge — bigger, double gold border (outer 5px, inner 2px), bg at 60% opacity */}
           <div
-            className="relative w-28 h-28 md:w-32 md:h-32 rounded-full border-2 flex items-center justify-center text-center px-3 shrink-0"
-            style={{ borderColor: GOLD, color: GOLD }}
+            className="relative shrink-0 rounded-full p-1.5"
+            style={{ border: `5px solid ${GOLD}` }}
           >
-            <p
-              className="text-[9px] md:text-[10px] font-black uppercase leading-tight tracking-[0.08em]"
-              style={{ fontFamily: "serif" }}
+            <div
+              className="w-28 h-28 md:w-36 md:h-36 rounded-full border-2 flex items-center justify-center text-center px-3 bg-black/60"
+              style={{ borderColor: GOLD, color: GOLD }}
             >
-              {hero.badgeText}
-            </p>
+              <p
+                className="text-[10px] md:text-[11px] font-black uppercase leading-tight tracking-[0.08em]"
+                style={{ fontFamily: "serif" }}
+              >
+                Custom Purse Decor Made Just For You!
+              </p>
+            </div>
           </div>
-        )}
+        </div>
       </div>
     </section>
   );

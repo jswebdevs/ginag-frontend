@@ -33,11 +33,23 @@
   /* Custom Animations */
   --animate-spin-slow: spin 12s linear infinite;
   --animate-shimmer: shimmer 2s infinite linear;
+  --animate-twinkle: twinkle 2.6s ease-in-out infinite;
+  --animate-float-slow: float-slow 6s ease-in-out infinite;
 }
 
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50%      { opacity: 1;    transform: scale(1.35); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
 }
 
 @layer base {
