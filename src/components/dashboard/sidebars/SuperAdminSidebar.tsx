@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { 
+import {
   LayoutDashboard, CircleDollarSign,
-  Users, PackageSearch, Store, ShieldCheck, 
+  Users, PackageSearch, Store, ShieldCheck,
   Power, Menu, X, ChevronLeft, ChevronRight, ChevronDown, UserCircle, MessageCircleMore,
   User
 } from "lucide-react";
 import { useUserStore } from "@/store/useUserStore";
+import api from "@/lib/axios";
 import Cookies from "js-cookie";
 import Swal from "sweetalert2";
 
@@ -17,13 +18,38 @@ export default function SuperAdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useUserStore();
-  
+
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
 
+  // Pending custom-order count — refreshed on mount, on route change, and
+  // every 60s while the sidebar is mounted. Reads `pagination.total` from a
+  // cheap limit=1 list call.
+  const [pendingCount, setPendingCount] = useState(0);
+
   useEffect(() => {
     setIsOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await api.get("/custom-orders", {
+          params: { status: "PENDING", limit: 1 },
+        });
+        if (!cancelled) setPendingCount(res.data?.pagination?.total ?? 0);
+      } catch {
+        // sidebar shouldn't error-toast — silently leave the badge stale
+      }
+    };
+    load();
+    const id = setInterval(load, 60_000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -167,16 +193,33 @@ export default function SuperAdminSidebar() {
             // Render standard link if no subItems
             if (!item.subItems) {
               const isActive = pathname === item.href || pathname === `${item.href}/`;
+              const badgeCount =
+                item.href === "/dashboard/super-admin/orders" && pendingCount > 0 ? pendingCount : 0;
               return (
                 <Link
                   key={item.name} href={item.href!} title={isCollapsed ? item.name : undefined}
                   onClick={() => setIsOpen(false)}
-                  className={`group flex items-center rounded-lg font-medium transition-all duration-200 overflow-hidden mb-1 ${
+                  className={`group flex items-center rounded-lg font-medium transition-all duration-200 overflow-hidden mb-1 cursor-pointer ${
                     isActive ? "bg-primary text-primary-foreground shadow-md shadow-primary/25" : "text-muted-foreground hover:bg-muted hover:text-primary"
                   } ${isCollapsed ? "md:justify-center md:px-0 md:py-3" : "px-3 py-2.5 gap-3"}`}
                 >
-                  <Icon className={`w-5 h-5 shrink-0 transition-all duration-300 ${isActive ? "text-primary-foreground" : "text-primary opacity-70 group-hover:opacity-100"}`} />
+                  <div className="relative shrink-0">
+                    <Icon className={`w-5 h-5 transition-all duration-300 ${isActive ? "text-primary-foreground" : "text-primary opacity-70 group-hover:opacity-100"}`} />
+                    {badgeCount > 0 && isCollapsed && (
+                      <span className="hidden md:flex absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-1 items-center justify-center rounded-full bg-amber-500 text-[9px] font-black text-black shadow-sm">
+                        {badgeCount > 99 ? "99+" : badgeCount}
+                      </span>
+                    )}
+                  </div>
                   <span className={`whitespace-nowrap transition-all duration-300 ${isCollapsed ? "md:w-0 md:opacity-0" : "w-auto opacity-100"}`}>{item.name}</span>
+                  {badgeCount > 0 && !isCollapsed && (
+                    <span
+                      className="ml-auto inline-flex items-center justify-center min-w-[22px] h-5 px-1.5 rounded-full bg-amber-500 text-[10px] font-black text-black shadow-sm shrink-0"
+                      title={`${badgeCount} pending order${badgeCount === 1 ? "" : "s"}`}
+                    >
+                      {badgeCount > 99 ? "99+" : badgeCount}
+                    </span>
+                  )}
                 </Link>
               );
             }
@@ -186,9 +229,10 @@ export default function SuperAdminSidebar() {
             return (
               <div key={item.name} className="mb-1">
                 <button
+                  type="button"
                   onClick={() => toggleMenu(item.name)}
                   title={isCollapsed ? item.name : undefined}
-                  className={`w-full group flex items-center rounded-lg font-medium transition-all duration-200 overflow-hidden ${
+                  className={`w-full group flex items-center rounded-lg font-medium transition-all duration-200 overflow-hidden cursor-pointer ${
                     isAnyChildActive ? "text-primary font-bold" : "text-muted-foreground hover:bg-muted"
                   } ${isCollapsed ? "md:justify-center md:px-0 md:py-3" : "px-3 py-2.5 gap-3 justify-between"}`}
                 >
@@ -210,7 +254,7 @@ export default function SuperAdminSidebar() {
                         <Link
                           key={sub.name} href={sub.href}
                           onClick={() => setIsOpen(false)}
-                          className={`block py-2 px-3 rounded-md text-sm transition-colors ${
+                          className={`block py-2 px-3 rounded-md text-sm transition-colors cursor-pointer ${
                             isSubActive ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:text-primary hover:bg-muted"
                           }`}
                         >

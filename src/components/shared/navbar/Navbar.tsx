@@ -14,8 +14,6 @@ import ChatLogin from "@/components/shared/chatbox/ChatLogin";
 import CustomerChatBox from "@/components/shared/chatbox/CustomerChatBox";
 // 🔥 Clean, specific imports for static UI elements
 import {
-  LuMoon,
-  LuSun,
   LuMenu,
   LuUser,
   LuSearch,
@@ -34,10 +32,8 @@ export default function Navbar({ initialSettings }: NavbarProps) {
   const router = useRouter();
 
   const pathname = usePathname();
-  const { isDark, toggleDark } = useThemeStore();
   const { user, isAuthenticated } = useUserStore();
 
-  const [mounted, setMounted] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
@@ -67,8 +63,6 @@ export default function Navbar({ initialSettings }: NavbarProps) {
   const isDashboard = pathname.includes('/dashboard');
 
   useEffect(() => {
-    setMounted(true);
-
     if (!initialSettings) {
       const fetchSettings = async () => {
         try {
@@ -179,19 +173,6 @@ export default function Navbar({ initialSettings }: NavbarProps) {
   const handleMobileChatToggle = () => {
     setIsMobileChatOpen(!isMobileChatOpen);
     setShowMobileSearch(false);
-  };
-
-  const ThemeSwitcherUI = () => {
-    if (!mounted) return <div className="w-9 h-9 bg-muted animate-pulse rounded-full" />;
-    return (
-      <button
-        onClick={toggleDark}
-        className="p-2 border border-border rounded-full bg-background/50 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-        title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-      >
-        {isDark ? <LuMoon className="w-4 h-4" /> : <LuSun className="w-4 h-4" />}
-      </button>
-    );
   };
 
   return (
@@ -340,8 +321,6 @@ export default function Navbar({ initialSettings }: NavbarProps) {
           </div>
 
           <div className="flex items-center gap-3 md:gap-5">
-            <ThemeSwitcherUI />
-
             <Link
               href="/order-now"
               className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-bold text-sm tracking-tight shadow-theme-sm hover:shadow-theme-md hover:scale-105 transition-all"

@@ -136,13 +136,9 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:3000'} />
         <script dangerouslySetInnerHTML={{
           __html: `
-          (function(){
-            try {
-              var s = localStorage.getItem('dreamshop-theme-storage');
-              var isDark = s ? JSON.parse(s)?.state?.isDark : true;
-              if (isDark !== false) document.documentElement.classList.add('dark');
-            } catch(e) { document.documentElement.classList.add('dark'); }
-          })();
+          // Dark mode is the only supported theme — pin it before paint to
+          // avoid a flash of light styling.
+          document.documentElement.classList.add('dark');
         `}} />
       </head>
       <body className="antialiased min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
@@ -176,7 +172,35 @@ export default async function RootLayout({
                 </>
               )}
 
-              <Toaster richColors position="top-right" />
+              {/* Centered toaster styled to the dark + gold brand. Tokens
+                  reference the theme CSS vars so future palette changes flow
+                  through here too. */}
+              <Toaster
+                position="top-center"
+                offset="40vh"
+                mobileOffset="35vh"
+                theme="dark"
+                richColors={false}
+                closeButton
+                toastOptions={{
+                  classNames: {
+                    toast:
+                      "!bg-card !border !border-amber-500/30 !text-foreground !shadow-2xl !shadow-amber-500/10 !rounded-2xl",
+                    title: "!text-foreground !font-bold !tracking-tight",
+                    description: "!text-muted-foreground",
+                    actionButton:
+                      "!bg-amber-500 !text-black !font-black !uppercase !tracking-widest !rounded-lg !cursor-pointer hover:!bg-amber-400",
+                    cancelButton:
+                      "!bg-transparent !text-muted-foreground !border !border-border !font-bold !uppercase !tracking-widest !rounded-lg !cursor-pointer hover:!text-foreground",
+                    closeButton:
+                      "!bg-card !border !border-border !text-muted-foreground hover:!text-foreground !cursor-pointer",
+                    success: "!border-emerald-500/40 !text-emerald-200",
+                    error: "!border-destructive/40 !text-destructive",
+                    warning: "!border-amber-500/40 !text-amber-200",
+                    info: "!border-blue-500/40 !text-blue-200",
+                  },
+                }}
+              />
 
             </ThemeProvider>
             </SettingsProvider>

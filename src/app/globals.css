@@ -140,3 +140,23 @@
   width: 24px;
   border-radius: 4px;
 }
+
+/* Sonner backdrop — blur the page behind any visible toast.
+   Uses :has() to detect at least one mounted toast inside the toaster, then
+   paints a fixed scrim under the toaster (Sonner sits at z-index ~ 999999). */
+body:has([data-sonner-toaster] [data-sonner-toast])::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: rgba(10, 7, 5, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+  animation: sonner-backdrop-fade 180ms ease-out;
+}
+
+@keyframes sonner-backdrop-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

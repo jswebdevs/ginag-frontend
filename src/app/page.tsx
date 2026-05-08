@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 import GinaGHero from "@/components/home/hero/GinaGHero";
+import SignatureCharmSection from "@/components/home/sections/SignatureCharmSection";
 import StickyBanner from "@/components/home/sections/StickyBanner";
 import { getHomepageConfig, getFeaturedProducts } from "@/lib/getSettings";
 
@@ -22,6 +23,7 @@ export default async function Home() {
     <main className="min-h-screen">
       <StickyBanner data={hp.stickyBanner} whatsappLink={whatsappLink} />
       <GinaGHero heroConfig={hp.ginaGHero} />
+      <SignatureCharmSection />
       <FeaturedProducts initialProducts={products} />
       <StorySection data={hp.story} />
       <HowItWorks data={hp.howItWorks} whatsappLink={whatsappLink} />

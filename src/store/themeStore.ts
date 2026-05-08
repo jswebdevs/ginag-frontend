@@ -1,37 +1,32 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 
+// Dark mode is the only supported theme. The toggle has been removed; this
+// store keeps `isDark`/`toggleDark` so existing callers compile, but flipping
+// is a no-op and `initTheme` always applies the .dark class.
 interface ThemeState {
   isDark: boolean;
-  userTheme: any | null; // Stores the specific theme object chosen by user
+  userTheme: any | null;
   toggleDark: () => void;
   setTheme: (theme: any) => void;
   initTheme: () => void;
 }
 
-export const useThemeStore = create<ThemeState>()(
-  persist(
-    (set, get) => ({
-      isDark: true,
-      userTheme: null,
-      
-      setTheme: (theme) => set({ userTheme: theme }),
+const applyDarkClass = () => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.classList.add('dark');
+  }
+};
 
-      toggleDark: () => {
-        const nextDark = !get().isDark;
-        set({ isDark: nextDark });
-        if (typeof document !== 'undefined') {
-          document.documentElement.classList.toggle('dark', nextDark);
-        }
-      },
-      
-      initTheme: () => {
-        const { isDark } = get();
-        if (typeof document !== 'undefined') {
-          document.documentElement.classList.toggle('dark', isDark);
-        }
-      }
-    }),
-    { name: 'dreamshop-theme-storage' }
-  )
-);
+export const useThemeStore = create<ThemeState>()((set) => ({
+  isDark: true,
+  userTheme: null,
+  setTheme: (theme) => set({ userTheme: theme }),
+  toggleDark: () => {
+    // Light mode is disabled. Reapply the dark class in case something else
+    // tried to remove it.
+    applyDarkClass();
+  },
+  initTheme: () => {
+    applyDarkClass();
+  },
+}));

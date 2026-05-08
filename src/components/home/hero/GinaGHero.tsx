@@ -62,10 +62,20 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
       <div className="absolute bottom-6 left-6 w-12 h-12 border-b-2 border-l-2 border-amber-400/30 rounded-bl-2xl pointer-events-none" />
       <div className="absolute bottom-6 right-6 w-12 h-12 border-b-2 border-r-2 border-amber-400/30 rounded-br-2xl pointer-events-none" />
 
-      <div className="container mx-auto px-4 relative z-10 py-20 md:py-24">
-        <div className="max-w-3xl mx-auto text-center">
-          {/* Brand image (LCP candidate — no opacity animation) */}
-          <div className="relative mx-auto w-full max-w-xl aspect-[16/9] sm:aspect-[2/1] mb-8">
+      <div className="container mx-auto px-4 relative z-10 py-20 md:py-12">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Brand image (LCP candidate — no opacity animation).
+              The radial mask softly fades the image edges into the section
+              background so it blends instead of sitting on a hard rectangle. */}
+          <div
+            className="relative mx-auto w-full max-w-xl aspect-[16/9] sm:aspect-[2/1] mb-8"
+            style={{
+              WebkitMaskImage:
+                "radial-gradient(ellipse at center, #000 55%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.4) 85%, transparent 100%)",
+              maskImage:
+                "radial-gradient(ellipse at center, #000 55%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.4) 85%, transparent 100%)",
+            }}
+          >
             {imageUrl ? (
               <Image
                 src={imageUrl}
@@ -91,12 +101,6 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
             )}
           </div>
 
-          {/* Brand divider */}
-          <div className="flex items-center justify-center gap-4 mb-5">
-            <div className="h-px w-20 bg-gradient-to-r from-transparent to-amber-400/60" />
-            <Sparkles className="w-4 h-4 text-amber-400" aria-hidden="true" />
-            <div className="h-px w-20 bg-gradient-to-l from-transparent to-amber-400/60" />
-          </div>
 
           {/* Headline (LCP) */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-tight tracking-[0.05em] uppercase mb-3">
@@ -109,15 +113,7 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
               {subheadline}
             </p>
           )}
-
-          {/* Tagline */}
-          {tagline && (
-            <p className="text-sm md:text-base text-white/70 max-w-xl mx-auto leading-relaxed mb-6">
-              {tagline}
-            </p>
-          )}
-
-          {/* Contact lines — phone + email rendered if configured */}
+           {/* Contact lines — phone + email rendered if configured */}
           {(contactPhone || contactEmail) && (
             <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-amber-200/80 mb-8">
               {contactPhone && (
@@ -142,6 +138,15 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
               )}
             </div>
           )}
+
+          {/* Tagline */}
+          {tagline && (
+            <p className="text-sm md:text-base text-white/70 max-w-xl mx-auto leading-relaxed mb-6">
+              {tagline}
+            </p>
+          )}
+
+         
 
 
         </div>

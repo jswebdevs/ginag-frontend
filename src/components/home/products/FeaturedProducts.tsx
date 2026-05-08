@@ -51,7 +51,7 @@ export default function FeaturedProducts({ initialProducts }: FeaturedProductsPr
             <Sparkles className="w-3 h-3" /> Featured
           </motion.div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-heading uppercase tracking-tighter italic">
-            Our Best <span className="text-primary">Picks</span>
+            Purse Decor <span className="text-primary">Samples</span>
           </h2>
         </div>
 
