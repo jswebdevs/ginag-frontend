@@ -127,6 +127,28 @@ export default async function RootLayout({
   const isMaintenanceMode = settings?.maintenanceMode ?? false;
   const maintenanceMessage = settings?.maintenanceMessage || "Our store is currently undergoing maintenance. We'll be back shortly!";
 
+  // Organization JSON-LD — search engines use this for the Knowledge Panel
+  // (logo, contact, social) and to associate reviews with the brand.
+  const baseUrl =
+    process.env.NEXT_PUBLIC_CLIENT_URL?.replace(/\/$/, '') || 'https://ginag-frontend.vercel.app';
+  const orgJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: settings?.storeName || 'Ginag',
+    url: baseUrl,
+    logo: settings?.logo?.originalUrl || `${baseUrl}/dreamecommerce.svg`,
+    description: settings?.tagline || 'Handmade custom purse charms and chains.',
+    ...(settings?.contactEmail && { email: settings.contactEmail }),
+    ...(settings?.contactPhone && {
+      contactPoint: {
+        '@type': 'ContactPoint',
+        telephone: settings.contactPhone,
+        contactType: 'customer support',
+        email: settings.contactEmail || undefined,
+      },
+    }),
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       {/* Apply dark class before paint to prevent flash of wrong theme */}
@@ -134,6 +156,10 @@ export default async function RootLayout({
         {/* Resource hints — establish early connection to the API server */}
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:3000'} />
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL?.split('/api')[0] ?? 'http://localhost:3000'} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
         <script dangerouslySetInnerHTML={{
           __html: `
           // Dark mode is the only supported theme — pin it before paint to

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import api from "@/lib/axios";
 import { toast } from "sonner";
 import {
@@ -361,19 +361,65 @@ function ViewModal({
   onDelete: () => void;
 }) {
   const dirty = !!draftStatus && draftStatus !== order.status;
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  const previouslyFocused = useRef<HTMLElement | null>(null);
+  const titleId = `order-modal-title-${order.id}`;
 
-  // Close on Esc.
+  // Trap focus inside the dialog and restore it on close. Esc closes too.
   useEffect(() => {
+    previouslyFocused.current = document.activeElement as HTMLElement;
+    const dialog = dialogRef.current;
+    // Move focus into the modal so screen readers announce the dialog.
+    const firstFocusable = dialog?.querySelector<HTMLElement>(
+      'button, [href], input, [tabindex]:not([tabindex="-1"])'
+    );
+    firstFocusable?.focus();
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !dialog) return;
+      const focusables = Array.from(
+        dialog.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute("aria-hidden"));
+      if (focusables.length === 0) return;
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+
+    // Lock body scroll while the modal is open.
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+      previouslyFocused.current?.focus?.();
+    };
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-150"
+      onClick={onClose}
+    >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className="relative w-full max-w-2xl bg-card border border-border rounded-3xl shadow-2xl max-h-[90vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
@@ -383,7 +429,9 @@ function ViewModal({
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground mb-1">
               Custom Order
             </p>
-            <h2 className="text-xl font-mono font-black text-primary truncate">{order.orderNumber}</h2>
+            <h2 id={titleId} className="text-xl font-mono font-black text-primary truncate">
+              {order.orderNumber}
+            </h2>
             <p className="text-sm text-muted-foreground mt-1">
               Submitted {new Date(order.createdAt).toLocaleString()}
             </p>
@@ -392,7 +440,7 @@ function ViewModal({
             type="button"
             onClick={onClose}
             className="shrink-0 p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground cursor-pointer"
-            aria-label="Close"
+            aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
           </button>

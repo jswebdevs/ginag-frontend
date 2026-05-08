@@ -104,8 +104,12 @@ export default function FAQSection({ data: initialData }: { data?: any }) {
               }`}
             >
               <button
+                type="button"
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex items-center justify-between p-6 text-left gap-4"
+                aria-expanded={openIndex === i}
+                aria-controls={`faq-panel-${i}`}
+                id={`faq-trigger-${i}`}
+                className="w-full flex items-center justify-between p-6 text-left gap-4 cursor-pointer"
               >
                 <span className="font-bold text-foreground text-base leading-snug">
                   {faq.question}
@@ -122,6 +126,9 @@ export default function FAQSection({ data: initialData }: { data?: any }) {
               <AnimatePresence>
                 {openIndex === i && (
                   <motion.div
+                    id={`faq-panel-${i}`}
+                    role="region"
+                    aria-labelledby={`faq-trigger-${i}`}
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
