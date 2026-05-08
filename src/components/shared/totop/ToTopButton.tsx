@@ -34,18 +34,21 @@ export default function ToTopButton() {
 
     return (
         <div
-            // 🔥 Bulletproof inline styles for animations and fixed bottom positioning
+            // Bulletproof inline styles for animations and fixed positioning.
+            // The CSS variable lets the responsive class below override the
+            // mobile bottom-offset so the button clears the bottom nav (~80px).
             style={{
                 position: "fixed",
-                bottom: "24px",
+                bottom: "var(--totop-bottom, 24px)",
                 zIndex: 9998,
                 opacity: isVisible ? 1 : 0,
                 pointerEvents: isVisible ? "auto" : "none",
                 transform: isVisible ? "translateY(0)" : "translateY(20px)",
                 transition: "all 0.3s ease-in-out"
             }}
-            // 🔥 JIT brackets force Tailwind to compile these exact responsive locations
-            className="max-md:right-[24px] md:left-[24px] md:right-auto"
+            // JIT brackets force Tailwind to compile these exact responsive
+            // locations. On phones the button sits above the mobile bottom nav.
+            className="max-md:right-[24px] md:left-[24px] md:right-auto max-md:[--totop-bottom:96px] md:[--totop-bottom:24px]"
         >
             <button
                 onClick={scrollToTop}

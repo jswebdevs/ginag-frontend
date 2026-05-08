@@ -9,6 +9,9 @@ interface StickyBannerProps {
   whatsappLink?: string;
 }
 
+// Top promo banner. Renders ABOVE the navbar in normal document flow (so it
+// can never overlap the sticky header), with a CSS-only marquee for the
+// message text — no JS animation, pauses on hover so users can read.
 export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) {
   const [visible, setVisible] = useState(false);
 
@@ -24,24 +27,30 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
     sessionStorage.setItem("ginag-banner-dismissed", "1");
   };
 
-  const text    = data?.text    || "Order now – We will contact you on WhatsApp for full customization";
+  const text = data?.text || "Order now – We will contact you on WhatsApp for full customization";
   const btnText = data?.btnText || "Order Now";
-  const link    = whatsappLink  || "";
+  const link = whatsappLink || "";
 
   if (!visible) return null;
 
-  // The whole banner row is a link to /order-now. The WhatsApp button (if a
-  // link is configured) and the close (X) need stopPropagation so they don't
-  // bubble up to the parent navigation.
+  // The whole bar is a Link to /order-now. The marquee uses two duplicates of
+  // the text in a row that translates -50%, giving an infinite seamless loop.
   return (
     <Link
       href="/order-now"
-      className="sticky top-0 z-50 w-full bg-primary text-primary-foreground py-2.5 px-4 cursor-pointer hover:opacity-95 transition-opacity"
+      className="block w-full bg-primary text-primary-foreground py-2.5 cursor-pointer hover:opacity-95 transition-opacity overflow-hidden relative"
+      aria-label={text}
     >
-      <div className="container mx-auto flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
-          <MessageCircle className="w-4 h-4 shrink-0" />
-          <p className="text-sm font-bold truncate">👉 {text}</p>
+      <div className="container mx-auto px-4 flex items-center gap-3">
+        <MessageCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
+
+        {/* Marquee — a single text span that enters from the left, travels
+            to the right, then restarts from the left after one full pass.
+            No duplicates so the message never appears twice on screen. */}
+        <div className="relative flex-1 min-w-0 overflow-hidden h-5">
+          <span className="ginag-marquee-track absolute top-0 whitespace-nowrap text-sm font-bold will-change-transform">
+            👉 {text}
+          </span>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
@@ -60,7 +69,7 @@ export default function StickyBanner({ data, whatsappLink }: StickyBannerProps) 
             type="button"
             onClick={dismiss}
             className="p-1 rounded-full hover:bg-primary-foreground/20 transition-colors cursor-pointer"
-            aria-label="Dismiss"
+            aria-label="Dismiss banner"
           >
             <X className="w-4 h-4" />
           </button>

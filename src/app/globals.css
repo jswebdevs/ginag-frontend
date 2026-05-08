@@ -160,3 +160,31 @@ body:has([data-sonner-toaster] [data-sonner-toast])::before {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* Marquee track for the promo banner.
+   Text enters from the right edge, travels leftward across the bar, then
+   restarts from the right after exiting the left. Single span — only one
+   copy is ever on screen. Animates `left` (% of parent) so the start/end
+   positions are naturally relative to the container width. */
+.ginag-marquee-track {
+  left: 100%;
+  animation: ginag-marquee-rtl 18s linear infinite;
+}
+.ginag-marquee-track:hover {
+  animation-play-state: paused;
+}
+@media (max-width: 640px) {
+  .ginag-marquee-track {
+    animation-duration: 12s;
+  }
+}
+@keyframes ginag-marquee-rtl {
+  from { left: 100%; }
+  to   { left: -100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ginag-marquee-track {
+    animation: none;
+    left: 0;
+  }
+}

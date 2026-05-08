@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, CheckCircle2, MessageCircle, Phone, Mail, Sparkles } from "lucide-react";
+import { Phone, Mail, Sparkles } from "lucide-react";
 
 interface GinaGHeroProps {
   heroConfig?: any;
@@ -24,12 +23,6 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
   const brandName = heroConfig.brandName || "GinaG";
   const contactPhone = heroConfig.contactPhone || "";
   const contactEmail = heroConfig.contactEmail || "";
-  const whatsappLink = heroConfig.whatsappLink || "";
-  const shopBtnText = heroConfig.shopBtnText || "Shop Now";
-  const whatsappBtnText =
-    heroConfig.whatsappBtnText || "Customize via WhatsApp";
-  const trustItems: string[] =
-    heroConfig.trustItems || ["Handmade", "Custom Design", "Fast Delivery"];
 
   // Telephone link strips non-digits. Empty if no number is configured.
   const telHref = contactPhone ? `tel:${contactPhone.replace(/[^\d+]/g, "")}` : "+615-202-2317";
@@ -55,12 +48,6 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
         <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-amber-500/[0.05] rounded-full blur-[100px]" />
         <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-500/[0.05] rounded-full blur-[100px]" />
       </div>
-
-      {/* Decorative gold corners */}
-      <div className="absolute top-6 left-6 w-12 h-12 border-t-2 border-l-2 border-amber-400/30 rounded-tl-2xl pointer-events-none" />
-      <div className="absolute top-6 right-6 w-12 h-12 border-t-2 border-r-2 border-amber-400/30 rounded-tr-2xl pointer-events-none" />
-      <div className="absolute bottom-6 left-6 w-12 h-12 border-b-2 border-l-2 border-amber-400/30 rounded-bl-2xl pointer-events-none" />
-      <div className="absolute bottom-6 right-6 w-12 h-12 border-b-2 border-r-2 border-amber-400/30 rounded-br-2xl pointer-events-none" />
 
       <div className="container mx-auto px-4 relative z-10 py-20 md:py-12">
         <div className="max-w-4xl mx-auto text-center">
