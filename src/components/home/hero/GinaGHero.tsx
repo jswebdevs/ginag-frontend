@@ -55,7 +55,7 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
               The radial mask softly fades the image edges into the section
               background so it blends instead of sitting on a hard rectangle. */}
           <div
-            className="relative mx-auto w-full max-w-xl aspect-[16/9] sm:aspect-[2/1] mb-8"
+            className="relative mx-auto w-full max-w-3xl aspect-[16/9] sm:aspect-[2/1] mb-8"
             style={{
               WebkitMaskImage:
                 "radial-gradient(ellipse at center, #000 55%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.4) 85%, transparent 100%)",
@@ -69,7 +69,7 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
                 alt={`${brandName} — ${headline}`}
                 fill
                 priority
-                sizes="(max-width: 640px) 100vw, 600px"
+                sizes="(max-width: 640px) 100vw, 768px"
                 className="object-contain"
               />
             ) : (
