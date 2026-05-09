@@ -1,6 +1,7 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 // Sits directly under the hero. Headline + three editorial paragraphs that
 // describe the signature multi-strand charm. The middle paragraph uses a
@@ -48,8 +49,8 @@ export default function SignatureCharmSection() {
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-400/60" />
           </div>
 
-          {/* Description — three editorial paragraphs */}
-          <div className="space-y-6 text-left sm:text-center text-white/75 text-base md:text-lg leading-relaxed">
+          {/* Description — three editorial paragraphs, fully centered. */}
+          <div className="space-y-6 text-center text-white/75 text-base md:text-lg leading-relaxed mx-auto">
             <p>
               Turn your everyday bag into a statement of style with this{" "}
               <strong className="text-amber-300 font-bold">
@@ -66,6 +67,22 @@ export default function SignatureCharmSection() {
               attaches to your favorite handbag, tote, or key set — instantly
               elevating your style from simple to standout.
             </p>
+          </div>
+
+          {/* CTA — sends customers straight to the order intake page. */}
+          <div className="mt-10 flex justify-center">
+            <Link
+              href="/order-now"
+              className="inline-flex items-center justify-center gap-3 h-14 px-8 bg-amber-400 hover:bg-amber-300 text-black font-black uppercase tracking-widest text-sm rounded-2xl transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 cursor-pointer group/cta"
+              aria-label="Order Now"
+            >
+              <Sparkles className="w-4 h-4" aria-hidden="true" />
+              Order Now
+              <ArrowRight
+                className="w-4 h-4 transition-transform group-hover/cta:translate-x-1"
+                aria-hidden="true"
+              />
+            </Link>
           </div>
         </div>
       </div>
