@@ -77,7 +77,7 @@ export default function SignatureCharmSection() {
               aria-label="Order Now"
             >
               <Sparkles className="w-4 h-4" aria-hidden="true" />
-              Order Right Now
+              Order Now
               <ArrowRight
                 className="w-4 h-4 transition-transform group-hover/cta:translate-x-1"
                 aria-hidden="true"
