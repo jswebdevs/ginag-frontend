@@ -55,7 +55,7 @@ export default function GinaGHero({ heroConfig = {} }: GinaGHeroProps) {
               The radial mask softly fades the image edges into the section
               background so it blends instead of sitting on a hard rectangle. */}
           <div
-            className="relative mx-auto w-full max-w-3xl aspect-[16/9] sm:aspect-[2/1] mb-8"
+            className="relative mx-auto w-full max-w-3xl aspect-[16/9] sm:aspect-[2/1] mb-2"
             style={{
               WebkitMaskImage:
                 "radial-gradient(ellipse at center, #000 55%, rgba(0,0,0,0.85) 70%, rgba(0,0,0,0.4) 85%, transparent 100%)",
