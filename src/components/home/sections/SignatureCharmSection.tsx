@@ -23,7 +23,7 @@ export default function SignatureCharmSection() {
         <div className="absolute top-1/3 -right-32 w-96 h-96 bg-amber-500/[0.05] rounded-full blur-[120px]" />
       </div>
 
-      <div className="container mx-auto px-4 py-20 md:py-28 relative z-10">
+      <div className="container px-4 py-20 md:py-28 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           {/* Eyebrow */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-5 bg-amber-500/10 border border-amber-500/30 rounded-full">
@@ -49,24 +49,42 @@ export default function SignatureCharmSection() {
             <div className="h-px w-16 bg-gradient-to-l from-transparent to-amber-400/60" />
           </div>
 
-          {/* Description — three editorial paragraphs, fully centered. */}
-          <div className="space-y-6 text-center text-white/75 text-base md:text-lg leading-relaxed mx-auto">
+          {/* Description — three editorial paragraphs, left-aligned at 60% width. */}
+          <div className="space-y-6 text-white/75 text-base md:text-lg leading-relaxed mx-auto text-left w-[60%]">
             <p>
-              Turn your everyday bag into a statement of style with this{" "}
+              Turn your everyday bag into a statement of style with{" "}
               <strong className="text-amber-300 font-bold">
-                handcrafted multi-strand purse charm,
+                handcrafted multi-strand purse charms,
               </strong>{" "}
-              designed to add elegance, movement, and personality to your look.
+              thoughtfully designed to add elegance, movement, and personality to
+              your look.
             </p>
             <p>
-              These one-of-a-kind pieces flow with intention — bringing together
-              sophistication and bold expression in one beautiful accessory.
+              Each one-of-a-kind piece is created with intention, blending
+              sophistication and bold expression into a beautiful accessory that
+              stands out effortlessly.
             </p>
             <p>
               Finished with a durable gold-tone clasp and ring, this charm easily
               attaches to your favorite handbag, tote, or key set — instantly
               elevating your style from simple to standout.
             </p>
+            <ul className="pt-2 space-y-1.5 text-white/85">
+              <li>
+                <span className="text-amber-300 font-semibold">Price Range:</span>{" "}
+                $45.00 – $65.00
+              </li>
+              <li>
+                <span className="text-amber-300 font-semibold">Shipping:</span>{" "}
+                $12.00
+              </li>
+              <li>
+                <span className="text-amber-300 font-semibold">
+                  Electronic Payment Fee:
+                </span>{" "}
+                +$3.00
+              </li>
+            </ul>
           </div>
 
           {/* CTA — sends customers straight to the order intake page. */}
