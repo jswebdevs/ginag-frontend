@@ -90,12 +90,12 @@ export default function SignatureCharmSection() {
           {/* CTA — sends customers straight to the order intake page. */}
           <div className="mt-10 flex justify-center">
             <Link
-              href="/order-now"
+              href="/shop"
               className="inline-flex items-center justify-center gap-3 h-14 px-8 bg-amber-400 hover:bg-amber-300 text-black font-black uppercase tracking-widest text-sm rounded-2xl transition-all shadow-lg shadow-amber-500/20 hover:shadow-amber-500/40 cursor-pointer group/cta"
               aria-label="Order Now"
             >
               <Sparkles className="w-4 h-4" aria-hidden="true" />
-              Order Now
+              View Products
               <ArrowRight
                 className="w-4 h-4 transition-transform group-hover/cta:translate-x-1"
                 aria-hidden="true"
