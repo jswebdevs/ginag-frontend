@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPageBySlug } from "@/lib/getSettings";
 import AboutTemplate from "@/components/templates/AboutTemplate";
@@ -15,8 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 async function AboutContent() {
     const page = await getPageBySlug("about-us");
-    if (!page) notFound();
-    return <AboutTemplate data={page} />;
+    const data = page || { title: "About Us", featuredImage: "", content: [] };
+    return <AboutTemplate data={data} />;
 }
 
 export default function AboutUsPage() {

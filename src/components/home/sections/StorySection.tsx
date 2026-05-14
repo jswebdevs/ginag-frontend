@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Heart, Sparkles, Star } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import api from "@/lib/axios";
 
 export default function StorySection({ data: initialData }: { data?: any }) {
@@ -43,11 +43,9 @@ export default function StorySection({ data: initialData }: { data?: any }) {
   if (!data) return null;
 
   const content = data;
-  const IconMap: Record<string, any> = { Heart, Star, Sparkles };
 
   const title = content.title || "Our Story";
   const paragraphs = content.paragraphs || [];
-  const highlights = content.highlights || [];
 
   return (
     <section className="py-24 bg-background text-foreground relative overflow-hidden transition-colors duration-500">
@@ -117,31 +115,6 @@ export default function StorySection({ data: initialData }: { data?: any }) {
             </div>
           </motion.div>
 
-          {/* Highlight pills */}
-          {highlights.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-wrap justify-center gap-6 mt-12"
-            >
-              {highlights.map((item: any, i: number) => {
-                const Icon = IconMap[item.icon] || Sparkles;
-                return (
-                  <motion.div
-                    key={item.label}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.4 + i * 0.1 }}
-                    className="flex items-center gap-3 px-6 py-3 bg-muted/30 border border-border/50 rounded-full"
-                  >
-                    <Icon className="w-4 h-4 text-primary" />
-                    <span className="text-sm font-bold text-foreground uppercase tracking-tight">{item.label}</span>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          )}
         </div>
       </div>
     </section>

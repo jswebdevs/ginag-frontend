@@ -8,11 +8,6 @@ import { getHomepageConfig, getFeaturedProducts } from "@/lib/getSettings";
 // They still SSR (default), just shipped in their own chunks.
 const FeaturedProducts = dynamic(() => import("@/components/home/products/FeaturedProducts"));
 const StorySection = dynamic(() => import("@/components/home/sections/StorySection"));
-const HowItWorks = dynamic(() => import("@/components/home/sections/HowItWorks"));
-const GoogleReviewsSection = dynamic(
-  () => import("@/components/home/reviews/GoogleReviewsSection"),
-);
-const FAQSection = dynamic(() => import("@/components/home/sections/FAQSection"));
 
 export default async function Home() {
   const [hp, products] = await Promise.all([getHomepageConfig(), getFeaturedProducts()]);
@@ -26,9 +21,6 @@ export default async function Home() {
       <SignatureCharmSection />
       <FeaturedProducts initialProducts={products} />
       <StorySection data={hp.story} />
-      <HowItWorks data={hp.howItWorks} whatsappLink={whatsappLink} />
-      <GoogleReviewsSection />
-      <FAQSection data={hp.faq} />
     </main>
   );
 }
