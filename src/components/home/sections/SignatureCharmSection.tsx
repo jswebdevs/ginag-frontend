@@ -72,7 +72,7 @@ export default function SignatureCharmSection() {
             <ul className="pt-2 space-y-1.5 text-white/85">
               <li>
                 <span className="text-amber-300 font-semibold">Price Range:</span>{" "}
-                $50.00 – $70.00
+                $45.00 – $70.00
               </li>
               <li>
                 <span className="text-amber-300 font-semibold">Shipping:</span>{" "}

@@ -32,9 +32,20 @@ interface CustomOrder {
   initial: string | null;
   deliveryMethod: "PICKUP" | "MAILING";
   mailingAddress: string | null;
+  signature: string | null;
+  signatureDate: string | null;
   notes: string | null;
   status: OrderStatus;
   createdAt: string;
+}
+
+const formatSignatureDate = (iso: string | null): string => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+  return `${day}/${month}/${d.getUTCFullYear()}`;
 }
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
@@ -501,6 +512,23 @@ function ViewModal({
               </p>
             )}
           </Field>
+
+          {(order.signature || order.signatureDate) && (
+            <Field label="Signature">
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-foreground">
+                {order.signature && (
+                  <span className="font-medium" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                    {order.signature}
+                  </span>
+                )}
+                {order.signatureDate && (
+                  <span className="text-muted-foreground">
+                    Date: {formatSignatureDate(order.signatureDate)}
+                  </span>
+                )}
+              </div>
+            </Field>
+          )}
 
           {order.notes && (
             <Field label="Notes">

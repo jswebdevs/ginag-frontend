@@ -62,41 +62,42 @@ export default async function Footer() {
             <FooterSocials links={socialLinks} />
           </div>
 
-          {/* COLUMN 2: ABOUT US */}
-          <div className="lg:col-span-2">
-            <h3 className="text-heading font-bold mb-6 text-sm uppercase tracking-widest">
-              About Us
-            </h3>
-            <Link
-              href="/about-us"
-              className="inline-flex items-center gap-2 text-subheading hover:text-primary text-sm font-medium transition-colors group"
-            >
-              <span>Read our story</span>
-              <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
-            </Link>
-          </div>
+          {/* COLUMN 2: ABOUT US + RETURN POLICY */}
+          <div className="lg:col-span-6 space-y-8">
+            <div>
+              <h3 className="text-heading font-bold mb-6 text-sm uppercase tracking-widest">
+                About Us
+              </h3>
+              <Link
+                href="/about-us"
+                className="inline-flex items-center gap-2 text-subheading hover:text-primary text-sm font-medium transition-colors group"
+              >
+                <span>Read our story</span>
+                <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+            </div>
 
-          {/* COLUMN 3: RETURN POLICY */}
-          <div className="lg:col-span-4">
-            <h3 className="text-heading font-bold mb-6 text-sm uppercase tracking-widest">
-              Return Policy
-            </h3>
-            <div className="space-y-3 text-xs text-muted-foreground leading-relaxed font-medium">
-              <p>
-                All GG Purse Decor products are custom-made especially for you.
-                Due to the personalized nature of our items, we do not accept
-                returns or exchanges unless the item arrives damaged.
-              </p>
-              <p>
-                If your item is damaged during delivery, please contact us
-                within <span className="text-foreground font-bold">48 hours</span>{" "}
-                of receiving your order and include a photo of the damage. Once
-                verified, we will gladly replace the item.
-              </p>
+            <div>
+              <h3 className="text-heading font-bold mb-6 text-sm uppercase tracking-widest">
+                Return Policy
+              </h3>
+              <div className="space-y-3 text-xs text-muted-foreground leading-relaxed font-medium">
+                <p>
+                  All GG Purse Decor products are custom-made especially for you.
+                  Due to the personalized nature of our items, we do not accept
+                  returns or exchanges unless the item arrives damaged.
+                </p>
+                <p>
+                  If your item is damaged during delivery, please contact us
+                  within <span className="text-foreground font-bold">48 hours</span>{" "}
+                  of receiving your order and include a photo of the damage. Once
+                  verified, we will gladly replace the item.
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* COLUMN 4: CONTACT US */}
+          {/* COLUMN 3: CONTACT US */}
           <div className="lg:col-span-3">
             <h3 className="text-heading font-bold mb-6 text-sm uppercase tracking-widest">
               Contact Us

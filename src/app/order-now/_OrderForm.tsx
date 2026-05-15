@@ -23,6 +23,15 @@ const Schema = z
     initial: z.string().max(20).optional().or(z.literal("")),
     deliveryMethod: z.enum(["PICKUP", "MAILING"], { message: "Choose pick up or mailing" }),
     mailingAddress: z.string().max(2000).optional().or(z.literal("")),
+    signature: z.string().max(200).optional().or(z.literal("")),
+    signatureDate: z
+      .string()
+      .optional()
+      .or(z.literal(""))
+      .refine(
+        (v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(v),
+        "Enter a valid date",
+      ),
   })
   .superRefine((data, ctx) => {
     if (data.addInitial && (!data.initial || !data.initial.trim())) {
@@ -103,6 +112,8 @@ export default function OrderForm() {
       initial: "",
       deliveryMethod: "PICKUP",
       mailingAddress: "",
+      signature: "",
+      signatureDate: "",
     },
   });
 
@@ -303,6 +314,26 @@ export default function OrderForm() {
           <p className="text-[11px] text-red-400">{errors.mailingAddress.message}</p>
         )}
       </div>
+
+      <HeartDivider />
+
+      {/* Signature */}
+      <UnderlineField
+        label="Signature"
+        error={errors.signature?.message}
+        layout="inline"
+        autoComplete="name"
+        {...register("signature")}
+      />
+
+      {/* Date — dd/mm/yyyy (HTML5 date input emits yyyy-mm-dd; backend reformats) */}
+      <UnderlineField
+        label="Date"
+        error={errors.signatureDate?.message}
+        layout="inline"
+        type="date"
+        {...register("signatureDate")}
+      />
 
       {/* Submit */}
       <button
