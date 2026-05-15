@@ -138,28 +138,28 @@ export default function OrderHero({ hero }: { hero: HeroData }) {
         {/* Bottom image — full height, 60% width, anchored at bottom-left, with a soft radial mask that fades the top and right edges into the black background */}
         {hero.bottomImageUrl && (
           <div
-            className="absolute left-0 bottom-0 w-[60%] h-full z-0"
+            className="absolute left-0 bottom-0 w-full md:w-[60%] h-full z-0"
             style={{
               WebkitMaskImage:
-                "radial-gradient(ellipse 110% 110% at 0% 100%, black 55%, transparent 100%)",
+                "radial-gradient(ellipse 110% 110% at 50% 100%, black 55%, transparent 100%)",
               maskImage:
-                "radial-gradient(ellipse 110% 110% at 0% 100%, black 55%, transparent 100%)",
+                "radial-gradient(ellipse 110% 110% at 50% 100%, black 55%, transparent 100%)",
             }}
           >
             <Image
               src={hero.bottomImageUrl}
               alt=""
               fill
-              sizes="(max-width: 768px) 60vw, 250px"
-              className="object-cover object-left-bottom"
+              sizes="(max-width: 768px) 100vw, 250px"
+              className="object-cover object-bottom md:object-bottom-left"
             />
           </div>
         )}
 
-        {/* Right column — z-10 above the image so they can overlap. Centered vertically with a wider gap between blocks. */}
-        <div className="relative z-10 h-full flex flex-col items-end justify-center gap-8 md:gap-10 pr-3">
+        {/* Right column — z-10 above the image so they can overlap. Centered on mobile, right-aligned on PC. */}
+        <div className="relative z-10 h-full flex flex-col items-center md:items-end justify-center gap-8 md:gap-10 px-3 md:pl-0 md:pr-3">
           {/* Row 1: To order + contact */}
-          <div className="text-center max-w-[60%]">
+          <div className="text-center max-w-full md:max-w-[60%]">
             <p
               className="text-4xl md:text-5xl italic font-black mb-2 leading-none"
               style={{ color: GOLD, fontFamily: "'Brush Script MT', 'Pinyon Script', cursive" }}
