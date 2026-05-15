@@ -449,10 +449,7 @@ const UnderlineField = React.forwardRef<HTMLInputElement, UnderlineFieldProps>(
     if (layout === "inline") {
       return (
         <div className="space-y-0.5">
-          <div
-            className="flex items-baseline gap-2 border-b-2 pb-0.5"
-            style={{ borderBottomColor: GOLD }}
-          >
+          <div className="flex items-baseline gap-2">
             <span
               className="text-[13px] md:text-sm shrink-0 leading-none"
               style={{ color: "#fff", fontFamily: "serif" }}
@@ -463,7 +460,8 @@ const UnderlineField = React.forwardRef<HTMLInputElement, UnderlineFieldProps>(
             <input
               ref={ref}
               {...rest}
-              className={`flex-1 w-full bg-transparent border-0 outline-none px-0 py-0 text-white text-[15px] leading-none placeholder:text-white/30 ${className}`}
+              className={`flex-1 w-full bg-transparent border-0 border-b-2 outline-none px-0 pt-0 pb-0.5 text-white text-[15px] leading-none placeholder:text-white/30 ${className}`}
+              style={{ borderBottomColor: GOLD }}
             />
           </div>
           {error && <p className="text-[11px] text-red-400 pl-1">{error}</p>}
