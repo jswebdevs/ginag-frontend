@@ -178,32 +178,40 @@ export default function Navbar({ initialSettings }: NavbarProps) {
   return (
     <>
       <nav className="sticky top-0 z-40 w-full bg-gradient-theme border-b border-border shadow-theme-sm">
-        <div className="container mx-auto px-4 h-16 md:h-20 flex items-center justify-between gap-4">
+        <div className="container mx-auto px-4 h-16 md:h-20 relative flex items-center justify-between gap-4">
 
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsDrawerOpen(true)} className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors" aria-label="Open menu" title="Menu">
-              <LuMenu className="w-6 h-6" />
-            </button>
+          {/* Bars — mobile only, sits on the left */}
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="md:hidden p-1 -ml-1 text-foreground hover:text-primary transition-colors"
+            aria-label="Open menu"
+            title="Menu"
+          >
+            <LuMenu className="w-6 h-6" />
+          </button>
 
-            <Link href="/" className="relative flex items-center gap-2">
-              {loadingSettings && !storeName && !storeLogo ? (
-                <div className="h-8 md:h-10 w-32 bg-muted/40 rounded-lg animate-pulse" />
-              ) : storeLogo ? (
-                <img
-                  src={storeLogo}
-                  alt={`${storeName} Logo`}
-                  className="h-8 md:h-10 w-auto max-w-40 object-contain"
-                />
-              ) : (
-                <div className="flex items-center gap-2 text-primary">
-                  <div className="flex flex-col">
-                    <span className="font-black text-xl tracking-tight leading-none">{storeName}</span>
-                    {storeTagline && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{storeTagline}</span>}
-                  </div>
+          {/* Logo — mobile: absolute-centered & slightly larger; desktop: regular flex item on the left */}
+          <Link
+            href="/"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 md:static md:translate-x-0 md:translate-y-0 flex items-center gap-2"
+          >
+            {loadingSettings && !storeName && !storeLogo ? (
+              <div className="h-11 md:h-10 w-32 bg-muted/40 rounded-lg animate-pulse" />
+            ) : storeLogo ? (
+              <img
+                src={storeLogo}
+                alt={`${storeName} Logo`}
+                className="h-11 md:h-10 w-auto max-w-44 md:max-w-40 object-contain"
+              />
+            ) : (
+              <div className="flex items-center gap-2 text-primary">
+                <div className="flex flex-col items-center md:items-start">
+                  <span className="font-black text-xl tracking-tight leading-none">{storeName}</span>
+                  {storeTagline && <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">{storeTagline}</span>}
                 </div>
-              )}
-            </Link>
-          </div>
+              </div>
+            )}
+          </Link>
 
           {/* Desktop Search Bar */}
           <div ref={searchRef} className="hidden md:flex flex-1 max-w-xl relative mx-4">
@@ -321,6 +329,15 @@ export default function Navbar({ initialSettings }: NavbarProps) {
           </div>
 
           <div className="flex items-center gap-3 md:gap-5">
+            {/* Mobile-only compact Order Now */}
+            <Link
+              href="/order-now"
+              className="md:hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-primary-foreground font-bold text-xs tracking-tight shadow-theme-sm"
+            >
+              <LuClipboardList className="w-3.5 h-3.5" />
+              Order Now
+            </Link>
+
             <Link
               href="/order-now"
               className="hidden md:inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-bold text-sm tracking-tight shadow-theme-sm hover:shadow-theme-md hover:scale-105 transition-all"

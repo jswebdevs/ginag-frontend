@@ -242,24 +242,27 @@ export default function OrderForm() {
           Would you like an initial added?{" "}
           <span className="opacity-70 text-[10px] tracking-widest">(yes or no)</span>
         </SectionLabel>
-        <div className="flex items-center gap-3">
-          <label className="inline-flex items-center gap-2 cursor-pointer text-xs">
-            <input type="checkbox" {...register("addInitial")} className="sr-only peer" />
+        <div className="flex items-end gap-2">
+          <label className="inline-flex items-end gap-2 cursor-pointer shrink-0">
+            <input type="checkbox" {...register("addInitial")} className="sr-only" />
             <span
               className="w-4 h-4 border-2 flex items-center justify-center transition-colors"
               style={{ borderColor: GOLD }}
             >
               {addInitial && <span className="w-2 h-2" style={{ background: GOLD }} />}
             </span>
-            <span className="uppercase text-[10px] tracking-widest text-white/80">Add</span>
+            <span
+              className="text-[13px] md:text-sm leading-none"
+              style={{ color: "#fff", fontFamily: "serif" }}
+            >
+              Add Initial{addInitial && <span className="ml-0.5 opacity-60">*</span>}:
+            </span>
           </label>
-          <UnderlineField
-            label="Initial"
-            required={addInitial}
-            layout="inline"
+          <input
             {...register("initial")}
             maxLength={20}
-            className="uppercase tracking-[0.3em] flex-1"
+            className="flex-1 w-full bg-transparent border-0 border-b-2 outline-none px-0 pt-0 pb-0.5 text-white text-[15px] leading-none placeholder:text-white/30 uppercase tracking-[0.3em]"
+            style={{ borderBottomColor: GOLD }}
           />
         </div>
         {errors.initial && <p className="text-[11px] text-red-400">{errors.initial.message}</p>}

@@ -38,21 +38,6 @@ function HeartDivider({ className = "" }: { className?: string }) {
   );
 }
 
-function DiamondDivider({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`relative flex items-center justify-center gap-3 ${className}`}
-      aria-hidden="true"
-    >
-      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
-      <span className="text-[11px] leading-none tracking-normal" style={{ color: GOLD }}>
-        ◆
-      </span>
-      <span className="h-px flex-1" style={{ background: GOLD, opacity: 0.45 }} />
-    </div>
-  );
-}
-
 export default function OrderHero({ hero }: { hero: HeroData }) {
   return (
     <section className="relative bg-black text-white overflow-hidden flex flex-col justify-around p-2">
@@ -102,17 +87,6 @@ export default function OrderHero({ hero }: { hero: HeroData }) {
           </h1>
         )}
 
-        {/* PURSE DECOR — gold */}
-        <p
-          className="mt-2 text-xl md:text-2xl font-black uppercase tracking-[0.3em]"
-          style={{ color: GOLD, fontFamily: "'Cormorant Garamond', 'Playfair Display', serif" }}
-        >
-          Purse Decor
-        </p>
-
-        {/* Diamond divider */}
-        <DiamondDivider className="mt-2 w-full max-w-[260px]" />
-
         {/* CUSTOM CHARMS. TIMELESS STYLE. — gold */}
         <p
           className="mt-2 text-[11px] md:text-sm font-black uppercase tracking-[0.18em]"
@@ -138,13 +112,11 @@ export default function OrderHero({ hero }: { hero: HeroData }) {
         {/* Bottom image — full height, 60% width, anchored at bottom-left, with a soft radial mask that fades the top and right edges into the black background */}
         {hero.bottomImageUrl && (
           <div
-            className="absolute left-0 bottom-0 w-full md:w-[60%] h-full z-0"
-            style={{
-              WebkitMaskImage:
-                "radial-gradient(ellipse 110% 110% at 50% 100%, black 55%, transparent 100%)",
-              maskImage:
-                "radial-gradient(ellipse 110% 110% at 50% 100%, black 55%, transparent 100%)",
-            }}
+            className="absolute left-0 bottom-0 w-full md:w-[60%] h-full z-0
+              [mask-image:radial-gradient(ellipse_60%_110%_at_50%_100%,black_25%,transparent_100%)]
+              [-webkit-mask-image:radial-gradient(ellipse_60%_110%_at_50%_100%,black_25%,transparent_100%)]
+              md:[mask-image:radial-gradient(ellipse_110%_110%_at_0%_100%,black_55%,transparent_100%)]
+              md:[-webkit-mask-image:radial-gradient(ellipse_110%_110%_at_0%_100%,black_55%,transparent_100%)]"
           >
             <Image
               src={hero.bottomImageUrl}
